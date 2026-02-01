@@ -1,0 +1,38 @@
+from tqdm import tqdm
+
+from site import Domain
+from logger import configure_logging
+from model import Suburb, TravelTime, SavedLocations, Address, TravelMode
+from travel_times import get_travel_time
+
+thread_limit = 1
+
+
+def main():
+    configure_logging()
+    get_rentals()
+    populate_travel_times()
+
+
+def populate_travel_times():
+    saved_locations: list[SavedLocations] = list(SavedLocations.select())
+    for location in saved_locations:
+        all_addresses = set(Address.select())
+        done_addresses = set(Address.select().join(TravelTime).where(TravelTime.to_location == location))
+        need_to_do = all_addresses - done_addresses
+        for address in need_to_do:
+            time = get_travel_time(address.latitude, address.longitude, location.latitude, location.longitude)
+            TravelTime.create(address_id=address, travel_time=time, travel_mode=TravelMode.PT, to_location=location)
+
+
+def get_rentals():
+    domain = Domain()
+
+    listings = []
+    suburbs = list(Suburb.select().where(Suburb.distance_to_source < 1))
+    for suburb in tqdm(suburbs, desc="Searching suburbs", unit="location"):
+        listings.append(domain.search(suburb))
+
+
+if __name__ == "__main__":
+    main()

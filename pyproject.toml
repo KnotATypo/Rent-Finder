@@ -1,0 +1,19 @@
+[project]
+name = "house-hunter"
+version = "0.1.0"
+description = ""
+requires-python = ">=3.13"
+dependencies = [
+    "beautifulsoup4>=4.12.3",
+    "selenium>=4.23.1",
+    "geopy>=2.4.1",
+    "tqdm>=4.66.5",
+    "nicegui>=2.1.0",
+    "openrouteservice>=2.3.3",
+    "requests>=2.32.3",
+    "peewee>=3.19.0",
+    "psycopg2-binary>=2.9.11",
+    "peewee-enum-field>=0.2.0",
+    "selenium-stealth>=1.0.6",
+    "bs4>=0.0.2",
+]
