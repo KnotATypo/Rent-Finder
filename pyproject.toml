@@ -1,7 +1,7 @@
 [project]
-name = "house-hunter"
+name = "rent-finder"
 version = "0.1.0"
-description = ""
+description = "A project for finding rental properties"
 requires-python = ">=3.13"
 dependencies = [
     "beautifulsoup4>=4.12.3",
@@ -14,3 +14,10 @@ dependencies = [
     "peewee-enum-field>=0.2.0",
     "selenium-stealth>=1.0.6",
 ]
+
+[project.scripts]
+search = "rent_finder.search:main"
+
+[build-system]
+requires = ["uv_build>=0.9.6,<0.10.0"]
+build-backend = "uv_build"

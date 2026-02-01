@@ -2,10 +2,10 @@ import requests
 from geopy.distance import geodesic
 from tqdm import tqdm
 
-from site import Domain
-from model import Suburb
-from logger import logger, configure_logging
-from util import new_browser
+from rent_finder.site import Domain
+from rent_finder.model import Suburb
+from rent_finder.logger import logger, configure_logging
+from rent_finder.util import new_browser
 
 
 def main():

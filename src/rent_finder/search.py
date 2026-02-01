@@ -1,9 +1,9 @@
 from tqdm import tqdm
 
-from site import Domain
-from logger import configure_logging
-from model import Suburb, TravelTime, SavedLocations, Address, TravelMode
-from travel_times import get_travel_time
+from rent_finder.site import Domain
+from rent_finder.logger import configure_logging
+from rent_finder.model import Suburb, TravelTime, SavedLocations, Address, TravelMode
+from rent_finder.travel_times import get_travel_time
 
 
 def main():
@@ -18,7 +18,7 @@ def populate_travel_times():
         all_addresses = set(Address.select())
         done_addresses = set(Address.select().join(TravelTime).where(TravelTime.to_location == location))
         need_to_do = all_addresses - done_addresses
-        for address in need_to_do:
+        for address in tqdm(need_to_do, desc="Calculating travel times", unit="addresses"):
             time = get_travel_time(address.latitude, address.longitude, location.latitude, location.longitude)
             TravelTime.create(address_id=address, travel_time=time, travel_mode=TravelMode.PT, to_location=location)
 

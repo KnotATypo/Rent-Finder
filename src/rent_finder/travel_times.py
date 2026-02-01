@@ -5,7 +5,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.wait import WebDriverWait
 
-from util import new_browser
+from rent_finder.util import new_browser
 
 
 def get_travel_time(lat1, lon1, lat2, lon2) -> int:

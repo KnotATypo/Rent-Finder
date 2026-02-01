@@ -4,7 +4,7 @@ import time
 
 import requests
 
-from logger import logger
+from rent_finder.logger import logger
 
 
 class StatusException(Exception):

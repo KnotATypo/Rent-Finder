@@ -3,10 +3,10 @@ from typing import List
 
 from bs4 import BeautifulSoup, Tag
 
-from geocode_client import GeocodeClient
-from logger import logger
-from model import Listing, Suburb, Address
-from util import new_browser
+from rent_finder.geocode_client import GeocodeClient
+from rent_finder.logger import logger
+from rent_finder.model import Listing, Suburb, Address
+from rent_finder.util import new_browser
 
 
 class Site:
