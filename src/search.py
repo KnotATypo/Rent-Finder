@@ -5,8 +5,6 @@ from logger import configure_logging
 from model import Suburb, TravelTime, SavedLocations, Address, TravelMode
 from travel_times import get_travel_time
 
-thread_limit = 1
-
 
 def main():
     configure_logging()
@@ -29,7 +27,7 @@ def get_rentals():
     domain = Domain()
 
     listings = []
-    suburbs = list(Suburb.select().where(Suburb.distance_to_source < 1))
+    suburbs = list(Suburb.select().where(Suburb.distance_to_source < 15))
     for suburb in tqdm(suburbs, desc="Searching suburbs", unit="location"):
         listings.append(domain.search(suburb))
 

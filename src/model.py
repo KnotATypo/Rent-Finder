@@ -1,3 +1,4 @@
+import os
 from dataclasses import dataclass
 from enum import Enum
 
@@ -6,9 +7,9 @@ from peewee_enum_field import EnumField
 
 db = PostgresqlDatabase(
     "rent-finder",
-    user="josh",
-    password="password",
-    host="unraid.lan",
+    user=os.getenv("DB_USER"),
+    password=os.getenv("DB_PASS"),
+    host=os.getenv("DB_HOST"),
 )
 db.connect()
 
