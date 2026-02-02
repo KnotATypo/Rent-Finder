@@ -5,6 +5,7 @@ from typing import List
 
 import requests
 from bs4 import BeautifulSoup, Tag
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 
 from rent_finder.logger import logger
@@ -77,17 +78,15 @@ class Domain(Site):
 
         return Listing.create(id=listing_id, address_id=address_obj.id, price=price)
 
-    def download_blurb_and_images(self, listing: Listing):
+    def download_blurb_and_images(self, listing: Listing, browser):
         listing_path = get_listing_data_path(listing)
         if not os.path.exists(listing_path):
             os.mkdir(listing_path)
 
         link = self._get_listing_link(listing)
-        browser = new_browser(headless=False)
         browser.get(link)
 
         if not os.path.exists(listing_path + "/blurb.html"):
-            logger.info(f"Downloading {listing} blurb")
             browser.find_element(By.CSS_SELECTOR, 'button[data-testid="listing-details__description-button"]').click()
             soup = BeautifulSoup(browser.page_source, features="html.parser")
             tag = soup.find("div", attrs={"data-testid": "listing-details__description"})
@@ -95,9 +94,15 @@ class Domain(Site):
             with open(listing_path + "/blurb.html", "w") as f:
                 f.write(tag.contents[1].prettify())
 
-        browser.find_element(
-            By.CSS_SELECTOR, 'div[data-testid="listing-details__gallery-preview single-image-full"]'
-        ).click()
+        try:
+            browser.find_element(
+                By.CSS_SELECTOR, 'div[data-testid="listing-details__gallery-preview three-image-fixed"]'
+            ).click()
+        except NoSuchElementException:
+            # Some listings only have a single image at the top of the page
+            browser.find_element(
+                By.CSS_SELECTOR, 'div[data-testid="listing-details__gallery-preview single-image-full"]'
+            ).click()
         sleep(1)
 
         soup = BeautifulSoup(browser.page_source, features="html.parser")
@@ -105,15 +110,16 @@ class Domain(Site):
         total_page = int(footer.text.split(" / ")[1])
         for i in range(total_page):
             if not os.path.exists(listing_path + f"/{i}.webp"):
-                logger.info(f"Downloading {listing} image {i}")
                 soup = BeautifulSoup(browser.page_source, features="html.parser")
                 tag = soup.find("div", attrs={"data-testid": "pswp-current-item"})
                 images = tag.find_all("img")
-                # There are two images in this tag, one of which is the thumbnail marked by "--placeholder"
-                image = [image for image in images if "--placeholder" not in str(image)][0]
-                image_data = requests.get(image["src"]).content
-                with open(listing_path + f"/{i}.webp", "wb") as f:
-                    f.write(image_data)
+                # Some listings contain videos and won't return any images
+                if images:
+                    # There are two images typically, one of which is the thumbnail marked by "--placeholder"
+                    image = [image for image in images if "--placeholder" not in str(image)][0]
+                    image_data = requests.get(image["src"]).content
+                    with open(listing_path + f"/{i}.webp", "wb") as f:
+                        f.write(image_data)
 
             browser.find_element(By.CSS_SELECTOR, 'button[title="Next (arrow right)"]').click()
 
