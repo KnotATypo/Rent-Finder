@@ -10,6 +10,7 @@ app.secret_key = "super secret key"
 
 DATA_DIR = os.getenv("DATA_DIR")
 
+
 @app.route("/")
 def index():
     # list available listing ids (folders in data)
@@ -41,14 +42,13 @@ def listing(listing_id):
         images.append((idx, fname))
 
     images.sort(key=lambda x: x[0])
-    first_image = images[0][1]
 
-    image_url = url_for('serve_data', listing_id=listing_id, filename=first_image)
+    image_urls = [url_for("serve_data", listing_id=listing_id, filename=f) for f in [t[1] for t in images]]
 
-    return render_template('listing.html', listing_id=listing_id, blurb_html=blurb_html, image_url=image_url)
+    return render_template("listing.html", listing_id=listing_id, blurb_html=blurb_html, image_urls=image_urls)
 
 
-@app.route('/data/<listing_id>/<path:filename>')
+@app.route("/data/<listing_id>/<path:filename>")
 def serve_data(listing_id, filename):
     listing_path = DATA_DIR + f"/{listing_id}"
     if not os.path.isdir(listing_path):
