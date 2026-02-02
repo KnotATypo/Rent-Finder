@@ -18,8 +18,8 @@ def new_browser(headless=True) -> webdriver.Chrome:
     headless -- Sets the headless options for the browser (default True)
     """
     options = Options()
-    if headless:
-        options.add_argument("--headless")
+    # if headless:
+    #     options.add_argument("--headless")
 
     # Flag needed to run in Docker
     options.add_argument("--no-sandbox")

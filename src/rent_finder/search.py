@@ -1,10 +1,13 @@
+import os.path
+
 from tqdm import tqdm
 
 from rent_finder.logger import configure_logging
+from rent_finder.logger import logger
 from rent_finder.model import Suburb, TravelTime, SavedLocations, Address, TravelMode, Listing
 from rent_finder.sites.domain import Domain
 from rent_finder.travel_times import get_travel_time
-from rent_finder.logger import logger
+from rent_finder.util import get_listing_data_path, new_browser
 
 
 def main():
@@ -12,8 +15,7 @@ def main():
     logger.info("Starting search")
     # get_rentals()
     # populate_travel_times()
-    domain = Domain()
-    domain.download_blurb_and_images(list(Listing.select())[0])
+    download_extras()
     logger.info("Finished search")
 
 
@@ -35,6 +37,17 @@ def populate_travel_times():
         for address in tqdm(need_to_do, desc="Calculating travel times", unit="addresses"):
             time = get_travel_time(address.latitude, address.longitude, location.latitude, location.longitude)
             TravelTime.create(address_id=address, travel_time=time, travel_mode=TravelMode.PT, to_location=location)
+
+
+def download_extras():
+    domain = Domain()
+    listings = [
+        listing for listing in Listing.select() if not os.path.exists(get_listing_data_path(listing) + "/0.webp")
+    ]
+    browser = new_browser(headless=False)
+    for listing in tqdm(listings, desc="Downloading extras", unit="listings", total=len(listings)):
+        domain.download_blurb_and_images(listing, browser)
+    browser.close()
 
 
 if __name__ == "__main__":
