@@ -15,8 +15,8 @@ class Domain(Site):
     def get_page(self, page_num: int, browser, suburb: Suburb) -> List[Listing]:
         listings = []
 
-        search_id = self.get_suburb_id(suburb)
-        browser.get(f"https://www.domain.com.au/rent/{search_id}/?excludedeposittaken=1&page={page_num}&ssubs=0")
+        search_link = self.get_search_link(browser, page_num)
+        browser.get(search_link)
         soup = BeautifulSoup(browser.page_source, "html.parser")
         cards = soup.find_all(attrs={"data-testid": re.compile(r"^listing-card-wrapper")})
 
@@ -25,7 +25,7 @@ class Domain(Site):
                 listing = self.create_listing(card)
                 listings.append(listing)
             except Exception as e:
-                logger.warning(f"{search_id} - {type(e).__name__}: {e}")
+                logger.warning(f"{search_link} - {type(e).__name__}: {e}")
 
         return listings
 
@@ -72,23 +72,17 @@ class Domain(Site):
 
         return Listing.create(id=listing_id, address_id=address_obj.id, price=price)
 
-    def get_suburb_id(self, suburb: Suburb) -> str:
-        return f"{suburb.name.lower().replace(' ', '-')}-qld-{suburb.postcode}"
+    def get_search_link(self, suburb: Suburb, page_number: int) -> str:
+        suburb_id = f"{suburb.name.lower().replace(' ', '-')}-qld-{suburb.postcode}"
+        return f"https://www.domain.com.au/rent/{suburb_id}/?excludedeposittaken=1&page={page_number}&ssubs=0"
+
+    def get_listing_link(self, listing: Listing) -> str:
+        address = Address.get(Address.id == listing.address_id)
+        new_addresses = re.sub(r"[/ ,]+", "-", address.address)
+        return f"https://www.domain.com.au/{new_addresses}-{listing.id}"
 
     def page_exists(self, driver, location: str) -> bool:
         driver.get(f"https://www.domain.com.au/rent/{location}/?excludedeposittaken=1&page=1&ssubs=0")
         soup = BeautifulSoup(driver.page_source, "html.parser")
         summary = soup.find_all(attrs={"data-testid": "summary"})
         return len(summary) > 0
-
-    @staticmethod
-    def get_link(listing: Listing) -> str:
-        address = (
-            listing.address.lower()
-            .replace(" ", "-")
-            .replace("/", "-")
-            .replace(":", "-")
-            .replace(",", "-")
-            .replace("--", "-")
-        )
-        return f"https://www.domain.com.au/{address}-{listing.domain_id}"

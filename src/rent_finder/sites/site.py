@@ -28,6 +28,12 @@ class Site:
 
         return listings
 
+    def get_search_link(self, suburb: Suburb, page_number: int) -> str:
+        raise NotImplementedError
+
+    def get_listing_link(self, listing: Listing) -> str:
+        raise NotImplementedError
+
     def get_page(self, page_num: int, browser, suburb: Suburb) -> List[Listing]:
         raise NotImplementedError
 
@@ -35,7 +41,4 @@ class Site:
         raise NotImplementedError
 
     def page_exists(self, driver, location: str) -> bool:
-        raise NotImplementedError
-
-    def get_suburb_id(self, suburb: Suburb) -> str:
         raise NotImplementedError
