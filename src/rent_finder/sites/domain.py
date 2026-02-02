@@ -11,7 +11,7 @@ from selenium.webdriver.common.by import By
 from rent_finder.logger import logger
 from rent_finder.model import Suburb, Listing, Address
 from rent_finder.sites.site import Site
-from rent_finder.util import new_browser, get_listing_data_path
+from rent_finder.util import new_browser, get_listing_path
 
 
 class Domain(Site):
@@ -79,7 +79,7 @@ class Domain(Site):
         return Listing.create(id=listing_id, address_id=address_obj.id, price=price)
 
     def download_blurb_and_images(self, listing: Listing, browser):
-        listing_path = get_listing_data_path(listing)
+        listing_path = get_listing_path(listing.id)
         if not os.path.exists(listing_path):
             os.mkdir(listing_path)
 

@@ -1,14 +1,14 @@
 import os
+from pathlib import Path
 
+from rent_finder.model import Listing
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium_stealth import stealth
 
-from rent_finder.model import Listing
 
-
-def get_listing_data_path(listing: Listing) -> str:
-    return os.getenv("DATA_DIR") + "/" + listing.id
+def get_listing_path(listing_id: str) -> Path:
+    return os.getenv("DATA_DIR") + "/" + listing_id
 
 
 def new_browser(headless=True) -> webdriver.Chrome:

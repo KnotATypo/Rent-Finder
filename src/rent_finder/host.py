@@ -3,6 +3,8 @@ import os
 from flask import Flask, render_template
 from flask import send_from_directory, url_for, abort
 from rent_finder.logger import logger, configure_logging
+from rent_finder.model import Address, Listing
+from rent_finder.util import get_listing_path
 from waitress import serve
 
 app = Flask(__name__)
@@ -13,21 +15,14 @@ DATA_DIR = os.getenv("DATA_DIR")
 
 @app.route("/")
 def index():
-    # list available listing ids (folders in data)
-    listings = []
-    for name in sorted(os.listdir(DATA_DIR)):
-        path = DATA_DIR + f"/{name}"
-        if os.path.isdir(path):
-            listings.append(name)
+    # Filtering out the listings that haven't had their images downloaded (for now)
+    listings = [listing for listing in Listing.select() if os.path.exists(get_listing_path(listing.id))]
     return render_template("index.html", listings=listings)
 
 
 @app.route("/listing/<listing_id>")
 def listing(listing_id):
-    # Build path to listing folder
-    listing_path = DATA_DIR + f"/{listing_id}"
-    if not os.path.isdir(listing_path):
-        abort(404)
+    listing_path = get_listing_path(listing_id)
 
     with open(listing_path + "/blurb.html", "r", encoding="utf-8") as f:
         blurb_html = f.read()
@@ -43,22 +38,14 @@ def listing(listing_id):
 
     images.sort(key=lambda x: x[0])
 
-    image_urls = [url_for("serve_data", listing_id=listing_id, filename=f) for f in [t[1] for t in images]]
+    image_urls = [url_for("serve_data", listing_id=listing_id, filename=image[1]) for image in images]
 
     return render_template("listing.html", listing_id=listing_id, blurb_html=blurb_html, image_urls=image_urls)
 
 
 @app.route("/data/<listing_id>/<path:filename>")
 def serve_data(listing_id, filename):
-    listing_path = DATA_DIR + f"/{listing_id}"
-    if not os.path.isdir(listing_path):
-        abort(404)
-
-    file_path = listing_path + f"/{filename}"
-    if not os.path.isfile(file_path):
-        abort(404)
-
-    return send_from_directory(listing_path, filename)
+    return send_from_directory(get_listing_path(listing_id), filename)
 
 
 def host():

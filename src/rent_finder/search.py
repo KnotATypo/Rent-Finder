@@ -7,7 +7,7 @@ from rent_finder.logger import logger
 from rent_finder.model import Suburb, TravelTime, SavedLocations, Address, TravelMode, Listing
 from rent_finder.sites.domain import Domain
 from rent_finder.travel_times import get_travel_time
-from rent_finder.util import get_listing_data_path, new_browser
+from rent_finder.util import get_listing_path, new_browser
 
 
 def main():
@@ -41,9 +41,7 @@ def populate_travel_times():
 
 def download_extras():
     domain = Domain()
-    listings = [
-        listing for listing in Listing.select() if not os.path.exists(get_listing_data_path(listing) + "/0.webp")
-    ]
+    listings = [listing for listing in Listing.select() if not os.path.exists(get_listing_path(listing.id) + "/0.webp")]
     browser = new_browser(headless=False)
     for listing in tqdm(listings, desc="Downloading extras", unit="listings", total=len(listings)):
         domain.download_blurb_and_images(listing, browser)

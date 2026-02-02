@@ -10,8 +10,8 @@
 <h1>Listings</h1>
 {% if listings %}
     <ul>
-        {% for id in listings %}
-            <li><a href="{{ url_for('listing', listing_id=id) }}">Listing {{ id }}</a></li>
+        {% for listing in listings %}
+            <li><a href="{{ url_for('listing', listing_id=listing.id) }}">Listing {{ listing.id }}</a></li>
         {% endfor %}
     </ul>
 {% else %}
