@@ -1,4 +1,3 @@
-/* Shared site styles for Rent Finder */
 body {
   font-family: Arial, sans-serif;
   max-width: 900px;
@@ -11,13 +10,30 @@ ul { list-style: none; padding: 0; }
 li { margin: 8px 0; }
 a { color: #0366d6; text-decoration: none; }
 
-/* Listing page */
-.hero { display: flex; gap: 20px; align-items: flex-start; }
-.hero img { max-width: 480px; height: auto; border: 1px solid #ccc; }
-.blurb { flex: 1; }
 
-.no-image {
-  width: 480px;
+body .hero {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  flex-direction: column;
+}
+
+body .hero img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  border: 1px solid #ccc;
+}
+
+body .blurb {
+  flex: 1;
+  margin-top: 12px;
+}
+
+body .no-image {
+  width: 100%;
+  max-width: 100%;
   height: 320px;
   background: #eee;
   display: flex;
@@ -25,4 +41,15 @@ a { color: #0366d6; text-decoration: none; }
   justify-content: center;
   color: #666;
   border: 1px solid #ddd;
+}
+
+@media (min-width: 700px) {
+  body .hero img,
+  body .no-image {
+    width: 480px;
+    max-width: 480px;
+  }
+  body .blurb {
+    margin-top: 0;
+  }
 }

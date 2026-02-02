@@ -2,6 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Listing {{ listing_id }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   </head>
@@ -9,7 +10,7 @@
     <a href="{{ url_for('index') }}">← Back to listings</a>
     <h1>Listing {{ listing_id }}</h1>
 
-    <div class="hero">
+    <div class="hero" style="display:flex;flex-direction:column;">
       {% if image_url %}
         <img src="{{ image_url }}" alt="Listing {{ listing_id }} image">
       {% else %}
