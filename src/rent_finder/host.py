@@ -41,7 +41,9 @@ def listing(listing_id):
     image_urls = [url_for("serve_data", listing_id=listing_id, filename=image[1]) for image in images]
     listing = Listing.get(Listing.id == listing_id)
 
-    return render_template("listing.html", address=listing.address_id.address, blurb_html=blurb_html, image_urls=image_urls)
+    return render_template(
+        "listing.html", listing=listing, blurb_html=blurb_html, image_urls=image_urls
+    )
 
 
 @app.route("/data/<listing_id>/<path:filename>")

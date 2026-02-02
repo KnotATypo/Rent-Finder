@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ address }}</title>
+    <title>{{ listing.address_id.address }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body class="listing-page">
@@ -12,11 +12,19 @@
         {% if image_urls %}
             {% for src in image_urls %}
                 <div class="carousel-slide">
-                    <img src="{{ src }}" alt="{{ address }} image {{ loop.index }}">
+                    <img src="{{ src }}" alt="{{ listing.address_id.address }} image {{ loop.index }}">
                 </div>
             {% endfor %}
             <button class="carousel-prev" aria-label="Previous">‹</button>
             <button class="carousel-next" aria-label="Next">›</button>
+
+            <!-- Caption overlaid above the dots and pinned to the left -->
+            <div class="carousel-footer" role="contentinfo" aria-label="Listing image caption">
+                <p class="carousel-footer__text">Beds: {{ listing.address_id.beds }}
+                    Baths: {{ listing.address_id.baths }} Cars: {{ listing.address_id.cars }} Price:
+                    ${{ listing.price }}</p>
+            </div>
+
             <div class="carousel-dots">
                 {% for _ in image_urls %}
                     <button class="dot" aria-label="Go to image {{ loop.index }}"></button>
@@ -29,8 +37,9 @@
 
     <div class="blurb">
         <a href="{{ url_for('index') }}">← Back to listings</a>
-        <h1><a href="https://www.google.com/maps/place/{{ address|replace(' ', '+')|replace('/', '%2F') }}"
-               target="_blank" rel="noopener noreferrer">{{ address }}</a></h1>
+        <h1>
+            <a href="https://www.google.com/maps/place/{{ listing.address_id.address|replace(' ', '+')|replace('/', '%2F') }}"
+               target="_blank" rel="noopener noreferrer">{{ listing.address_id.address }}</a></h1>
         {% if blurb_html %}
             {{ blurb_html | safe }}
         {% else %}
