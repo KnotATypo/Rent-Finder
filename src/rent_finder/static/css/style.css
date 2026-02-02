@@ -284,9 +284,21 @@ body.listing-page .hero {
     bottom: calc(56px + 16px + env(safe-area-inset-bottom, 0px)); /* sit above the dots; respect safe area */
     z-index: 45; /* above dots/controls but within carousel stacking context */
     display: flex;
-    align-items: center;
-    gap: 8px;
+    flex-direction: column; /* stack price above the icon groups */
+    align-items: flex-start; /* pin content to left of the carousel */
+    gap: 6px;
     pointer-events: none; /* keep underlying controls clickable */
+}
+
+.carousel-footer__price {
+    background: rgba(0,0,0,0.75);
+    color: #fff;
+    padding: 8px 10px;
+    border-radius: 10px;
+    font-size: 18px; /* slightly larger */
+    font-weight: 600;
+    line-height: 1;
+    pointer-events: auto; /* allow selecting/copying if needed */
 }
 
 .carousel-footer__text {
@@ -296,6 +308,21 @@ body.listing-page .hero {
     border-radius: 8px;
     font-size: 14px;
     pointer-events: auto; /* allow selecting/copying text if needed */
+    text-align: left; /* align groups left when stacked */
+}
+
+/* Icon + number spacing inside the carousel footer */
+.carousel-footer__text > span {
+    display: inline-flex; /* keep groups inline but align items */
+    align-items: center;
+    gap: 8px; /* space between svg and the number */
+    margin-inline-end: 12px; /* space between each group (RTL-safe) */
+}
+
+.carousel-footer__text svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
 }
 
 @media (min-width: 700px) {
