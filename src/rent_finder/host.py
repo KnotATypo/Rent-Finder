@@ -16,7 +16,7 @@ DATA_DIR = os.getenv("DATA_DIR")
 @app.route("/")
 def index():
     # Filtering out the listings that haven't had their images downloaded (for now)
-    listings = [listing for listing in Listing.select() if os.path.exists(get_listing_path(listing.id))]
+    listings = [listing for listing in Listing.select().join(Address) if os.path.exists(get_listing_path(listing.id))]
     return render_template("index.html", listings=listings)
 
 
@@ -39,8 +39,9 @@ def listing(listing_id):
     images.sort(key=lambda x: x[0])
 
     image_urls = [url_for("serve_data", listing_id=listing_id, filename=image[1]) for image in images]
+    listing = Listing.get(Listing.id == listing_id)
 
-    return render_template("listing.html", listing_id=listing_id, blurb_html=blurb_html, image_urls=image_urls)
+    return render_template("listing.html", address=listing.address_id.address, blurb_html=blurb_html, image_urls=image_urls)
 
 
 @app.route("/data/<listing_id>/<path:filename>")

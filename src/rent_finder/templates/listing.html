@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Listing {{ listing_id }}</title>
+    <title>{{ address }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body class="listing-page">
@@ -12,7 +12,7 @@
         {% if image_urls %}
             {% for src in image_urls %}
                 <div class="carousel-slide">
-                    <img src="{{ src }}" alt="Listing {{ listing_id }} image {{ loop.index }}">
+                    <img src="{{ src }}" alt="{{ address }} image {{ loop.index }}">
                 </div>
             {% endfor %}
             <button class="carousel-prev" aria-label="Previous">‹</button>
@@ -29,7 +29,7 @@
 
     <div class="blurb">
         <a href="{{ url_for('index') }}">← Back to listings</a>
-        <h1>Listing {{ listing_id }}</h1>
+        <h1>{{ address }}</h1>
         {% if blurb_html %}
             {{ blurb_html | safe }}
         {% else %}
