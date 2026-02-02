@@ -53,7 +53,6 @@ class Listing(Model):
     id = TextField(primary_key=True)
     address_id = ForeignKeyField(Address)
     price = IntegerField()
-    blurb = TextField(null=True)
 
     class Meta:
         database = db

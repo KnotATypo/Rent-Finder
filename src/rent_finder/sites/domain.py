@@ -1,11 +1,14 @@
+import os.path
 import re
 from typing import List
 
 from bs4 import BeautifulSoup, Tag
+from selenium.webdriver.common.by import By
 
 from rent_finder.logger import logger
 from rent_finder.model import Suburb, Listing, Address
 from rent_finder.sites.site import Site
+from rent_finder.util import new_browser, get_listing_data_path
 
 
 class Domain(Site):
@@ -15,21 +18,21 @@ class Domain(Site):
     def get_page(self, page_num: int, browser, suburb: Suburb) -> List[Listing]:
         listings = []
 
-        search_link = self.get_search_link(browser, page_num)
+        search_link = self._get_search_link(browser, page_num)
         browser.get(search_link)
         soup = BeautifulSoup(browser.page_source, "html.parser")
         cards = soup.find_all(attrs={"data-testid": re.compile(r"^listing-card-wrapper")})
 
         for card in cards:
             try:
-                listing = self.create_listing(card)
+                listing = self._create_listing(card)
                 listings.append(listing)
             except Exception as e:
                 logger.warning(f"{search_link} - {type(e).__name__}: {e}")
 
         return listings
 
-    def create_listing(self, card: Tag) -> Listing:
+    def _create_listing(self, card: Tag) -> Listing:
         address = card.find(attrs={"data-testid": "address-wrapper"})
         address = (
             address.find(attrs={"data-testid": "address-line1"}).text
@@ -72,11 +75,27 @@ class Domain(Site):
 
         return Listing.create(id=listing_id, address_id=address_obj.id, price=price)
 
-    def get_search_link(self, suburb: Suburb, page_number: int) -> str:
+    def download_blurb(self, listing: Listing):
+        if not os.path.exists(get_listing_data_path(listing)):
+            os.mkdir(get_listing_data_path(listing))
+
+        link = self._get_listing_link(listing)
+        browser = new_browser()
+        browser.get(link)
+
+        if not os.path.exists(get_listing_data_path(listing) + "/blurb.html"):
+            browser.find_element(By.CSS_SELECTOR, 'button[data-testid="listing-details__description-button"]').click()
+            soup = BeautifulSoup(browser.page_source, features="html.parser")
+            tag = soup.find_all("div", attrs={"data-testid": "listing-details__description"})
+
+            with open(get_listing_data_path(listing) + "/blurb.html", "w") as f:
+                f.write(tag[0].contents[1].prettify())
+
+    def _get_search_link(self, suburb: Suburb, page_number: int) -> str:
         suburb_id = f"{suburb.name.lower().replace(' ', '-')}-qld-{suburb.postcode}"
         return f"https://www.domain.com.au/rent/{suburb_id}/?excludedeposittaken=1&page={page_number}&ssubs=0"
 
-    def get_listing_link(self, listing: Listing) -> str:
+    def _get_listing_link(self, listing: Listing) -> str:
         address = Address.get(Address.id == listing.address_id)
         new_addresses = re.sub(r"[/ ,]+", "-", address.address)
         return f"https://www.domain.com.au/{new_addresses}-{listing.id}"

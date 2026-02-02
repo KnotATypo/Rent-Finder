@@ -1,15 +1,17 @@
 from tqdm import tqdm
 
 from rent_finder.logger import configure_logging
-from rent_finder.model import Suburb, TravelTime, SavedLocations, Address, TravelMode
+from rent_finder.model import Suburb, TravelTime, SavedLocations, Address, TravelMode, Listing
 from rent_finder.sites.domain import Domain
 from rent_finder.travel_times import get_travel_time
 
 
 def main():
     configure_logging()
-    get_rentals()
-    populate_travel_times()
+    # get_rentals()
+    # populate_travel_times()
+    domain = Domain()
+    domain.download_blurb(list(Listing.select())[0])
 
 
 def get_rentals():

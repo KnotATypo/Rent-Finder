@@ -16,8 +16,8 @@ def get_travel_time(lat1, lon1, lat2, lon2) -> int:
 def calculate_travel_time(link: str) -> int:
     browser = new_browser()
     browser.get(link)
+    # Need to maximise otherwise elements overlap
     browser.maximize_window()
-    browser.implicitly_wait(10)
 
     browser.find_element(By.CSS_SELECTOR, 'div[aria-label="Public transport"]').click()
     browser.find_element(By.XPATH, '//span[text()="Leave now"]').click()

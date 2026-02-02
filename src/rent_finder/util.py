@@ -1,6 +1,14 @@
+import os
+
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium_stealth import stealth
+
+from rent_finder.model import Listing
+
+
+def get_listing_data_path(listing: Listing) -> str:
+    return os.getenv("DATA_DIR") + "/" + listing.id
 
 
 def new_browser(headless=True) -> webdriver.Chrome:
@@ -10,8 +18,8 @@ def new_browser(headless=True) -> webdriver.Chrome:
     headless -- Sets the headless options for the browser (default True)
     """
     options = Options()
-    if headless:
-        options.add_argument("--headless")
+    # if headless:
+    #     options.add_argument("--headless")
 
     # Flag needed to run in Docker
     options.add_argument("--no-sandbox")
@@ -30,4 +38,5 @@ def new_browser(headless=True) -> webdriver.Chrome:
         fix_hairline=True,
     )
 
+    driver.implicitly_wait(10)
     return driver
