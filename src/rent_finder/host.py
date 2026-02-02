@@ -10,11 +10,11 @@ def index():
     return render_template("index.html")
 
 
-def start():
+def host():
     logger.info("Starting Flask app...")
     serve(app, host="0.0.0.0", port=4321)
 
 
 if __name__ == "__main__":
     configure_logging()
-    start()
+    host()
