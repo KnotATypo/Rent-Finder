@@ -43,6 +43,78 @@ body .no-image {
   border: 1px solid #ddd;
 }
 
+/* Listing-page specific: make hero-image fill the viewport on small screens */
+body.listing-page .hero-image {
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  width: 100vw;
+  height: 100vh; /* full viewport height */
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000; /* letterbox background when image doesn't fill area */
+}
+
+/* Show the whole image (no side cropping) */
+body.listing-page .hero-image img {
+  max-width: 100vw;
+  max-height: 100vh;
+  width: auto;
+  height: auto;
+  object-fit: contain; /* show whole image without cropping */
+  display: block;
+}
+
+/* subtle swipe-up indicator */
+body.listing-page .hero-image::after {
+  content: '\2191'; /* up arrow */
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  width: 36px;
+  height: 36px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  backdrop-filter: blur(4px);
+}
+
+/* keep the blurb visually separated */
+body.listing-page .blurb {
+  background: #fff;
+  padding: 16px;
+}
+
+/* Prevent scraped inline wrappers from clipping the blurb on listing pages */
+body.listing-page .noscript-expander-wrapper,
+body.listing-page .noscript-expander-content {
+  max-height: none;
+  overflow: visible;
+}
+
+/* Ensure listing pages are full-bleed and start at the very top (remove default page margin) */
+body.listing-page {
+  max-width: none;
+  margin: 0; /* remove the site-wide 40px margin on listing pages */
+  padding: 0; /* remove site padding so hero-image can reach the top */
+  overflow-x: hidden;
+}
+
+/* make sure hero has no accidental top margin */
+body.listing-page .hero {
+  margin-top: 0;
+  padding-top: 0;
+}
+
 @media (min-width: 700px) {
   body .hero img,
   body .no-image {
@@ -51,5 +123,26 @@ body .no-image {
   }
   body .blurb {
     margin-top: 0;
+  }
+
+  /* On desktop, revert to side-by-side; hero-image becomes normal-sized */
+  body.listing-page {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 16px;
+    overflow-x: visible;
+  }
+  body.listing-page .hero-image {
+    position: static;
+    margin: 0;
+    width: 480px;
+    height: auto;
+    align-items: flex-start;
+    background: transparent;
+  }
+  body.listing-page .hero-image img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
   }
 }
