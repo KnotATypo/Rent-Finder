@@ -3,44 +3,9 @@ from typing import List
 
 from bs4 import BeautifulSoup, Tag
 
-from rent_finder.geocode_client import GeocodeClient
 from rent_finder.logger import logger
-from rent_finder.model import Listing, Suburb, Address
-from rent_finder.util import new_browser
-
-
-class Site:
-    geocode_client: GeocodeClient
-
-    def __init__(self):
-        self.geocode_client = GeocodeClient()
-
-    def search(self, suburb: Suburb) -> List[Listing]:
-        listings = []
-        page_number = 0
-        browser = new_browser()
-        while True:
-            page_number += 1
-            page = self.get_page(page_number, browser, suburb)
-            if not page:
-                break
-
-            listings.extend(page)
-        browser.close()
-
-        return listings
-
-    def get_page(self, page_num: int, browser, suburb: Suburb) -> List[Listing]:
-        raise NotImplementedError
-
-    def create_listing(self, page_element: Tag) -> Listing:
-        raise NotImplementedError
-
-    def page_exists(self, driver, location: str) -> bool:
-        raise NotImplementedError
-
-    def get_suburb_id(self, suburb: Suburb) -> str:
-        raise NotImplementedError
+from rent_finder.model import Suburb, Listing, Address
+from rent_finder.sites.site import Site
 
 
 class Domain(Site):

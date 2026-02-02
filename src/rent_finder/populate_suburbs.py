@@ -2,7 +2,7 @@ import requests
 from geopy.distance import geodesic
 from tqdm import tqdm
 
-from rent_finder.site import Domain
+from rent_finder.sites.domain import Domain
 from rent_finder.model import Suburb
 from rent_finder.logger import logger, configure_logging
 from rent_finder.util import new_browser
