@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Listing {{ listing_id }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  </head>
+  <body>
+    <a href="{{ url_for('index') }}">← Back to listings</a>
+    <h1>Listing {{ listing_id }}</h1>
+
+    <div class="hero">
+      {% if image_url %}
+        <img src="{{ image_url }}" alt="Listing {{ listing_id }} image">
+      {% else %}
+        <div class="no-image">No image</div>
+      {% endif %}
+
+      <div class="blurb">
+        {% if blurb_html %}
+          {{ blurb_html | safe }}
+        {% else %}
+          <p>No blurb available for this listing.</p>
+        {% endif %}
+      </div>
+    </div>
+  </body>
+</html>
