@@ -1,7 +1,9 @@
 import os.path
 import re
+from time import sleep
 from typing import List
 
+import requests
 from bs4 import BeautifulSoup, Tag
 from selenium.webdriver.common.by import By
 
@@ -75,21 +77,45 @@ class Domain(Site):
 
         return Listing.create(id=listing_id, address_id=address_obj.id, price=price)
 
-    def download_blurb(self, listing: Listing):
-        if not os.path.exists(get_listing_data_path(listing)):
-            os.mkdir(get_listing_data_path(listing))
+    def download_blurb_and_images(self, listing: Listing):
+        listing_path = get_listing_data_path(listing)
+        if not os.path.exists(listing_path):
+            os.mkdir(listing_path)
 
         link = self._get_listing_link(listing)
-        browser = new_browser()
+        browser = new_browser(headless=False)
         browser.get(link)
 
-        if not os.path.exists(get_listing_data_path(listing) + "/blurb.html"):
+        if not os.path.exists(listing_path + "/blurb.html"):
+            logger.info(f"Downloading {listing} blurb")
             browser.find_element(By.CSS_SELECTOR, 'button[data-testid="listing-details__description-button"]').click()
             soup = BeautifulSoup(browser.page_source, features="html.parser")
-            tag = soup.find_all("div", attrs={"data-testid": "listing-details__description"})
+            tag = soup.find("div", attrs={"data-testid": "listing-details__description"})
 
-            with open(get_listing_data_path(listing) + "/blurb.html", "w") as f:
-                f.write(tag[0].contents[1].prettify())
+            with open(listing_path + "/blurb.html", "w") as f:
+                f.write(tag.contents[1].prettify())
+
+        browser.find_element(
+            By.CSS_SELECTOR, 'div[data-testid="listing-details__gallery-preview single-image-full"]'
+        ).click()
+        sleep(1)
+
+        soup = BeautifulSoup(browser.page_source, features="html.parser")
+        footer = soup.find("div", attrs={"data-testid": "pswp-thumbnails-carousel"})
+        total_page = int(footer.text.split(" / ")[1])
+        for i in range(total_page):
+            if not os.path.exists(listing_path + f"/{i}.webp"):
+                logger.info(f"Downloading {listing} image {i}")
+                soup = BeautifulSoup(browser.page_source, features="html.parser")
+                tag = soup.find("div", attrs={"data-testid": "pswp-current-item"})
+                images = tag.find_all("img")
+                # There are two images in this tag, one of which is the thumbnail marked by "--placeholder"
+                image = [image for image in images if "--placeholder" not in str(image)][0]
+                image_data = requests.get(image["src"]).content
+                with open(listing_path + f"/{i}.webp", "wb") as f:
+                    f.write(image_data)
+
+            browser.find_element(By.CSS_SELECTOR, 'button[title="Next (arrow right)"]').click()
 
     def _get_search_link(self, suburb: Suburb, page_number: int) -> str:
         suburb_id = f"{suburb.name.lower().replace(' ', '-')}-qld-{suburb.postcode}"

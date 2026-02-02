@@ -4,14 +4,17 @@ from rent_finder.logger import configure_logging
 from rent_finder.model import Suburb, TravelTime, SavedLocations, Address, TravelMode, Listing
 from rent_finder.sites.domain import Domain
 from rent_finder.travel_times import get_travel_time
+from rent_finder.logger import logger
 
 
 def main():
     configure_logging()
+    logger.info("Starting search")
     # get_rentals()
     # populate_travel_times()
     domain = Domain()
-    domain.download_blurb(list(Listing.select())[0])
+    domain.download_blurb_and_images(list(Listing.select())[0])
+    logger.info("Finished search")
 
 
 def get_rentals():
