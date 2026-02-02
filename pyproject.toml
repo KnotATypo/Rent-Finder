@@ -13,6 +13,8 @@ dependencies = [
     "psycopg2-binary>=2.9.11",
     "peewee-enum-field>=0.2.0",
     "selenium-stealth>=1.0.6",
+    "flask>=3.1.2",
+    "waitress>=3.0.2",
 ]
 
 [project.scripts]
