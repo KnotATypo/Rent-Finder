@@ -1,6 +1,6 @@
 import math
 from time import sleep
-from typing import List, Dict
+from typing import Dict, Set
 
 from bs4 import BeautifulSoup
 from selenium.webdriver.chrome.webdriver import WebDriver
@@ -11,7 +11,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from rent_finder.model import TravelMode
 
 
-def get_travel_times(lat1, lon1, lat2, lon2, travel_modes: List[TravelMode], browser) -> Dict[TravelMode, int]:
+def get_travel_times(lat1, lon1, lat2, lon2, travel_modes: Set[TravelMode], browser) -> Dict[TravelMode, int]:
     link = f"https://www.google.com/maps/dir/{lat1},{lon1}/{lat2},{lon2}"
     browser.get(link)
     times = {}

@@ -12,8 +12,8 @@ from rent_finder.util import new_browser
 def main():
     configure_logging()
     logger.info("Starting search")
-    # get_rentals()
-    # populate_travel_times()
+    get_rentals()
+    populate_travel_times()
     download_extras()
     logger.info("Finished search")
 
@@ -28,7 +28,7 @@ def get_rentals():
 
 
 def populate_travel_times():
-    modes = [TravelMode.PT, TravelMode.BIKE]
+    modes = {TravelMode.PT, TravelMode.BIKE}
     saved_locations: list[SavedLocations] = list(SavedLocations.select())
 
     browser = new_browser(headless=False)
@@ -47,9 +47,18 @@ def populate_travel_times():
         need_to_do = set(Address.select()) - addresses_with_all_modes
 
         for address in tqdm(need_to_do, desc="Calculating travel times", unit="addresses", leave=False):
+            existing_modes = list(
+                TravelTime.select().join(Address).where(TravelTime.to_location == location, Address.id == address.id)
+            )
+            existing_modes = {mode.travel_mode for mode in existing_modes}
             try:
                 times = get_travel_times(
-                    address.latitude, address.longitude, location.latitude, location.longitude, modes, browser
+                    address.latitude,
+                    address.longitude,
+                    location.latitude,
+                    location.longitude,
+                    modes - existing_modes,
+                    browser,
                 )
                 for mode, time in times.items():
                     TravelTime.create(address_id=address, travel_time=time, travel_mode=mode, to_location=location)
