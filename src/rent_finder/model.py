@@ -2,7 +2,16 @@ import os
 from dataclasses import dataclass
 from enum import Enum
 
-from peewee import Model, PostgresqlDatabase, TextField, IntegerField, AutoField, FloatField, ForeignKeyField
+from peewee import (
+    Model,
+    PostgresqlDatabase,
+    TextField,
+    IntegerField,
+    AutoField,
+    FloatField,
+    ForeignKeyField,
+    BooleanField,
+)
 from peewee_enum_field import EnumField
 
 db = PostgresqlDatabase(
@@ -14,11 +23,10 @@ db = PostgresqlDatabase(
 db.connect()
 
 
-class Status(Enum):
+class UserStatus(Enum):
     NEW = "New"
     INTERESTED = "Interested"
     NOT_INTERESTED = "Not Interested"
-    OFF_MARKET = "Off-Market"
 
 
 class TravelMode(Enum):
@@ -53,6 +61,7 @@ class Listing(Model):
     id = TextField(primary_key=True)
     address_id = ForeignKeyField(Address)
     price = IntegerField()
+    available = BooleanField(default=True)
 
     class Meta:
         database = db
@@ -91,7 +100,7 @@ class AddressStatus(Model):
     id = AutoField(primary_key=True)
     address_id = ForeignKeyField(Address)
     user_id = ForeignKeyField(User)
-    status = EnumField(Status, default=Status.NEW)
+    status = EnumField(UserStatus, default=UserStatus.NEW)
 
     class Meta:
         database = db

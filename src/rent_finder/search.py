@@ -14,7 +14,7 @@ def main():
     logger.info("Starting search")
     get_rentals()
     populate_travel_times()
-    download_extras()
+    update_listings()
     logger.info("Finished search")
 
 
@@ -68,10 +68,16 @@ def populate_travel_times():
                 browser = new_browser(headless=False)
 
 
-def download_extras():
+def update_listings():
+    """
+    Update the status and download blurbs and images for listings
+    :return:
+    """
     domain = Domain()
     s3 = S3Client()
-    listings = [listing for listing in Listing.select() if not s3.object_exists(listing.id + "/0.webp")]
+    listings = [
+        listing for listing in Listing.select().where(Listing.available) if not s3.object_exists(listing.id + "/0.webp")
+    ]
     browser = new_browser(headless=False)
     for listing in tqdm(listings, desc="Downloading extras", unit="listings", total=len(listings)):
         try:

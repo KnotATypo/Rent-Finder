@@ -1,4 +1,3 @@
-import os.path
 import re
 from time import sleep
 from typing import List
@@ -6,6 +5,7 @@ from typing import List
 import requests
 from bs4 import BeautifulSoup, Tag
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 
 from rent_finder.logger import logger
@@ -77,9 +77,26 @@ class Domain(Site):
 
         return Listing.create(id=listing_id, address_id=address_obj.id, price=price)
 
-    def download_blurb_and_images(self, listing: Listing, browser):
+    def download_blurb_and_images(self, listing: Listing, browser: WebDriver):
         link = self._get_listing_link(listing)
         browser.get(link)
+
+        # Update status of listing and exit early if delisted
+        try:
+            browser.find_element(By.CSS_SELECTOR, 'div[data-testid="listing-details__summary-left-column"]')
+        except NoSuchElementException:
+            listing.available = False
+            listing.save()
+            return
+
+        try:
+            browser.implicitly_wait(1)
+            browser.find_element(By.CSS_SELECTOR, 'span[data-testid="listing-details__listing-tag"]')
+            listing.available = False
+            listing.save()
+            return
+        except NoSuchElementException:
+            browser.implicitly_wait(10)
 
         browser.find_element(By.CSS_SELECTOR, 'button[data-testid="listing-details__description-button"]').click()
         soup = BeautifulSoup(browser.page_source, features="html.parser")
@@ -93,9 +110,15 @@ class Domain(Site):
             ).click()
         except NoSuchElementException:
             # Some listings only have a single image at the top of the page
-            browser.find_element(
-                By.CSS_SELECTOR, 'div[data-testid="listing-details__gallery-preview single-image-full"]'
-            ).click()
+            try:
+                browser.find_element(
+                    By.CSS_SELECTOR, 'div[data-testid="listing-details__gallery-preview single-image-full"]'
+                ).click()
+            except NoSuchElementException:
+                # There must be no image - consider it unavailable
+                listing.available = False
+                listing.save()
+                return
         sleep(1)
 
         soup = BeautifulSoup(browser.page_source, features="html.parser")
