@@ -1,24 +1,41 @@
 import math
+from time import sleep
+from typing import List, Dict
 
 from bs4 import BeautifulSoup
+from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.wait import WebDriverWait
 
-from rent_finder.util import new_browser
+from rent_finder.model import TravelMode
 
 
-def get_travel_time(lat1, lon1, lat2, lon2) -> int:
+def get_travel_times(lat1, lon1, lat2, lon2, travel_modes: List[TravelMode], browser) -> Dict[TravelMode, int]:
     link = f"https://www.google.com/maps/dir/{lat1},{lon1}/{lat2},{lon2}"
-    return calculate_travel_time(link)
-
-
-def calculate_travel_time(link: str) -> int:
-    browser = new_browser()
     browser.get(link)
-    # Need to maximise otherwise elements overlap
-    browser.maximize_window()
+    times = {}
+    for travel_mode in travel_modes:
+        match travel_mode:
+            case TravelMode.PT:
+                times[travel_mode] = calculate_pt_travel_time(browser)
+            case TravelMode.BIKE:
+                times[travel_mode] = calculate_bike_travel_time(browser)
+            case _:
+                raise ValueError(f"Unknown travel mode: {travel_mode}")
+    return times
 
+
+def calculate_bike_travel_time(browser) -> int:
+    browser.find_element(By.CSS_SELECTOR, 'div[aria-label="Cycling"]').click()
+    sleep(1)
+
+    time = get_min_time(browser)
+
+    return time
+
+
+def calculate_pt_travel_time(browser) -> int:
     browser.find_element(By.CSS_SELECTOR, 'div[aria-label="Public transport"]').click()
     browser.find_element(By.XPATH, '//span[text()="Leave now"]').click()
     browser.find_element(By.CSS_SELECTOR, 'div[data-index="1"]').click()
@@ -36,11 +53,7 @@ def calculate_travel_time(link: str) -> int:
             else:
                 open_picker = False
             browser.find_elements(By.CSS_SELECTOR, 'td[class="goog-date-picker-date"]')[i].click()
-            WebDriverWait(browser, 10).until(
-                ec.presence_of_element_located((By.CSS_SELECTOR, 'div[data-trip-index="0"]'))
-            )
-            soup = BeautifulSoup(browser.page_source, features="html.parser")
-            times.append(get_times(soup))
+            times.append(get_min_time(browser))
         return min(times)
 
     # current month
@@ -51,11 +64,13 @@ def calculate_travel_time(link: str) -> int:
     browser.find_element(By.CSS_SELECTOR, 'button[class="goog-date-picker-btn goog-date-picker-nextMonth"]').click()
     time = min(pick_dates(initial_open=True), time)
 
-    browser.close()
     return time
 
 
-def get_times(soup: BeautifulSoup) -> int:
+def get_min_time(browser: WebDriver) -> int:
+    WebDriverWait(browser, 10).until(ec.presence_of_element_located((By.CSS_SELECTOR, 'div[data-trip-index="0"]')))
+    soup = BeautifulSoup(browser.page_source, features="html.parser")
+
     times = []
     index = 0
     while True:

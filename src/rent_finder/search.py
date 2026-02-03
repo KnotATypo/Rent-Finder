@@ -6,7 +6,7 @@ from rent_finder.logger import configure_logging
 from rent_finder.logger import logger
 from rent_finder.model import Suburb, TravelTime, SavedLocations, Address, TravelMode, Listing
 from rent_finder.sites.domain import Domain
-from rent_finder.travel_times import get_travel_time
+from rent_finder.travel_times import get_travel_times
 from rent_finder.util import get_listing_path, new_browser
 
 
@@ -14,8 +14,8 @@ def main():
     configure_logging()
     logger.info("Starting search")
     # get_rentals()
-    # populate_travel_times()
-    download_extras()
+    populate_travel_times()
+    # download_extras()
     logger.info("Finished search")
 
 
@@ -29,14 +29,30 @@ def get_rentals():
 
 
 def populate_travel_times():
+    modes = [TravelMode.PT, TravelMode.BIKE]
     saved_locations: list[SavedLocations] = list(SavedLocations.select())
-    for location in saved_locations:
-        all_addresses = set(Address.select())
-        done_addresses = set(Address.select().join(TravelTime).where(TravelTime.to_location == location))
-        need_to_do = all_addresses - done_addresses
-        for address in tqdm(need_to_do, desc="Calculating travel times", unit="addresses"):
-            time = get_travel_time(address.latitude, address.longitude, location.latitude, location.longitude)
-            TravelTime.create(address_id=address, travel_time=time, travel_mode=TravelMode.PT, to_location=location)
+
+    browser = new_browser(headless=False)
+    for location in tqdm(saved_locations, desc="Populating travel times", unit="locations", leave=False):
+
+        done_address_sets = []
+        for mode in modes:
+            done_address_sets.append(
+                set(
+                    Address.select()
+                    .join(TravelTime)
+                    .where(TravelTime.to_location == location, TravelTime.travel_mode == mode)
+                )
+            )
+        addresses_with_all_modes = set.intersection(*done_address_sets)
+        need_to_do = set(Address.select()) - addresses_with_all_modes
+
+        for address in tqdm(need_to_do, desc="Calculating travel times", unit="addresses", leave=False):
+            times = get_travel_times(
+                address.latitude, address.longitude, location.latitude, location.longitude, modes, browser
+            )
+            for mode, time in times.items():
+                TravelTime.create(address_id=address, travel_time=time, travel_mode=mode, to_location=location)
 
 
 def download_extras():
