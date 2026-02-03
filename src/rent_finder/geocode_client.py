@@ -38,6 +38,8 @@ class GeocodeClient:
             return float(response[0]["lat"]), float(response[0]["lon"])
         else:
             for location in response:
+                if "suburb" not in location["address"]:
+                    continue
                 if location["address"]["suburb"].lower() in address.lower():
                     return float(location["lat"]), float(location["lon"])
             logger.error(f"{address} - Geocode: Multiple results found")

@@ -20,7 +20,7 @@ class Domain(Site):
     def get_page(self, page_num: int, browser, suburb: Suburb) -> List[Listing]:
         listings = []
 
-        search_link = self._get_search_link(browser, page_num)
+        search_link = self._get_search_link(suburb, page_num)
         browser.get(search_link)
         soup = BeautifulSoup(browser.page_source, "html.parser")
         cards = soup.find_all(attrs={"data-testid": re.compile(r"^listing-card-wrapper")})
@@ -28,14 +28,19 @@ class Domain(Site):
         for card in cards:
             try:
                 listing = self._create_listing(card)
-                listings.append(listing)
+                if listing is not None:
+                    listings.append(listing)
             except Exception as e:
                 logger.warning(f"{search_link} - {type(e).__name__}: {e}")
 
         return listings
 
-    def _create_listing(self, card: Tag) -> Listing:
+    def _create_listing(self, card: Tag) -> Listing | None:
         address = card.find(attrs={"data-testid": "address-wrapper"})
+        address_line1 = address.find(attrs={"data-testid": "address-line1"})
+        if address_line1 is None:
+            # No viable address
+            return None
         address = (
             address.find(attrs={"data-testid": "address-line1"}).text
             + address.find(attrs={"data-testid": "address-line2"}).text
@@ -47,7 +52,7 @@ class Domain(Site):
         if (listing := Listing.get_or_none(Listing.id == listing_id)) is not None:
             return listing
 
-        beds, baths, cars = None, None, None
+        beds, baths, cars = 0, 0, 0
         for feature in features:
             try:
                 text = feature.text.lower()
@@ -92,6 +97,7 @@ class Domain(Site):
         try:
             browser.implicitly_wait(1)
             browser.find_element(By.CSS_SELECTOR, 'span[data-testid="listing-details__listing-tag"]')
+            browser.implicitly_wait(10)
             listing.available = False
             listing.save()
             return
@@ -132,7 +138,8 @@ class Domain(Site):
             if images:
                 # There are two images typically, one of which is the thumbnail marked by "--placeholder"
                 image = [image for image in images if "--placeholder" not in str(image)][0]
-                objects_to_save[listing.id + f"/{i}.webp"] = requests.get(image["src"]).content
+                if image['src'] != '':
+                    objects_to_save[listing.id + f"/{i}.webp"] = requests.get(image["src"]).content
 
             browser.find_element(By.CSS_SELECTOR, 'button[title="Next (arrow right)"]').click()
 

@@ -23,8 +23,10 @@ def get_rentals():
 
     listings = []
     suburbs = list(Suburb.select().where(Suburb.distance_to_source < 15))
+    browser = new_browser(headless=False)
     for suburb in tqdm(suburbs, desc="Searching suburbs", unit="location"):
-        listings.append(domain.search(suburb))
+        listings.append(domain.search(browser, suburb))
+    browser.close()
 
 
 def populate_travel_times():

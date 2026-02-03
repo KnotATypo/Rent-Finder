@@ -15,10 +15,9 @@ class Site:
         self.geocode_client = GeocodeClient()
         self.s3_client = S3Client()
 
-    def search(self, suburb: Suburb) -> List[Listing]:
+    def search(self, browser, suburb: Suburb) -> List[Listing]:
         listings = []
         page_number = 0
-        browser = new_browser()
         while True:
             page_number += 1
             page = self.get_page(page_number, browser, suburb)
@@ -26,7 +25,6 @@ class Site:
                 break
 
             listings.extend(page)
-        browser.close()
 
         return listings
 
