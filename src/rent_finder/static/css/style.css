@@ -73,18 +73,6 @@ body .blurb {
     padding: 0; /* listing page overrides will add padding where needed */
 }
 
-body .no-image {
-    width: 100%;
-    max-width: 100%;
-    height: 320px;
-    background: var(--card-bg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--muted);
-    border: 1px solid var(--border);
-}
-
 /* Listing-page specific: make hero-image fill the viewport on small screens */
 body.listing-page .hero-image {
     position: relative;
@@ -152,21 +140,11 @@ body.listing-page {
     overflow-x: hidden;
 }
 
-/* make sure hero has no accidental top margin */
-body.listing-page .hero {
-    margin-top: 0;
-    padding-top: 0;
-}
-
 @media (min-width: 700px) {
     body .hero img,
     body .no-image {
         width: 480px;
         max-width: 480px;
-    }
-
-    body .blurb {
-        margin-top: 0;
     }
 
     /* On desktop, revert to side-by-side; hero-image becomes normal-sized */
@@ -191,12 +169,6 @@ body.listing-page .hero {
         height: auto;
         object-fit: contain;
     }
-}
-
-/* Carousel controls and slide styles */
-.carousel {
-    position: relative;
-    overflow: hidden;
 }
 
 .carousel-slide {
@@ -251,30 +223,6 @@ body.listing-page .hero {
     background: #fff;
 }
 
-/* Caption overlay pinned to the bottom of the carousel */
-.carousel-caption {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 12px; /* sits below the dots */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 40;
-    pointer-events: none; /* allow underlying controls to be clickable */
-    padding: 6px 8px;
-}
-
-.carousel-caption__text {
-    background: linear-gradient(to top, rgba(0,0,0,0.6), rgba(0,0,0,0.2));
-    color: #fff;
-    padding: 8px 12px;
-    border-radius: 8px;
-    max-width: 95%;
-    text-align: center;
-    font-size: 14px;
-    pointer-events: auto; /* keep text selectable if needed */
-}
 
 /* Footer below the carousel so text isn't overlaid on images */
 .carousel-footer {
@@ -291,7 +239,7 @@ body.listing-page .hero {
 }
 
 .carousel-footer__price {
-    background: rgba(0,0,0,0.75);
+    background: rgba(0, 0, 0, 0.75);
     color: #fff;
     padding: 8px 10px;
     border-radius: 10px;
@@ -302,7 +250,7 @@ body.listing-page .hero {
 }
 
 .carousel-footer__text {
-    background: rgba(0,0,0,0.6);
+    background: rgba(0, 0, 0, 0.6);
     color: #fff;
     padding: 8px 10px;
     border-radius: 8px;
@@ -338,9 +286,4 @@ body.listing-page .hero {
         z-index: 45;
         pointer-events: none;
     }
-}
-
-/* Keep the swipe indicator removed when carousel is used */
-body.listing-page .hero-image::after {
-    display: none;
 }
