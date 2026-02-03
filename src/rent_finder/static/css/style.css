@@ -287,3 +287,133 @@ body.listing-page {
         pointer-events: none;
     }
 }
+
+/* Travel-times table improvements: readable, compact, responsive */
+.travel-times {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8px;
+    font-size: 13px; /* slightly smaller for compactness */
+    color: var(--text);
+    background: transparent;
+}
+
+.travel-times thead th {
+    text-align: left;
+    padding: 8px 10px;
+    font-weight: 700;
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: 0.2px;
+    border-bottom: 1px solid var(--border);
+}
+
+.travel-times tbody td {
+    padding: 8px 10px;
+    vertical-align: middle;
+    border-bottom: 1px dashed var(--border);
+}
+
+.travel-times__badges {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* Compact mode badge */
+.travel-times .mode-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    background: rgba(5, 85, 150, 0.06);
+    border: 1px solid rgba(5, 85, 150, 0.08);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+/* Per-mode color tweaks */
+.travel-times .mode-badge--pt {
+    color: #0b5fff; /* blue */
+    background: rgba(11, 95, 255, 0.06);
+    border-color: rgba(11, 95, 255, 0.12);
+}
+
+.travel-times .mode-badge--bike {
+    color: #0aa65a; /* green */
+    background: rgba(10, 166, 90, 0.06);
+    border-color: rgba(10, 166, 90, 0.12);
+}
+
+.travel-times .mode-badge--car {
+    color: #d97a00; /* orange */
+    background: rgba(217, 122, 0, 0.06);
+    border-color: rgba(217, 122, 0, 0.12);
+}
+
+.dark .travel-times .mode-badge--pt {
+    background: rgba(88, 166, 255, 0.06);
+    border-color: rgba(88, 166, 255, 0.12);
+}
+.dark .travel-times .mode-badge--bike {
+    background: rgba(46, 204, 113, 0.04);
+    border-color: rgba(46, 204, 113, 0.08);
+}
+.dark .travel-times .mode-badge--car {
+    background: rgba(255, 165, 64, 0.04);
+    border-color: rgba(255, 165, 64, 0.08);
+}
+
+/* Slightly closer zebra striping for compact rows */
+.travel-times tbody tr:nth-child(even) {
+    background: rgba(0, 0, 0, 0.02);
+}
+.dark .travel-times tbody tr:nth-child(even) {
+    background: rgba(255, 255, 255, 0.01);
+}
+
+/* Responsive: collapse into stacked items on very small screens */
+@media (max-width: 640px) {
+    .travel-times {
+        font-size: 14px;
+    }
+
+    .travel-times thead {
+        display: none;
+    }
+
+    .travel-times tbody tr {
+        display: block;
+        padding: 6px 0;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .travel-times tbody td {
+        display: flex;
+        justify-content: space-between;
+        padding: 6px 0;
+        border: none;
+    }
+
+    .travel-times tbody td::before {
+        content: attr(data-label);
+        color: var(--muted);
+        margin-right: 12px;
+        font-weight: 700;
+    }
+
+    .travel-times__badges {
+        justify-content: flex-end;
+    }
+}
+
+/* Small utility tweak: keep the table visually compact on desktop */
+@media (min-width: 700px) {
+    .travel-times thead th,
+    .travel-times tbody td {
+        padding: 10px 12px;
+    }
+}

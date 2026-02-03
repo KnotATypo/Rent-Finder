@@ -1,5 +1,5 @@
 <!doctype html>
-<html class="dark">
+<html lang="en" class="dark">
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -18,7 +18,7 @@
         <button class="carousel-next" aria-label="Next">›</button>
 
         <!-- Caption overlaid above the dots and pinned to the left -->
-        <div class="carousel-footer" role="contentinfo" aria-label="Listing image caption">
+        <footer class="carousel-footer" aria-label="Listing image caption">
             <div class="carousel-footer__price">${{ listing.price }}</div>
             <p class="carousel-footer__text">
                 <span>
@@ -49,11 +49,11 @@
                               fill="currentColor"></path>
                     </svg>
                         <span>{{ listing.address_id.cars }}</span>
-                </span>
+                 </span>
 
 
-            </p>
-        </div>
+             </p>
+        </footer>
 
         <div class="carousel-dots">
             {% for _ in image_urls %}
@@ -72,16 +72,21 @@
             <thead>
                 <tr>
                     <th>Destination</th>
-                    <th>Time</th>
-                    <th>Mode</th>
+                    <th>Travel times</th>
                 </tr>
             </thead>
             <tbody>
-                {% for travel_time in travel_times %}
+                {# Group travel_times by the destination name so each destination is a single row #}
+                {% for group in travel_times|groupby('to_location.name') %}
                     <tr>
-                        <td>{{ travel_time.to_location.name }}</td>
-                        <td>{{ travel_time.travel_time }} minutes</td>
-                        <td>{{ travel_time.travel_mode.value }}</td>
+                        <td data-label="Destination">{{ group.grouper }}</td>
+                        <td data-label="Travel times">
+                            <div class="travel-times__badges">
+                                {% for tt in group.list|sort(attribute='travel_time') %}
+                                    <span class="mode-badge mode-badge--{{ tt.travel_mode.name|lower }}" title="{{ tt.travel_mode.value }}: {{ tt.travel_time }} minutes">{{ tt.travel_mode.value }} · {{ tt.travel_time }}m</span>
+                                {% endfor %}
+                            </div>
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
