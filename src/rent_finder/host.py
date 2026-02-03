@@ -12,6 +12,7 @@ app.secret_key = "super secret key"
 s3_client = S3Client()
 listings = [listing for listing in Listing.select().join(Address) if s3_client.object_exists(listing.id + "/0.webp")]
 
+
 @app.route("/")
 def index():
     # Filtering out the listings that haven't had their images downloaded (for now)

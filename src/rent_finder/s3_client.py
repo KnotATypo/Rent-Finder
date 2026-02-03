@@ -40,5 +40,5 @@ class S3Client:
 
     def get_image_names(self, listing_id: str):
         resp = self.bucket.meta.client.list_objects_v2(Bucket=self.bucket.name, Prefix=f"{listing_id}/")
-        files = [os.path.basename(x['Key']) for x in resp["Contents"]]
+        files = [os.path.basename(x["Key"]) for x in resp["Contents"]]
         return [file for file in files if file != "blurb.html"]
