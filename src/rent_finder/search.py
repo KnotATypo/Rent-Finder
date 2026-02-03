@@ -13,9 +13,9 @@ from rent_finder.util import get_listing_path, new_browser
 def main():
     configure_logging()
     logger.info("Starting search")
-    # get_rentals()
+    get_rentals()
     populate_travel_times()
-    # download_extras()
+    download_extras()
     logger.info("Finished search")
 
 
@@ -48,11 +48,16 @@ def populate_travel_times():
         need_to_do = set(Address.select()) - addresses_with_all_modes
 
         for address in tqdm(need_to_do, desc="Calculating travel times", unit="addresses", leave=False):
-            times = get_travel_times(
-                address.latitude, address.longitude, location.latitude, location.longitude, modes, browser
-            )
-            for mode, time in times.items():
-                TravelTime.create(address_id=address, travel_time=time, travel_mode=mode, to_location=location)
+            try:
+                times = get_travel_times(
+                    address.latitude, address.longitude, location.latitude, location.longitude, modes, browser
+                )
+                for mode, time in times.items():
+                    TravelTime.create(address_id=address, travel_time=time, travel_mode=mode, to_location=location)
+            except Exception as e:
+                logger.error(f"{Address}, {type(e).__name__}: {e}")
+                browser.close()
+                browser = new_browser(headless=False)
 
 
 def download_extras():
