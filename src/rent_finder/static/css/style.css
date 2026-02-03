@@ -1,19 +1,6 @@
 /* Theme variables */
 :root {
-    --bg: #ffffff;
-    --text: #222222;
-    --muted: #666666;
-    --accent: #0366d6;
-    --card-bg: #ffffff;
-    --border: #dddddd;
-    --hero-bg: #000000;
-    --control-bg: rgba(0, 0, 0, 0.4);
-    --control-color: #ffffff;
-    --dot-bg: rgba(255, 255, 255, 0.4);
-}
-
-/* Dark theme overrides */
-.dark {
+    /* Dark-only site: dark theme values are the defaults */
     --bg: #0b0b0d;
     --text: #e6e6e6;
     --muted: #9aa0a6;
@@ -335,43 +322,27 @@ body.listing-page {
     letter-spacing: 0.4px;
 }
 
-/* Per-mode color tweaks */
+/* Per-mode color tweaks (dark-only site) */
 .travel-times .mode-badge--pt {
     color: #0b5fff; /* blue */
-    background: rgba(11, 95, 255, 0.06);
-    border-color: rgba(11, 95, 255, 0.12);
+    background: rgba(88, 166, 255, 0.06);
+    border-color: rgba(88, 166, 255, 0.12);
 }
 
 .travel-times .mode-badge--bike {
     color: #0aa65a; /* green */
-    background: rgba(10, 166, 90, 0.06);
-    border-color: rgba(10, 166, 90, 0.12);
+    background: rgba(46, 204, 113, 0.04);
+    border-color: rgba(46, 204, 113, 0.08);
 }
 
 .travel-times .mode-badge--car {
     color: #d97a00; /* orange */
-    background: rgba(217, 122, 0, 0.06);
-    border-color: rgba(217, 122, 0, 0.12);
-}
-
-.dark .travel-times .mode-badge--pt {
-    background: rgba(88, 166, 255, 0.06);
-    border-color: rgba(88, 166, 255, 0.12);
-}
-.dark .travel-times .mode-badge--bike {
-    background: rgba(46, 204, 113, 0.04);
-    border-color: rgba(46, 204, 113, 0.08);
-}
-.dark .travel-times .mode-badge--car {
     background: rgba(255, 165, 64, 0.04);
     border-color: rgba(255, 165, 64, 0.08);
 }
 
-/* Slightly closer zebra striping for compact rows */
+/* Slightly closer zebra striping for compact rows (dark background) */
 .travel-times tbody tr:nth-child(even) {
-    background: rgba(0, 0, 0, 0.02);
-}
-.dark .travel-times tbody tr:nth-child(even) {
     background: rgba(255, 255, 255, 0.01);
 }
 
