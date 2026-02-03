@@ -21,7 +21,7 @@
     --card-bg: #0f1113;
     --border: #222222;
     --hero-bg: #000000;
-    --control-bg: rgba(255, 255, 255, 0.12);
+    --control-bg: rgba(0, 0, 0, 0.33);
     --control-color: #ffffff;
     --dot-bg: rgba(255, 255, 255, 0.3);
 }
@@ -189,9 +189,9 @@ body.listing-page {
     background: var(--control-bg);
     color: var(--control-color);
     border: none;
-    width: 42px;
-    height: 42px;
-    border-radius: 21px;
+    width: 30px;
+    height: 30px;
+    border-radius: 15px;
 }
 
 .carousel-prev {

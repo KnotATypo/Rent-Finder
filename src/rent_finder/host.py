@@ -3,7 +3,7 @@ from flask import url_for
 from waitress import serve
 
 from rent_finder.logger import logger, configure_logging
-from rent_finder.model import Address, Listing
+from rent_finder.model import Address, Listing, TravelTime, SavedLocations
 from rent_finder.s3_client import S3Client
 
 app = Flask(__name__)
@@ -29,8 +29,10 @@ def listing(listing_id):
     image_urls = [url_for("serve_data", listing_id=listing_id, filename=image) for image in images]
     listing = Listing.get(Listing.id == listing_id)
 
+    travel_times = TravelTime.select().join(SavedLocations).where(TravelTime.address_id == listing.address_id)
+
     return render_template(
-        "listing.html", listing=listing, blurb_html=blurb_html, image_urls=image_urls
+        "listing.html", listing=listing, blurb_html=blurb_html, image_urls=image_urls, travel_times=travel_times
     )
 
 

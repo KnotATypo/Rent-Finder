@@ -54,7 +54,7 @@ def populate_travel_times():
                 for mode, time in times.items():
                     TravelTime.create(address_id=address, travel_time=time, travel_mode=mode, to_location=location)
             except Exception as e:
-                logger.error(f"{Address}, {type(e).__name__}: {e}")
+                logger.error(f"Address {address}, {type(e).__name__}: {e}")
                 browser.close()
                 browser = new_browser(headless=False)
 
@@ -65,7 +65,12 @@ def download_extras():
     listings = [listing for listing in Listing.select() if not s3.object_exists(listing.id + "/0.webp")]
     browser = new_browser(headless=False)
     for listing in tqdm(listings, desc="Downloading extras", unit="listings", total=len(listings)):
-        domain.download_blurb_and_images(listing, browser)
+        try:
+            domain.download_blurb_and_images(listing, browser)
+        except Exception as e:
+            logger.error(f"Listing {listing}, {type(e).__name__}: {e}")
+            browser.close()
+            browser = new_browser(headless=False)
     browser.close()
 
 

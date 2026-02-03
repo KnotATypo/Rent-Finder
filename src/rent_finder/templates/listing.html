@@ -11,7 +11,7 @@
     <div class="hero-image carousel" id="carousel">
         {% for src in image_urls %}
             <div class="carousel-slide">
-                <img src="{{ src }}" alt="{{ listing.address_id.address }} image {{ loop.index }}">
+                <img src="{{ src }}" alt="{{ listing.address_id.address }} {{ loop.index }}">
             </div>
         {% endfor %}
         <button class="carousel-prev" aria-label="Previous">‹</button>
@@ -67,6 +67,25 @@
         <h1>
             <a href="https://www.google.com/maps/place/{{ listing.address_id.address|replace(' ', '+')|replace('/', '%2F') }}"
                target="_blank" rel="noopener noreferrer">{{ listing.address_id.address }}</a></h1>
+
+        <table class="travel-times">
+            <thead>
+                <tr>
+                    <th>Destination</th>
+                    <th>Time</th>
+                    <th>Mode</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for travel_time in travel_times %}
+                    <tr>
+                        <td>{{ travel_time.to_location.name }}</td>
+                        <td>{{ travel_time.travel_time }} minutes</td>
+                        <td>{{ travel_time.travel_mode.value }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
         {% if blurb_html %}
             {{ blurb_html | safe }}
         {% else %}

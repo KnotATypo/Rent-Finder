@@ -62,6 +62,7 @@ class SavedLocations(Model):
     id = AutoField(primary_key=True)
     latitude = FloatField()
     longitude = FloatField()
+    name = TextField()
 
     class Meta:
         database = db
