@@ -1,20 +1,19 @@
-import os.path
-
 from tqdm import tqdm
 
 from rent_finder.logger import configure_logging
 from rent_finder.logger import logger
 from rent_finder.model import Suburb, TravelTime, SavedLocations, Address, TravelMode, Listing
+from rent_finder.s3_client import S3Client
 from rent_finder.sites.domain import Domain
 from rent_finder.travel_times import get_travel_times
-from rent_finder.util import get_listing_path, new_browser
+from rent_finder.util import new_browser
 
 
 def main():
     configure_logging()
     logger.info("Starting search")
-    get_rentals()
-    populate_travel_times()
+    # get_rentals()
+    # populate_travel_times()
     download_extras()
     logger.info("Finished search")
 
@@ -62,7 +61,8 @@ def populate_travel_times():
 
 def download_extras():
     domain = Domain()
-    listings = [listing for listing in Listing.select() if not os.path.exists(get_listing_path(listing.id) + "/0.webp")]
+    s3 = S3Client()
+    listings = [listing for listing in Listing.select() if not s3.object_exists(listing.id + "/0.webp")]
     browser = new_browser(headless=False)
     for listing in tqdm(listings, desc="Downloading extras", unit="listings", total=len(listings)):
         domain.download_blurb_and_images(listing, browser)

@@ -11,7 +11,6 @@ from selenium.webdriver.common.by import By
 from rent_finder.logger import logger
 from rent_finder.model import Suburb, Listing, Address
 from rent_finder.sites.site import Site
-from rent_finder.util import new_browser, get_listing_path
 
 
 class Domain(Site):
@@ -79,20 +78,14 @@ class Domain(Site):
         return Listing.create(id=listing_id, address_id=address_obj.id, price=price)
 
     def download_blurb_and_images(self, listing: Listing, browser):
-        listing_path = get_listing_path(listing.id)
-        if not os.path.exists(listing_path):
-            os.mkdir(listing_path)
-
         link = self._get_listing_link(listing)
         browser.get(link)
 
-        if not os.path.exists(listing_path + "/blurb.html"):
-            browser.find_element(By.CSS_SELECTOR, 'button[data-testid="listing-details__description-button"]').click()
-            soup = BeautifulSoup(browser.page_source, features="html.parser")
-            tag = soup.find("div", attrs={"data-testid": "listing-details__description"})
+        browser.find_element(By.CSS_SELECTOR, 'button[data-testid="listing-details__description-button"]').click()
+        soup = BeautifulSoup(browser.page_source, features="html.parser")
+        tag = soup.find("div", attrs={"data-testid": "listing-details__description"})
 
-            with open(listing_path + "/blurb.html", "w") as f:
-                f.write(tag.contents[1].prettify())
+        objects_to_save = {listing.id + "/blurb.html": tag.contents[1].prettify()}
 
         try:
             browser.find_element(
@@ -109,19 +102,18 @@ class Domain(Site):
         footer = soup.find("div", attrs={"data-testid": "pswp-thumbnails-carousel"})
         total_page = int(footer.text.split(" / ")[1])
         for i in range(total_page):
-            if not os.path.exists(listing_path + f"/{i}.webp"):
-                soup = BeautifulSoup(browser.page_source, features="html.parser")
-                tag = soup.find("div", attrs={"data-testid": "pswp-current-item"})
-                images = tag.find_all("img")
-                # Some listings contain videos and won't return any images
-                if images:
-                    # There are two images typically, one of which is the thumbnail marked by "--placeholder"
-                    image = [image for image in images if "--placeholder" not in str(image)][0]
-                    image_data = requests.get(image["src"]).content
-                    with open(listing_path + f"/{i}.webp", "wb") as f:
-                        f.write(image_data)
+            soup = BeautifulSoup(browser.page_source, features="html.parser")
+            tag = soup.find("div", attrs={"data-testid": "pswp-current-item"})
+            images = tag.find_all("img")
+            # Some listings contain videos and won't return any images
+            if images:
+                # There are two images typically, one of which is the thumbnail marked by "--placeholder"
+                image = [image for image in images if "--placeholder" not in str(image)][0]
+                objects_to_save[listing.id + f"/{i}.webp"] = requests.get(image["src"]).content
 
             browser.find_element(By.CSS_SELECTOR, 'button[title="Next (arrow right)"]').click()
+
+        self.s3_client.put_objects(objects_to_save)
 
     def _get_search_link(self, suburb: Suburb, page_number: int) -> str:
         suburb_id = f"{suburb.name.lower().replace(' ', '-')}-qld-{suburb.postcode}"

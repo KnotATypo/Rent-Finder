@@ -4,6 +4,7 @@ from bs4 import Tag
 
 from rent_finder.geocode_client import GeocodeClient
 from rent_finder.model import Listing, Suburb
+from rent_finder.s3_client import S3Client
 from rent_finder.util import new_browser
 
 
@@ -12,6 +13,7 @@ class Site:
 
     def __init__(self):
         self.geocode_client = GeocodeClient()
+        self.s3_client = S3Client()
 
     def search(self, suburb: Suburb) -> List[Listing]:
         listings = []
