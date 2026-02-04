@@ -73,9 +73,9 @@ def listing(listing_id=None):
         listing = list(
             Listing.select().where(Listing.unavailable.is_null(), Listing.address.not_in(checked_addresses))
         )[0]
-        listing_id = listing.id
-    else:
-        listing = Listing.get(Listing.id == listing_id)
+        return redirect(url_for("listing", listing_id=listing.id))
+
+    listing = Listing.get(Listing.id == listing_id)
     blurb_html = s3_client.get_object(listing_id + "/blurb.html")
 
     # Find first image file by numeric prefix
@@ -102,8 +102,8 @@ def listing_status(listing_id, status):
         .where(AddressStatus.address == listing.address, AddressStatus.user.id == user_id)
     )
     if addr_status:
-        addr_status.status = status
-        addr_status.save()
+        addr_status[0].status = status
+        addr_status[0].save()
     else:
         AddressStatus.create(address=listing.address, user=user_id, status=status)
 
