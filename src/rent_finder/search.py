@@ -13,8 +13,8 @@ def main():
     configure_logging()
     logger.info("Starting search")
     get_rentals()
-    populate_travel_times()
     update_listings()
+    populate_travel_times()
     logger.info("Finished search")
 
 
@@ -51,7 +51,8 @@ def populate_travel_times():
                 )
             )
         addresses_with_all_modes = set.intersection(*done_address_sets)
-        need_to_do = set(Address.select()) - addresses_with_all_modes
+        available_addresses = set(Address.select().join(Listing).where(Listing.unavailable.is_null()))
+        need_to_do = available_addresses - addresses_with_all_modes
 
         logger.info(f"Need to do: {len(need_to_do)} addresses for {location.name}")
         for address in tqdm(need_to_do, desc="Calculating travel times", unit="addresses", leave=False):
@@ -86,7 +87,9 @@ def update_listings():
     domain = Domain()
     s3 = S3Client()
     listings = [
-        listing for listing in Listing.select().where(Listing.available) if not s3.object_exists(listing.id + "/0.webp")
+        listing
+        for listing in Listing.select().where(Listing.unavailable.is_null())
+        if not s3.object_exists(listing.id + "/0.webp")
     ]
     browser = new_browser(headless=False)
     logger.info(f"{len(listings)} listings to update")

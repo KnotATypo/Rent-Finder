@@ -11,7 +11,7 @@
 {% if listings %}
     <ul>
         {% for listing in listings %}
-            <li><a href="{{ url_for('listing', listing_id=listing.id) }}">{{ listing.address_id.address }}</a></li>
+            <li><a href="{{ url_for('listing', listing_id=listing.id) }}">{{ listing.address.address }}</a></li>
         {% endfor %}
     </ul>
 {% else %}

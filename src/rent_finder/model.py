@@ -1,3 +1,4 @@
+import datetime
 import os
 from dataclasses import dataclass
 from enum import Enum
@@ -11,6 +12,7 @@ from peewee import (
     FloatField,
     ForeignKeyField,
     BooleanField,
+    DateTimeField,
 )
 from peewee_enum_field import EnumField
 
@@ -59,9 +61,10 @@ class Address(Model):
 
 class Listing(Model):
     id = TextField(primary_key=True)
-    address_id = ForeignKeyField(Address)
+    address = ForeignKeyField(Address)
     price = IntegerField()
-    available = BooleanField(default=True)
+    available = DateTimeField(default=datetime.datetime.now())
+    unavailable = DateTimeField(null=True)
 
     class Meta:
         database = db
@@ -79,7 +82,7 @@ class SavedLocations(Model):
 
 class TravelTime(Model):
     id = AutoField(primary_key=True)
-    address_id = ForeignKeyField(Address)
+    address = ForeignKeyField(Address)
     travel_time = IntegerField()
     travel_mode = EnumField(TravelMode)
     to_location = ForeignKeyField(SavedLocations)
@@ -98,8 +101,8 @@ class User(Model):
 
 class AddressStatus(Model):
     id = AutoField(primary_key=True)
-    address_id = ForeignKeyField(Address)
-    user_id = ForeignKeyField(User)
+    address = ForeignKeyField(Address)
+    user = ForeignKeyField(User)
     status = EnumField(UserStatus, default=UserStatus.NEW)
 
     class Meta:

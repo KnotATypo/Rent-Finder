@@ -30,7 +30,7 @@ def listing(listing_id):
     image_urls = [url_for("serve_data", listing_id=listing_id, filename=image) for image in images]
     listing = Listing.get(Listing.id == listing_id)
 
-    travel_times = TravelTime.select().join(SavedLocations).where(TravelTime.address_id == listing.address_id)
+    travel_times = TravelTime.select().join(SavedLocations).where(TravelTime.address == listing.address)
 
     return render_template(
         "listing.html", listing=listing, blurb_html=blurb_html, image_urls=image_urls, travel_times=travel_times

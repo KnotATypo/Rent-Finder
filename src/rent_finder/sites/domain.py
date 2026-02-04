@@ -1,3 +1,4 @@
+import datetime
 import re
 from time import sleep
 from typing import List
@@ -90,7 +91,7 @@ class Domain(Site):
         try:
             browser.find_element(By.CSS_SELECTOR, 'div[data-testid="listing-details__summary-left-column"]')
         except NoSuchElementException:
-            listing.available = False
+            listing.unavailable = datetime.datetime.now()
             listing.save()
             return
 
@@ -98,7 +99,7 @@ class Domain(Site):
             browser.implicitly_wait(1)
             browser.find_element(By.CSS_SELECTOR, 'span[data-testid="listing-details__listing-tag"]')
             browser.implicitly_wait(10)
-            listing.available = False
+            listing.unavailable = datetime.datetime.now()
             listing.save()
             return
         except NoSuchElementException:
@@ -122,7 +123,7 @@ class Domain(Site):
                 ).click()
             except NoSuchElementException:
                 # There must be no image - consider it unavailable
-                listing.available = False
+                listing.unavailable = datetime.datetime.now()
                 listing.save()
                 return
         sleep(1)
@@ -150,7 +151,7 @@ class Domain(Site):
         return f"https://www.domain.com.au/rent/{suburb_id}/?excludedeposittaken=1&page={page_number}&ssubs=0"
 
     def _get_listing_link(self, listing: Listing) -> str:
-        address = Address.get(Address.id == listing.address_id)
+        address = Address.get(Address.id == listing.address)
         new_addresses = re.sub(r"[/ ,]+", "-", address.address)
         return f"https://www.domain.com.au/{new_addresses}-{listing.id}"
 
