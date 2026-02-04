@@ -469,31 +469,9 @@ body.listing-page .hero-image {
     border-radius: 6px;
 }
 
-.site-nav a:hover,
 .site-nav a:focus {
     color: var(--text);
     background: rgba(255,255,255,0.02);
-}
-
-.skip-link {
-    position: absolute;
-    left: -999px;
-    top: auto;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-}
-
-.skip-link:focus {
-    left: 16px;
-    top: 12px;
-    width: auto;
-    height: auto;
-    padding: 8px 12px;
-    background: #000;
-    color: #fff;
-    z-index: 1100;
-    border-radius: 6px;
 }
 
 /* keep the blurb visually separated */
@@ -568,7 +546,6 @@ body.listing-page .blurb {
     color: white;
 }
 
-.btn--green:hover,
 .btn--green:focus {
     background: #28a745;
 }
@@ -578,7 +555,6 @@ body.listing-page .blurb {
     color: white;
 }
 
-.btn--red:hover,
 .btn--red:focus {
     background: #c0392b;
 }
@@ -590,9 +566,8 @@ body.listing-page .blurb {
     border-radius: 8px;
 }
 
-.btn--blue:hover,
 .btn--blue:focus {
-    background: #2b8fff; /* slightly darker blue on hover */
+    background: #2b8fff; /* slightly darker blue on focus */
     color: #ffffff;
 }
 
