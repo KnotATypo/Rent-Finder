@@ -11,7 +11,6 @@ from peewee import (
     AutoField,
     FloatField,
     ForeignKeyField,
-    BooleanField,
     DateTimeField,
 )
 from peewee_enum_field import EnumField

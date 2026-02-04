@@ -80,7 +80,6 @@ def populate_travel_times():
 def update_listings():
     """
     Update the status and download blurbs and images for listings
-    :return:
     """
     logger.info("Updating listings")
 
