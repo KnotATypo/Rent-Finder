@@ -543,32 +543,46 @@ body.listing-page .blurb {
 /* Green / Red modifiers */
 .btn--green {
     background: #2eb85c; /* green */
-    color: white;
+    color: #000; /* use black text for contrast */
 }
 
 .btn--green:focus {
     background: #28a745;
+    color: #000;
 }
 
 .btn--red {
     background: #e74c3c; /* red */
-    color: white;
+    color: #000; /* use black text for contrast */
 }
 
 .btn--red:focus {
     background: #c0392b;
+    color: #000;
 }
 
 /* Blue modifier for the home 'Interested listings' button */
 .btn--blue {
     background: var(--accent);
-    color: #ffffff; /* white text for better contrast */
+    color: #000; /* black text for contrast */
     border-radius: 8px;
 }
 
 .btn--blue:focus {
     background: #2b8fff; /* slightly darker blue on focus */
-    color: #ffffff;
+    color: #000;
+}
+
+/* Teal modifier for the saved 'Saved locations' button */
+.btn--purple {
+    /* changed from teal to purple to give a distinct color */
+    background: #8e44ad; /* purple */
+    color: #000; /* black text for contrast */
+}
+
+.btn--purple:focus {
+    background: #7a2fa0; /* slightly darker purple on focus */
+    color: #000;
 }
 
 /* Listing actions layout: two equal buttons side-by-side */
@@ -611,3 +625,69 @@ body.listing-page .blurb {
         border-radius: 8px; /* restore rounded corners when stacked */
     }
 }
+
+/* Listing/table utility styles: make generic listing tables look like tables */
+.listing-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden; /* keep rounded corners */
+    box-sizing: border-box;
+}
+
+.listing-table thead th {
+    background: rgba(255,255,255,0.03);
+    color: var(--muted);
+    font-weight: 700;
+    padding: 12px 14px;
+    text-align: left;
+    font-size: 13px;
+    border-bottom: 1px solid var(--border);
+}
+
+.listing-table tbody td {
+    padding: 12px 14px;
+    vertical-align: middle;
+    border-bottom: 1px solid rgba(255,255,255,0.02);
+    color: var(--text);
+    font-size: 14px;
+}
+
+.listing-table tbody tr:hover {
+    background: rgba(255,255,255,0.015);
+}
+
+.listing-table tbody tr:last-child td {
+    border-bottom: none; /* tidy last row */
+}
+
+.listing-table td:first-child {
+    font-weight: 600;
+}
+
+.listing-table .actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+/* Small utility classes */
+.muted {
+    color: var(--muted);
+}
+
+.sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important; /* added line */
+    border: 0 !important;
+}
+

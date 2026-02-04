@@ -126,6 +126,10 @@ def interested():
     )
     return render_template("interested.html", listing=listing)
 
+@app.route("/saved_locations")
+def saved_locations():
+    return render_template("saved_locations.html", saved_locations=list(SavedLocations.select()))
+
 
 @app.route("/data/<listing_id>/<path:filename>")
 def serve_data(listing_id, filename):

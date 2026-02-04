@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Saved Locations{% endblock %}
+
+{% block content %}
+<section class="card">
+    <div class="card-header">
+        <h1>Saved locations</h1>
+        <p class="muted">Your saved map locations. Click View to open in Google Maps.</p>
+    </div>
+
+    {% if saved_locations and saved_locations|length > 0 %}
+    <table class="listing-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th class="actions">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for loc in saved_locations %}
+            <tr>
+                <td>{{ loc.name }}</td>
+                <td class="actions">
+                    <a class="btn btn--purple" href="https://www.google.com/maps?q={{ loc.latitude }},{{ loc.longitude }}" target="_blank" rel="noopener">View</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p>No saved locations.</p>
+    {% endif %}
+</section>
+
+{% endblock %}
