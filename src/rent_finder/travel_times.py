@@ -37,6 +37,7 @@ def calculate_bike_travel_time(browser) -> int:
 
 def calculate_pt_travel_time(browser) -> int:
     browser.find_element(By.CSS_SELECTOR, 'div[aria-label="Public transport"]').click()
+    # Occasionally this will error when the PT info doesn't load. Not catching the error here is intentional
     browser.find_element(By.XPATH, '//span[text()="Leave now"]').click()
     browser.find_element(By.CSS_SELECTOR, 'div[data-index="1"]').click()
     time_field = browser.find_element(By.CSS_SELECTOR, 'input[name="transit-time"]')

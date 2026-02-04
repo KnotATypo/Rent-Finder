@@ -9,5 +9,7 @@ RUN mkdir /rent-finder
 WORKDIR /rent-finder
 COPY . .
 
+ENV PYTHONBUFFERED=1
+
 ENTRYPOINT ["/rent-finder/entrypoint.sh"]
 CMD ["uv", "run", "--env-file", ".env", "search"]

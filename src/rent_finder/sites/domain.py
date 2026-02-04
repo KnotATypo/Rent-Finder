@@ -138,7 +138,7 @@ class Domain(Site):
             if images:
                 # There are two images typically, one of which is the thumbnail marked by "--placeholder"
                 image = [image for image in images if "--placeholder" not in str(image)][0]
-                if image['src'] != '':
+                if image["src"] != "":
                     objects_to_save[listing.id + f"/{i}.webp"] = requests.get(image["src"]).content
 
             browser.find_element(By.CSS_SELECTOR, 'button[title="Next (arrow right)"]').click()

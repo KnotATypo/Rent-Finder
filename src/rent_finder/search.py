@@ -19,17 +19,22 @@ def main():
 
 
 def get_rentals():
+    logger.info("Getting rentals")
+
     domain = Domain()
 
     listings = []
     suburbs = list(Suburb.select().where(Suburb.distance_to_source < 15))
     browser = new_browser(headless=False)
+    logger.info(f"Found {len(suburbs)} suburbs")
     for suburb in tqdm(suburbs, desc="Searching suburbs", unit="location"):
         listings.append(domain.search(browser, suburb))
     browser.close()
 
 
 def populate_travel_times():
+    logger.info("Populating travel times")
+
     modes = {TravelMode.PT, TravelMode.BIKE}
     saved_locations: list[SavedLocations] = list(SavedLocations.select())
 
@@ -48,6 +53,7 @@ def populate_travel_times():
         addresses_with_all_modes = set.intersection(*done_address_sets)
         need_to_do = set(Address.select()) - addresses_with_all_modes
 
+        logger.info(f"Need to do: {len(need_to_do)} addresses for {location.name}")
         for address in tqdm(need_to_do, desc="Calculating travel times", unit="addresses", leave=False):
             existing_modes = list(
                 TravelTime.select().join(Address).where(TravelTime.to_location == location, Address.id == address.id)
@@ -75,12 +81,15 @@ def update_listings():
     Update the status and download blurbs and images for listings
     :return:
     """
+    logger.info("Updating listings")
+
     domain = Domain()
     s3 = S3Client()
     listings = [
         listing for listing in Listing.select().where(Listing.available) if not s3.object_exists(listing.id + "/0.webp")
     ]
     browser = new_browser(headless=False)
+    logger.info(f"{len(listings)} listings to update")
     for listing in tqdm(listings, desc="Downloading extras", unit="listings", total=len(listings)):
         try:
             domain.download_blurb_and_images(listing, browser)
