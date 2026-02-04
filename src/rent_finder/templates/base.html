@@ -17,7 +17,6 @@
 
         <nav class="site-nav" role="navigation" aria-label="Main navigation">
             <ul>
-                <li><a href="{{ url_for('index') }}">Listings</a></li>
                 <li><a href="{{ url_for('set_username') }}">{{ session.get('username') or 'Set user' }}</a></li>
             </ul>
         </nav>

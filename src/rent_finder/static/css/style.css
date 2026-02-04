@@ -428,7 +428,11 @@ body.listing-page .hero-image {
     padding: 0 16px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    /* center the header content; we'll absolutely position the logo and nav
+       so the logo can be pinned flush to the left edge while the nav stays
+       pinned to the right. (Do not set position here so absolute children
+       are positioned relative to the fixed .site-header / viewport.) */
+    justify-content: center;
     gap: 16px;
 }
 
@@ -437,6 +441,17 @@ body.listing-page .hero-image {
     font-weight: 700;
     font-size: 18px;
     text-decoration: none;
+    /* Pin the logo to the left edge of the header (viewport) and vertically center it */
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.site-nav {
+    /* Keep the navigation pinned to the right edge of the header */
+    position: absolute;
+    right: 16px;
 }
 
 .site-nav ul {

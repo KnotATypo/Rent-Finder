@@ -1,20 +1,18 @@
 import os
 from functools import wraps
 
-from flask import Flask, render_template, session, jsonify, request, redirect
+from flask import Flask, render_template, session, request, redirect
 from flask import url_for
 from waitress import serve
 
 from rent_finder.logger import logger, configure_logging
-from rent_finder.model import Address, Listing, TravelTime, SavedLocations, AddressStatus, UserStatus, User
+from rent_finder.model import Listing, TravelTime, SavedLocations, AddressStatus, UserStatus, User
 from rent_finder.s3_client import S3Client
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
 s3_client = S3Client()
-# Filtering out the listings that haven't had their images downloaded (for now)
-listings = [listing for listing in Listing.select().join(Address) if s3_client.object_exists(listing.id + "/0.webp")]
 
 
 @app.route("/set_username")
@@ -59,8 +57,9 @@ def get_current_user():
 
 
 @app.route("/")
+@require_user
 def index():
-    return render_template("index.html", listings=listings)
+    return render_template("index.html")
 
 
 @app.route("/listing/")

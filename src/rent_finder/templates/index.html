@@ -3,14 +3,8 @@
 {% block title %}Rent Finder - Listings{% endblock %}
 
 {% block content %}
-<h1>Listings</h1>
-{% if listings %}
-    <ul>
-        {% for listing in listings %}
-            <li><a href="{{ url_for('listing', listing_id=listing.id) }}">{{ listing.address.address }}</a></li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>No listings found.</p>
-{% endif %}
+<h1>Home</h1>
+<p style="text-align: center; margin-top: 24px;">
+    <a class="btn btn--green" href="/listing/">Go to listing</a>
+</p>
 {% endblock %}
