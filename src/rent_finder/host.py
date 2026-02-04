@@ -6,7 +6,7 @@ from flask import url_for
 from waitress import serve
 
 from rent_finder.logger import logger, configure_logging
-from rent_finder.model import Listing, TravelTime, SavedLocations, AddressStatus, UserStatus, User
+from rent_finder.model import Listing, TravelTime, SavedLocations, AddressStatus, UserStatus, User, Address
 from rent_finder.s3_client import S3Client
 
 app = Flask(__name__)
@@ -107,6 +107,24 @@ def listing_status(listing_id, status):
         AddressStatus.create(address=listing.address, user=user_id, status=status)
 
     return redirect(url_for("listing"))
+
+
+@app.route("/interested")
+@require_user
+def interested():
+    _, user_id = get_current_user()
+    listing = list(
+        Listing.select()
+        .join(Address)
+        .join(AddressStatus)
+        .join(User)
+        .where(
+            AddressStatus.address == Listing.address,
+            AddressStatus.status == UserStatus.INTERESTED,
+            AddressStatus.user.id == user_id,
+        )
+    )
+    return render_template("interested.html", listing=listing)
 
 
 @app.route("/data/<listing_id>/<path:filename>")
