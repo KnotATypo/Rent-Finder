@@ -508,3 +508,85 @@ body.listing-page .blurb {
         width: auto;
     }
 }
+
+/* Buttons: base and modifiers */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
+    color: var(--text);
+    background: var(--control-bg);
+    transition: background-color 120ms ease, transform 80ms ease;
+}
+
+.btn:active {
+    transform: translateY(1px);
+}
+
+/* Green / Red modifiers */
+.btn--green {
+    background: #2eb85c; /* green */
+    color: white;
+}
+
+.btn--green:hover,
+.btn--green:focus {
+    background: #28a745;
+}
+
+.btn--red {
+    background: #e74c3c; /* red */
+    color: white;
+}
+
+.btn--red:hover,
+.btn--red:focus {
+    background: #c0392b;
+}
+
+/* Listing actions layout: two equal buttons side-by-side */
+.listing-actions {
+    display: flex;
+    gap: 0; /* no gap so the buttons meet exactly at the middle */
+    margin: 12px auto 24px auto;
+    width: min(900px, calc(100% - 32px));
+    max-width: 900px;
+    box-sizing: border-box;
+}
+
+.listing-actions form {
+    flex: 1 1 50%;
+    margin: 0; /* remove default form margins */
+}
+
+.listing-actions form .btn {
+    width: 100%;
+    padding: 14px 12px;
+    border-radius: 0; /* square edges so buttons line up seamlessly */
+    box-sizing: border-box;
+}
+
+/* Make the left button have a left-rounded corner and the right button have right-rounded corner on wider screens */
+@media (min-width: 480px) {
+    .listing-actions form:first-child .btn { border-radius: 8px 0 0 8px; }
+    .listing-actions form:last-child  .btn { border-radius: 0 8px 8px 0; }
+}
+
+/* On very small screens stack them vertically so touch targets are easier */
+@media (max-width: 420px) {
+    .listing-actions {
+        flex-direction: column;
+        gap: 8px;
+        width: calc(100% - 24px);
+    }
+
+    .listing-actions form .btn {
+        border-radius: 8px; /* restore rounded corners when stacked */
+    }
+}

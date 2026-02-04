@@ -97,11 +97,11 @@
     </div>
 
     <div class="listing-actions">
-        <form method="post" action="{{ url_for('listing_status', listing_id=listing.id, status='Interested') }}" style="display:inline">
-            <button type="submit" class="btn">I'm Interested</button>
+        <form method="post" action="{{ url_for('listing_status', listing_id=listing.id, status='Interested') }}">
+            <button type="submit" class="btn btn--green">I'm Interested</button>
         </form>
-        <form method="post" action="{{ url_for('listing_status', listing_id=listing.id, status='Not Interested') }}" style="display:inline">
-            <button type="submit" class="btn btn--muted">Not Interested</button>
+        <form method="post" action="{{ url_for('listing_status', listing_id=listing.id, status='Not Interested') }}">
+            <button type="submit" class="btn btn--red">Not Interested</button>
         </form>
     </div>
 </div>
