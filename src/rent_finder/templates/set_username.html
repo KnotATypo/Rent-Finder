@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Set Username</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<h1>Choose a username</h1>
+{% if users %}
+    <form id="user-form" method="post" action="{{ url_for('login_post') }}">
+        <label for="username-select">Select user:</label>
+        <select id="username-select" name="username">
+            {% for u in users %}
+                <option value="{{ u }}">{{ u }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Login</button>
+    </form>
+{% else %}
+    <p>No users available.</p>
+{% endif %}
+</body>
+</html>

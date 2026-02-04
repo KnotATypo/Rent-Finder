@@ -1,21 +1,65 @@
-from flask import Flask, render_template
+import os
+from functools import wraps
+
+from flask import Flask, render_template, session, jsonify, request, redirect
 from flask import url_for
 from waitress import serve
 
 from rent_finder.logger import logger, configure_logging
-from rent_finder.model import Address, Listing, TravelTime, SavedLocations
+from rent_finder.model import Address, Listing, TravelTime, SavedLocations, AddressStatus, UserStatus, User
 from rent_finder.s3_client import S3Client
 
 app = Flask(__name__)
-app.secret_key = "super secret key"
+app.secret_key = os.urandom(24)
 
 s3_client = S3Client()
+# Filtering out the listings that haven't had their images downloaded (for now)
 listings = [listing for listing in Listing.select().join(Address) if s3_client.object_exists(listing.id + "/0.webp")]
+
+
+def require_user(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not get_current_user():
+            return redirect(url_for("set_username"))
+        return f(*args, **kwargs)
+
+    return decorated_function
+
+
+@app.route("/set_username")
+def users():
+    users = [user.username for user in User.select().order_by(User.id)]
+    return render_template("set_username.html", users=users)
+
+
+@app.route("/login", methods=["POST"])
+def login_post():
+    username = request.form.get("username")
+    if not username:
+        return redirect(url_for("users"))
+
+    user_q = list(User.select().where(User.username == username))
+    if not user_q:
+        return redirect(url_for("users"))
+
+    user = user_q[0]
+    session["user_id"] = user.id
+    session["username"] = user.username
+
+    return redirect(url_for("index"))
+
+
+def get_current_user():
+    username = session.get("username")
+    user_id = session.get("user_id")
+    if not username and not user_id:
+        return None
+    return username, user_id
 
 
 @app.route("/")
 def index():
-    # Filtering out the listings that haven't had their images downloaded (for now)
     return render_template("index.html", listings=listings)
 
 
