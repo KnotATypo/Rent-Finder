@@ -4,8 +4,10 @@
 
 {% block content %}
 <h1>Home</h1>
-<p style="text-align: center; margin-top: 24px; display:flex; gap:12px; justify-content:center;">
-    <a class="btn btn--green" href="/listing/">Go to listing</a>
-    <a class="btn" href="{{ url_for('interested') }}">Interested listings</a>
-</p>
+<div class="home-card">
+    <p class="home-actions">
+        <a class="btn btn--green" href="/listing/">Go to listings</a>
+        <a class="btn btn--blue" href="{{ url_for('interested') }}">Interested listings</a>
+    </p>
+</div>
 {% endblock %}

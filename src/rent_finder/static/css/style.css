@@ -540,8 +540,26 @@ body.listing-page .blurb {
     transition: background-color 120ms ease, transform 80ms ease;
 }
 
-.btn:active {
-    transform: translateY(1px);
+/* Stack home page buttons vertically and center them */
+.home-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+    margin: 0; /* card handles spacing */
+    padding: 16px 12px; /* provide some internal breathing room inside card */
+}
+
+/* Card that wraps the home actions */
+.home-card {
+    max-width: 400px;
+    margin: 24px auto;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.45);
+    overflow: hidden;
 }
 
 /* Green / Red modifiers */
@@ -563,6 +581,19 @@ body.listing-page .blurb {
 .btn--red:hover,
 .btn--red:focus {
     background: #c0392b;
+}
+
+/* Blue modifier for the home 'Interested listings' button */
+.btn--blue {
+    background: var(--accent);
+    color: #ffffff; /* white text for better contrast */
+    border-radius: 8px;
+}
+
+.btn--blue:hover,
+.btn--blue:focus {
+    background: #2b8fff; /* slightly darker blue on hover */
+    color: #ffffff;
 }
 
 /* Listing actions layout: two equal buttons side-by-side */
