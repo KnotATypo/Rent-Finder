@@ -3,15 +3,11 @@ from selenium.webdriver.chrome.options import Options
 from selenium_stealth import stealth
 
 
-def new_browser(headless=True) -> webdriver.Chrome:
+def new_browser() -> webdriver.Chrome:
     """
     Creates a new Chrome browser instance with the selenium_stealth additions
-
-    headless -- Sets the headless options for the browser (default True)
     """
     options = Options()
-    # if headless:
-    #     options.add_argument("--headless")
 
     # Flag needed to run in Docker
     options.add_argument("--no-sandbox")

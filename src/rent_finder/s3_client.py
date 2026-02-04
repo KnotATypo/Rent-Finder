@@ -1,5 +1,4 @@
 import os
-from gc import get_objects
 from typing import Dict
 
 import boto3

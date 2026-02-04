@@ -25,7 +25,7 @@ def get_rentals():
 
     listings = []
     suburbs = list(Suburb.select().where(Suburb.distance_to_source < 15))
-    browser = new_browser(headless=False)
+    browser = new_browser()
     logger.info(f"Found {len(suburbs)} suburbs")
     for suburb in tqdm(suburbs, desc="Searching suburbs", unit="location"):
         listings.append(domain.search(browser, suburb))
@@ -38,7 +38,7 @@ def populate_travel_times():
     modes = {TravelMode.PT, TravelMode.BIKE}
     saved_locations: list[SavedLocations] = list(SavedLocations.select())
 
-    browser = new_browser(headless=False)
+    browser = new_browser()
     for location in tqdm(saved_locations, desc="Populating travel times", unit="locations", leave=False):
 
         done_address_sets = []
@@ -74,7 +74,7 @@ def populate_travel_times():
             except Exception as e:
                 logger.error(f"Address {address}, {type(e).__name__}: {e}")
                 browser.close()
-                browser = new_browser(headless=False)
+                browser = new_browser()
 
 
 def update_listings():
@@ -91,7 +91,7 @@ def update_listings():
         for listing in Listing.select().where(Listing.unavailable.is_null())
         if not s3.object_exists(listing.id + "/0.webp")
     ]
-    browser = new_browser(headless=False)
+    browser = new_browser()
     logger.info(f"{len(listings)} listings to update")
     for listing in tqdm(listings, desc="Downloading extras", unit="listings", total=len(listings)):
         try:
@@ -99,7 +99,7 @@ def update_listings():
         except Exception as e:
             logger.error(f"Listing {listing}, {type(e).__name__}: {e}")
             browser.close()
-            browser = new_browser(headless=False)
+            browser = new_browser()
     browser.close()
 
 
