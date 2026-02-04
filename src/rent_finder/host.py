@@ -16,6 +16,7 @@ s3_client = S3Client()
 # Filtering out the listings that haven't had their images downloaded (for now)
 listings = [listing for listing in Listing.select().join(Address) if s3_client.object_exists(listing.id + "/0.webp")]
 
+
 @app.route("/set_username")
 def set_username():
     users = [user.username for user in User.select().order_by(User.id)]
@@ -62,8 +63,19 @@ def index():
     return render_template("index.html", listings=listings)
 
 
+@app.route("/listing/")
 @app.route("/listing/<listing_id>")
-def listing(listing_id):
+@require_user
+def listing(listing_id=None):
+    _, user_id = get_current_user()
+    if listing_id is None:
+        checked_addresses = [addr.address for addr in AddressStatus.select().where(AddressStatus.user == user_id)]
+        listing = list(
+            Listing.select().where(Listing.unavailable.is_null(), Listing.address.not_in(checked_addresses))
+        )[0]
+        listing_id = listing.id
+    else:
+        listing = Listing.get(Listing.id == listing_id)
     blurb_html = s3_client.get_object(listing_id + "/blurb.html")
 
     # Find first image file by numeric prefix
@@ -71,8 +83,6 @@ def listing(listing_id):
     images.sort(key=lambda x: int(x.split(".")[0]))
 
     image_urls = [url_for("serve_data", listing_id=listing_id, filename=image) for image in images]
-    listing = Listing.get(Listing.id == listing_id)
-
     travel_times = TravelTime.select().join(SavedLocations).where(TravelTime.address == listing.address)
 
     return render_template(
