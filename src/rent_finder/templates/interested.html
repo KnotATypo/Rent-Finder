@@ -16,7 +16,7 @@
     </thead>
     <tbody>
         {% for l in listing %}
-            <tr>
+            <tr {% if l.unavailable %}style="text-decoration: line-through; opacity: 0.6;" title="Unavailable"{% endif %}>
                 <td>
                     <a href="{{ url_for('listing', listing_id=l.id) }}">
                         <img src="{{ url_for('serve_data', listing_id=l.id, filename='0.webp') }}" alt="{{ l.address.address }}" style="width:120px;max-width:120px;height:auto;border:1px solid var(--border);">
