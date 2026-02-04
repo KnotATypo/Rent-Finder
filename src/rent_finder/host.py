@@ -90,14 +90,16 @@ def listing(listing_id=None):
     )
 
 
-@app.route("/listing/<listing_id>/status/<status>")
+@app.route("/listing/<listing_id>/status/<status>", methods=["POST"])
 @require_user
 def listing_status(listing_id, status):
     status = UserStatus(status)
     listing = Listing.get(Listing.id == listing_id)
     _, user_id = get_current_user()
-    addr_status = AddressStatus.select().where(
-        AddressStatus.address == listing.address, AddressStatus.user.id == user_id
+    addr_status = list(
+        AddressStatus.select()
+        .join(User)
+        .where(AddressStatus.address == listing.address, AddressStatus.user.id == user_id)
     )
     if addr_status:
         addr_status.status = status
@@ -105,7 +107,7 @@ def listing_status(listing_id, status):
     else:
         AddressStatus.create(address=listing.address, user=user_id, status=status)
 
-    return jsonify({"status": "success"}), 200
+    return redirect(url_for("listing"))
 
 
 @app.route("/data/<listing_id>/<path:filename>")

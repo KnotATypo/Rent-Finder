@@ -95,6 +95,15 @@
             <p>No blurb available for this listing.</p>
         {% endif %}
     </div>
+
+    <div class="listing-actions">
+        <form method="post" action="{{ url_for('listing_status', listing_id=listing.id, status='Interested') }}" style="display:inline">
+            <button type="submit" class="btn">I'm Interested</button>
+        </form>
+        <form method="post" action="{{ url_for('listing_status', listing_id=listing.id, status='Not Interested') }}" style="display:inline">
+            <button type="submit" class="btn btn--muted">Not Interested</button>
+        </form>
+    </div>
 </div>
 {% endblock %}
 
