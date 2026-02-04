@@ -26,7 +26,6 @@ db.connect()
 
 
 class UserStatus(Enum):
-    NEW = "New"
     INTERESTED = "Interested"
     NOT_INTERESTED = "Not Interested"
 
@@ -103,7 +102,7 @@ class AddressStatus(Model):
     id = AutoField(primary_key=True)
     address = ForeignKeyField(Address)
     user = ForeignKeyField(User)
-    status = EnumField(UserStatus, default=UserStatus.NEW)
+    status = EnumField(UserStatus, null=True)
 
     class Meta:
         database = db

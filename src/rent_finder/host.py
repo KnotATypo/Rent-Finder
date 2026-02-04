@@ -16,6 +16,11 @@ s3_client = S3Client()
 # Filtering out the listings that haven't had their images downloaded (for now)
 listings = [listing for listing in Listing.select().join(Address) if s3_client.object_exists(listing.id + "/0.webp")]
 
+@app.route("/set_username")
+def set_username():
+    users = [user.username for user in User.select().order_by(User.id)]
+    return render_template("set_username.html", users=users)
+
 
 def require_user(f):
     @wraps(f)
@@ -27,21 +32,15 @@ def require_user(f):
     return decorated_function
 
 
-@app.route("/set_username")
-def users():
-    users = [user.username for user in User.select().order_by(User.id)]
-    return render_template("set_username.html", users=users)
-
-
 @app.route("/login", methods=["POST"])
 def login_post():
     username = request.form.get("username")
     if not username:
-        return redirect(url_for("users"))
+        return redirect(url_for("set_username"))
 
     user_q = list(User.select().where(User.username == username))
     if not user_q:
-        return redirect(url_for("users"))
+        return redirect(url_for("set_username"))
 
     user = user_q[0]
     session["user_id"] = user.id
@@ -79,6 +78,24 @@ def listing(listing_id):
     return render_template(
         "listing.html", listing=listing, blurb_html=blurb_html, image_urls=image_urls, travel_times=travel_times
     )
+
+
+@app.route("/listing/<listing_id>/status/<status>")
+@require_user
+def listing_status(listing_id, status):
+    status = UserStatus(status)
+    listing = Listing.get(Listing.id == listing_id)
+    _, user_id = get_current_user()
+    addr_status = AddressStatus.select().where(
+        AddressStatus.address == listing.address, AddressStatus.user.id == user_id
+    )
+    if addr_status:
+        addr_status.status = status
+        addr_status.save()
+    else:
+        AddressStatus.create(address=listing.address, user=user_id, status=status)
+
+    return jsonify({"status": "success"}), 200
 
 
 @app.route("/data/<listing_id>/<path:filename>")

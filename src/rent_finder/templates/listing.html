@@ -1,12 +1,10 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ listing.address.address }}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-<body class="listing-page">
+{% extends 'base.html' %}
+
+{% block title %}{{ listing.address.address }}{% endblock %}
+
+{% block body_class %}listing-page{% endblock %}
+
+{% block content %}
 <div class="hero">
     <div class="hero-image carousel" id="carousel">
         {% for src in image_urls %}
@@ -98,7 +96,8 @@
         {% endif %}
     </div>
 </div>
+{% endblock %}
 
+{% block scripts %}
 <script src="{{ url_for('static', filename='js/carousel.js') }}"></script>
-</body>
-</html>
+{% endblock %}

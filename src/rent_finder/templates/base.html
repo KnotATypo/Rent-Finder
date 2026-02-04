@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Rent Finder{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header" role="banner">
+    <div class="site-header__inner">
+        <div class="site-branding">
+            <a class="site-logo" href="{{ url_for('index') }}">Rent Finder</a>
+        </div>
+
+        <nav class="site-nav" role="navigation" aria-label="Main navigation">
+            <ul>
+                <li><a href="{{ url_for('index') }}">Listings</a></li>
+                <li><a href="{{ url_for('set_username') }}">{{ session.get('username') or 'Set user' }}</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<main id="main" class="site-main">
+    {% block content %}{% endblock %}
+</main>
+
+{% block scripts %}{% endblock %}
+</body>
+</html>

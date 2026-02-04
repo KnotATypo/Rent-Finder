@@ -11,6 +11,9 @@
     --control-bg: rgba(0, 0, 0, 0.33);
     --control-color: #ffffff;
     --dot-bg: rgba(255, 255, 255, 0.3);
+
+    /* height of the sticky header - used to offset full-bleed content */
+    --site-header-height: 48px;
 }
 
 body {
@@ -67,8 +70,9 @@ body.listing-page .hero-image {
     right: 50%;
     margin-left: -50vw;
     margin-right: -50vw;
+    /* fill viewport minus the sticky header so the bottom of the carousel sits at the viewport bottom */
     width: 100vw;
-    height: 100vh; /* full viewport height */
+    height: calc(100vh - var(--site-header-height));
     overflow: hidden;
     display: flex;
     align-items: center;
@@ -79,7 +83,7 @@ body.listing-page .hero-image {
 /* Show the whole image (no side cropping) */
 body.listing-page .hero-image img {
     max-width: 100vw;
-    max-height: 100vh;
+    max-height: calc(100vh - var(--site-header-height));
     width: auto;
     height: auto;
     object-fit: contain; /* show whole image without cropping */
@@ -90,44 +94,30 @@ body.listing-page .hero-image img {
 body.listing-page .hero-image::after {
     content: '\2191'; /* up arrow */
     position: absolute;
-    bottom: 14px;
+    /* place the arrow above the carousel dots (dots sit at ~40px from the bottom) */
+    /* move it further up so it doesn't collide with dots; leave safe-area accounted for */
+    bottom: calc(40px + 28px + env(safe-area-inset-bottom, 0px));
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.08);
     color: #fff;
-    width: 36px;
-    height: 36px;
-    border-radius: 18px;
+    width: 28px;
+    height: 28px;
+    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
+    font-size: 14px;
     backdrop-filter: blur(4px);
-}
-
-/* keep the blurb visually separated */
-body.listing-page .blurb {
-    background: var(--card-bg);
-    padding: 16px;
-    border-top: 1px solid var(--border);
-}
-
-/* Prevent scraped inline wrappers from clipping the blurb on listing pages */
-body.listing-page .noscript-expander-wrapper,
-body.listing-page .noscript-expander-content {
-    max-height: none;
-    overflow: visible;
-}
-
-/* Ensure listing pages are full-bleed and start at the very top (remove default page margin) */
-body.listing-page {
-    max-width: none;
-    margin: 0; /* remove the site-wide 40px margin on listing pages */
-    padding: 0; /* remove site padding so hero-image can reach the top */
-    overflow-x: hidden;
+    z-index: 46; /* sit above the carousel image but below any important controls */
 }
 
 @media (min-width: 700px) {
+    /* desktop: give the arrow slightly more room above the dots */
+    body.listing-page .hero-image::after {
+        bottom: calc(40px + 36px + env(safe-area-inset-bottom, 0px));
+    }
+
     body .hero img,
     body .no-image {
         width: 480px;
@@ -193,7 +183,7 @@ body.listing-page {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
-    bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(40px + env(safe-area-inset-bottom, 0px));
     display: flex;
     gap: 8px;
 }
@@ -216,7 +206,7 @@ body.listing-page {
     /* Position the caption relative to the carousel container so it stays attached (not floating) */
     position: absolute;
     left: calc(12px + env(safe-area-inset-left, 0px)); /* small inset from left */
-    bottom: calc(56px + 16px + env(safe-area-inset-bottom, 0px)); /* sit above the dots; respect safe area */
+    bottom: calc(40px + 16px + env(safe-area-inset-bottom, 0px)); /* sit above the dots; respect safe area */
     z-index: 45; /* above dots/controls but within carousel stacking context */
     display: flex;
     flex-direction: column; /* stack price above the icon groups */
@@ -263,13 +253,13 @@ body.listing-page {
 @media (min-width: 700px) {
     /* On desktop, keep the same relative placement but slightly adjust the dots spacing */
     .carousel-dots {
-        bottom: 56px; /* desktop: simpler spacing (carousel not full-bleed) */
+        bottom: 40px; /* desktop: simpler spacing (carousel not full-bleed) */
     }
 
     .carousel-footer {
         /* still absolute relative to carousel; keep caption above the dots */
         left: 12px;
-        bottom: calc(56px + 16px + env(safe-area-inset-bottom, 0px));
+        bottom: calc(40px + 16px + env(safe-area-inset-bottom, 0px));
         z-index: 45;
         pointer-events: none;
     }
@@ -386,5 +376,135 @@ body.listing-page {
     .travel-times thead th,
     .travel-times tbody td {
         padding: 10px 12px;
+    }
+}
+
+/* Site header and global layout */
+.site-header {
+    /* make header fixed so it doesn't shift during scroll and we can reserve space for it */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(180deg, rgba(11,11,13,0.95), rgba(11,11,13,0.9));
+    border-bottom: 1px solid var(--border);
+    z-index: 1000;
+    height: var(--site-header-height);
+    display: flex;
+    align-items: center;
+}
+
+/* push the page content down so it isn't hidden under the fixed header */
+.site-main {
+    max-width: 900px;
+    margin: 24px auto;
+    padding: var(--site-header-height) 16px 0 16px; /* top padding reserves header space */
+}
+
+/* Listing pages: keep full-bleed layout but still reserve header space so hero fits exactly */
+body.listing-page {
+    max-width: none;
+    margin: 0; /* remove the site-wide 40px margin on listing pages */
+    padding: 0; /* remove site padding so hero-image can reach the top */
+    overflow-x: hidden;
+}
+
+body.listing-page .site-main {
+    margin: 0;
+    padding-top: 0; /* remove main padding — we'll offset the hero itself */
+    padding-left: 0;
+    padding-right: 0;
+}
+
+/* Offset the full-bleed hero so it sits below the fixed header and fills the remaining viewport */
+body.listing-page .hero-image {
+    margin-top: var(--site-header-height);
+}
+
+/* Make sure header's inner layout still aligns with page content width */
+.site-header__inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.site-logo {
+    color: var(--text);
+    font-weight: 700;
+    font-size: 18px;
+    text-decoration: none;
+}
+
+.site-nav ul {
+    display: flex;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    align-items: center;
+}
+
+.site-nav a {
+    color: var(--muted);
+    padding: 6px 8px;
+    border-radius: 6px;
+}
+
+.site-nav a:hover,
+.site-nav a:focus {
+    color: var(--text);
+    background: rgba(255,255,255,0.02);
+}
+
+.skip-link {
+    position: absolute;
+    left: -999px;
+    top: auto;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+.skip-link:focus {
+    left: 16px;
+    top: 12px;
+    width: auto;
+    height: auto;
+    padding: 8px 12px;
+    background: #000;
+    color: #fff;
+    z-index: 1100;
+    border-radius: 6px;
+}
+
+/* keep the blurb visually separated */
+body.listing-page .blurb {
+    background: var(--card-bg);
+    padding: 16px;
+    border-top: 1px solid var(--border);
+    box-sizing: border-box; /* ensure padding counts into width */
+    flex: 0 1 auto; /* don't stretch to fill flex container */
+    /* use min() so the blurb never exceeds the site max-width but keeps 16px gutters on each side */
+    width: min(900px, calc(100% - 32px));
+    max-width: 900px; /* constrain content to main site width */
+    margin: 12px auto 0 auto; /* center the blurb and add a small top gap */
+    align-self: center; /* ensure it stays centered inside the full-bleed hero */
+}
+
+@media (max-width: 480px) {
+    body.listing-page .blurb {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+}
+
+@media (min-width: 1000px) {
+    /* on very large screens keep the blurb constrained by max-width */
+    body.listing-page .blurb {
+        width: auto;
     }
 }
