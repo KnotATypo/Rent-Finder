@@ -61,7 +61,6 @@
     </div>
 
     <div class="blurb">
-        <a href="{{ url_for('index') }}">← Back to listings</a>
         <h1>
             <a href="https://www.google.com/maps/place/{{ listing.address.address|replace(' ', '+')|replace('/', '%2F') }}"
                target="_blank" rel="noopener noreferrer">{{ listing.address.address }}</a></h1>
