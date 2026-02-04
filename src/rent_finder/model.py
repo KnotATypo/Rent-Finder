@@ -35,6 +35,11 @@ class TravelMode(Enum):
     CAR = "Car"
 
 
+class FilterType(Enum):
+    PRICE = "Price"
+    BEDS = "Beds"
+
+
 @dataclass
 class Coordinate:
     lat: float
@@ -44,7 +49,12 @@ class Coordinate:
         return f"({self.lat}, {self.lon})"
 
 
-class Address(Model):
+class BaseModel(Model):
+    class Meta:
+        database = db
+
+
+class Address(BaseModel):
     id = AutoField(primary_key=True)
     address = TextField()
     beds = IntegerField()
@@ -53,61 +63,43 @@ class Address(Model):
     latitude = FloatField(null=True)
     longitude = FloatField(null=True)
 
-    class Meta:
-        database = db
 
-
-class Listing(Model):
+class Listing(BaseModel):
     id = TextField(primary_key=True)
     address = ForeignKeyField(Address)
     price = IntegerField()
     available = DateTimeField(default=datetime.datetime.now())
     unavailable = DateTimeField(null=True)
 
-    class Meta:
-        database = db
 
-
-class SavedLocations(Model):
+class SavedLocations(BaseModel):
     id = AutoField(primary_key=True)
     latitude = FloatField()
     longitude = FloatField()
     name = TextField()
 
-    class Meta:
-        database = db
 
-
-class TravelTime(Model):
+class TravelTime(BaseModel):
     id = AutoField(primary_key=True)
     address = ForeignKeyField(Address)
     travel_time = IntegerField()
     travel_mode = EnumField(TravelMode)
     to_location = ForeignKeyField(SavedLocations)
 
-    class Meta:
-        database = db
 
-
-class User(Model):
+class User(BaseModel):
     id = AutoField(primary_key=True)
     username = TextField()
 
-    class Meta:
-        database = db
 
-
-class AddressStatus(Model):
+class AddressStatus(BaseModel):
     id = AutoField(primary_key=True)
     address = ForeignKeyField(Address)
     user = ForeignKeyField(User)
     status = EnumField(UserStatus, null=True)
 
-    class Meta:
-        database = db
 
-
-class Suburb(Model):
+class Suburb(BaseModel):
     id = AutoField(primary_key=True)
     name = TextField()
     postcode = IntegerField()
@@ -115,8 +107,12 @@ class Suburb(Model):
     longitude = FloatField()
     distance_to_source = FloatField()  # Centre point of search
 
-    class Meta:
-        database = db
+
+class Filter(BaseModel):
+    id = AutoField(primary_key=True)
+    user = ForeignKeyField(User)
+    type = EnumField(FilterType)
+    value = TextField()
 
 
-db.create_tables([Address, Listing, TravelTime, SavedLocations, User, AddressStatus, Suburb], safe=True)
+db.create_tables([Address, Listing, TravelTime, SavedLocations, User, AddressStatus, Suburb, Filter], safe=True)

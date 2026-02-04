@@ -6,7 +6,8 @@ from flask import url_for
 from waitress import serve
 
 from rent_finder.logger import logger, configure_logging
-from rent_finder.model import Listing, TravelTime, SavedLocations, AddressStatus, UserStatus, User, Address
+from rent_finder.model import Listing, TravelTime, SavedLocations, AddressStatus, UserStatus, User, Address, Filter, \
+    FilterType
 from rent_finder.s3_client import S3Client
 
 app = Flask(__name__)
@@ -49,11 +50,7 @@ def login_post():
 
 
 def get_current_user():
-    username = session.get("username")
-    user_id = session.get("user_id")
-    if not username and not user_id:
-        return None
-    return username, user_id
+    return session.get("user_id")
 
 
 @app.route("/")
@@ -66,7 +63,7 @@ def index():
 @app.route("/listing/<listing_id>")
 @require_user
 def listing(listing_id=None):
-    _, user_id = get_current_user()
+    user_id = get_current_user()
     if listing_id is None:
         checked_addresses = [addr.address for addr in AddressStatus.select().where(AddressStatus.user == user_id)]
         listing = list(
@@ -94,7 +91,7 @@ def listing(listing_id=None):
 def listing_status(listing_id, status):
     status = UserStatus(status)
     listing = Listing.get(Listing.id == listing_id)
-    _, user_id = get_current_user()
+    user_id = get_current_user()
     addr_status = list(
         AddressStatus.select()
         .join(User)
@@ -112,7 +109,7 @@ def listing_status(listing_id, status):
 @app.route("/interested")
 @require_user
 def interested():
-    _, user_id = get_current_user()
+    user_id = get_current_user()
     listing = list(
         Listing.select()
         .join(Address)
@@ -126,10 +123,29 @@ def interested():
     )
     return render_template("interested.html", listing=listing)
 
+
 @app.route("/saved_locations")
 def saved_locations():
     return render_template("saved_locations.html", saved_locations=list(SavedLocations.select()))
 
+
+@app.route("/set_filters")
+def set_filters():
+    user_id = get_current_user()
+    return render_template("set_filters.html", filters=Filter.select().where(Filter.user == user_id))
+
+@app.route("/filter_update", methods=["POST", "DELETE"])
+@require_user
+def filter_update():
+    user_id = get_current_user()
+    if request.method == "DELETE":
+        Filter.delete().where(Filter.id == request.form.get("filter_id"))
+        return redirect(url_for("set_filters"))
+    elif request.method == "POST":
+        filter_type = request.form.get("type")
+        filter_value = request.form.get("value")
+        Filter.create(type=FilterType(filter_type), value=filter_value, user=user_id)
+        return redirect(url_for("set_filters"))
 
 @app.route("/data/<listing_id>/<path:filename>")
 def serve_data(listing_id, filename):

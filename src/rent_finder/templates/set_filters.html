@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Set Filters{% endblock %}
+
+{% block content %}
+    <section class="card">
+        <div class="card-header">
+            <h1>Filters</h1>
+            <p class="muted">Add or remove simple filters to refine the listings you see.</p>
+        </div>
+
+        <div class="card-body">
+            <h2>Add filter</h2>
+            <form id="add-filter-form" method="post" action="{{ url_for('filter_update') }}">
+                <label for="filter-type">Type</label>
+                <select id="filter-type" name="type">
+                    <option value="Price">Price</option>
+                    <option value="Beds">Beds</option>
+                </select>
+
+                <label for="filter-value">Value</label>
+                <input id="filter-value" name="value" type="text" placeholder="e.g. &lt;1500 or 2+" required>
+
+                <button class="btn btn--green" type="submit">Add</button>
+            </form>
+        </div>
+
+        <hr>
+
+        <div class="card-body">
+            <h2>Existing filters</h2>
+            {% if filters and filters|length > 0 %}
+                <table class="listing-table">
+                    <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Value</th>
+                        <th class="actions">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for f in filters %}
+                        <tr>
+                            <td>{{ f.type.value }}</td>
+                            <td>{{ f.value }}</td>
+                            <td class="actions">
+                                <button class="btn btn--red delete-filter" data-filter-id="{{ f.id }}">Delete</button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>No filters set.</p>
+            {% endif %}
+        </div>
+    </section>
+
+{% endblock %}
+
+{% block scripts %}
+    <script>
+    document.addEventListener('click', e => {
+        const btn = e.target.closest('.delete-filter');
+        if (!btn) return;
+        e.preventDefault();
+        if (!confirm('Delete this filter?')) return;
+        const id = btn.dataset.filterId;
+        fetch('{{ url_for('filter_update') }}', {
+            method: 'DELETE',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: 'filter_id=' + encodeURIComponent(id)
+        }).then(r => r.redirected ? location = r.url : location.reload())
+          .catch(() => alert('Failed to delete filter'));
+    });
+    </script>
+{% endblock %}
