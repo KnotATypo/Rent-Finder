@@ -1,0 +1,43 @@
+name: Build and Push Docker image
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          tags: |
+            ${{ vars.DOCKER_USERNAME }}/${{ vars.CONTAINER_TAG }}:${{ github.sha }}
+            ${{ vars.DOCKER_USERNAME }}/${{ vars.CONTAINER_TAG }}:latest
+
+      - name: Send HTTP request
+        id: webhook
+        uses: Tyrrrz/action-http-request@1.1.2
+        with:
+          url: https://docker-webhook.knotatypo.com/deploy/${{ vars.CONTAINER_TAG }}
+          method: POST
+          headers: |
+            Secret-Token: ${{ secrets.WEBHOOK_SECRET }}
+          retry-count: 3
+          retry-delay: 500
+
+      - name: Print outputs
+        run: |
+          echo "Status: ${{ steps.webhook.outputs.status }}"
+          echo "Body: ${{ steps.webhook.outputs.body }}"
