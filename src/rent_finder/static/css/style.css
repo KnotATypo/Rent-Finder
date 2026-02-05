@@ -634,6 +634,90 @@ body.listing-page .blurb {
     }
 }
 
+/* Form controls used by small forms (e.g., set username) */
+.form-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: nowrap;
+}
+
+.form-controls select, .form-controls input[type="text"] {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background: rgba(255, 255, 255, 0.07); /* match add-filter-controls */
+    color: var(--text);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 1;
+    height: 44px;
+    box-sizing: border-box;
+    flex: 1 1 auto;
+    font-family: inherit;
+    vertical-align: middle;
+    display: inline-flex;
+    align-items: center;
+}
+
+.form-controls select::-ms-expand {
+    display: none;
+}
+
+.form-controls select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(88, 166, 255, 0.08);
+}
+
+.form-controls select option {
+    background: var(--card-bg);
+    color: var(--text);
+}
+
+/* Make select and button appear as a single joined control */
+.form-controls select {
+    border-radius: 8px 0 0 8px;
+    min-width: 260px;
+    flex: 1 1 auto;
+    border-right: none;
+    background-clip: padding-box;
+}
+
+.form-controls .btn {
+    border-radius: 0 8px 8px 0;
+    flex: 0 0 auto;
+    border-left: none;
+}
+
+.form-controls select:hover {
+    border-color: rgba(255, 255, 255, 0.18);
+}
+
+.form-controls .btn:hover {
+    transform: translateY(-1px);
+}
+
+@media (max-width: 420px) {
+    .form-controls {
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    .form-controls select, .form-controls input[type="text"] {
+        padding: 8px 10px;
+        height: 40px;
+        min-height: 40px;
+    }
+
+    .form-controls .btn {
+        padding: 8px 10px;
+        height: 40px;
+    }
+}
+
 /* Listing actions */
 .listing-actions {
     display: flex;
