@@ -1,6 +1,5 @@
 /* Theme variables */
 :root {
-    /* Dark-only site: dark theme values are the defaults */
     --bg: #0b0b0d;
     --text: #e6e6e6;
     --muted: #9aa0a6;
@@ -11,8 +10,6 @@
     --control-bg: rgba(0, 0, 0, 0.33);
     --control-color: #ffffff;
     --dot-bg: rgba(255, 255, 255, 0.3);
-
-    /* height of the sticky header - used to offset full-bleed content */
     --site-header-height: 48px;
 }
 
@@ -40,7 +37,6 @@ a {
     text-decoration: none;
 }
 
-
 body .hero {
     display: flex;
     gap: 20px;
@@ -60,42 +56,37 @@ body .blurb {
     flex: 1;
     margin-top: 12px;
     background: var(--card-bg);
-    padding: 0; /* listing page overrides will add padding where needed */
+    padding: 0;
 }
 
-/* Listing-page specific: make hero-image fill the viewport on small screens */
+/* Listing-page hero: full-bleed on small screens, constrained on desktop */
 body.listing-page .hero-image {
     position: relative;
     left: 50%;
     right: 50%;
     margin-left: -50vw;
     margin-right: -50vw;
-    /* fill viewport minus the sticky header so the bottom of the carousel sits at the viewport bottom */
     width: 100vw;
     height: calc(100vh - var(--site-header-height));
     overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--hero-bg); /* letterbox background when image doesn't fill area */
+    background: var(--hero-bg);
 }
 
-/* Show the whole image (no side cropping) */
 body.listing-page .hero-image img {
     max-width: 100vw;
     max-height: calc(100vh - var(--site-header-height));
     width: auto;
     height: auto;
-    object-fit: contain; /* show whole image without cropping */
+    object-fit: contain;
     display: block;
 }
 
-/* subtle swipe-up indicator */
 body.listing-page .hero-image::after {
-    content: '\2191'; /* up arrow */
+    content: '\2191';
     position: absolute;
-    /* place the arrow above the carousel dots (dots sit at ~40px from the bottom) */
-    /* move it further up so it doesn't collide with dots; leave safe-area accounted for */
     bottom: calc(40px + 28px + env(safe-area-inset-bottom, 0px));
     left: 50%;
     transform: translateX(-50%);
@@ -109,22 +100,19 @@ body.listing-page .hero-image::after {
     justify-content: center;
     font-size: 14px;
     backdrop-filter: blur(4px);
-    z-index: 46; /* sit above the carousel image but below any important controls */
+    z-index: 46;
 }
 
 @media (min-width: 700px) {
-    /* desktop: give the arrow slightly more room above the dots */
     body.listing-page .hero-image::after {
         bottom: calc(40px + 36px + env(safe-area-inset-bottom, 0px));
     }
 
-    body .hero img,
-    body .no-image {
+    body .hero img, body .no-image {
         width: 480px;
         max-width: 480px;
     }
 
-    /* On desktop, revert to side-by-side; hero-image becomes normal-sized */
     body.listing-page {
         max-width: 900px;
         margin: 40px auto;
@@ -179,6 +167,7 @@ body.listing-page .hero-image::after {
     right: 12px;
 }
 
+/* Dots and footer: keep base rules and only override small differences in media queries */
 .carousel-dots {
     position: absolute;
     left: 50%;
@@ -200,19 +189,16 @@ body.listing-page .hero-image::after {
     background: #fff;
 }
 
-
-/* Footer below the carousel so text isn't overlaid on images */
 .carousel-footer {
-    /* Position the caption relative to the carousel container so it stays attached (not floating) */
     position: absolute;
-    left: calc(12px + env(safe-area-inset-left, 0px)); /* small inset from left */
-    bottom: calc(40px + 16px + env(safe-area-inset-bottom, 0px)); /* sit above the dots; respect safe area */
-    z-index: 45; /* above dots/controls but within carousel stacking context */
+    left: calc(12px + env(safe-area-inset-left, 0px));
+    bottom: calc(40px + 16px + env(safe-area-inset-bottom, 0px));
+    z-index: 45;
     display: flex;
-    flex-direction: column; /* stack price above the icon groups */
-    align-items: flex-start; /* pin content to left of the carousel */
+    flex-direction: column;
+    align-items: flex-start;
     gap: 6px;
-    pointer-events: none; /* keep underlying controls clickable */
+    pointer-events: none;
 }
 
 .carousel-footer__price {
@@ -220,10 +206,10 @@ body.listing-page .hero-image::after {
     color: #fff;
     padding: 8px 10px;
     border-radius: 10px;
-    font-size: 18px; /* slightly larger */
+    font-size: 18px;
     font-weight: 600;
     line-height: 1;
-    pointer-events: auto; /* allow selecting/copying if needed */
+    pointer-events: auto;
 }
 
 .carousel-footer__text {
@@ -232,16 +218,15 @@ body.listing-page .hero-image::after {
     padding: 8px 10px;
     border-radius: 8px;
     font-size: 14px;
-    pointer-events: auto; /* allow selecting/copying text if needed */
-    text-align: left; /* align groups left when stacked */
+    pointer-events: auto;
+    text-align: left;
 }
 
-/* Icon + number spacing inside the carousel footer */
 .carousel-footer__text > span {
-    display: inline-flex; /* keep groups inline but align items */
+    display: inline-flex;
     align-items: center;
-    gap: 8px; /* space between svg and the number */
-    margin-inline-end: 12px; /* space between each group (RTL-safe) */
+    gap: 8px;
+    margin-inline-end: 12px;
 }
 
 .carousel-footer__text svg {
@@ -251,26 +236,23 @@ body.listing-page .hero-image::after {
 }
 
 @media (min-width: 700px) {
-    /* On desktop, keep the same relative placement but slightly adjust the dots spacing */
     .carousel-dots {
-        bottom: 40px; /* desktop: simpler spacing (carousel not full-bleed) */
+        bottom: 40px;
     }
 
+    /* Desktop: slightly adjust footer inset */
     .carousel-footer {
-        /* still absolute relative to carousel; keep caption above the dots */
         left: 12px;
         bottom: calc(40px + 16px + env(safe-area-inset-bottom, 0px));
-        z-index: 45;
-        pointer-events: none;
     }
 }
 
-/* Travel-times table improvements: readable, compact, responsive */
+/* Travel-times table: compact, readable, responsive */
 .travel-times {
     width: 100%;
     border-collapse: collapse;
     margin-top: 8px;
-    font-size: 13px; /* slightly smaller for compactness */
+    font-size: 13px;
     color: var(--text);
     background: transparent;
 }
@@ -298,7 +280,6 @@ body.listing-page .hero-image::after {
     align-items: center;
 }
 
-/* Compact mode badge */
 .travel-times .mode-badge {
     display: inline-block;
     padding: 4px 8px;
@@ -312,31 +293,28 @@ body.listing-page .hero-image::after {
     letter-spacing: 0.4px;
 }
 
-/* Per-mode color tweaks (dark-only site) */
 .travel-times .mode-badge--pt {
-    color: #0b5fff; /* blue */
+    color: #0b5fff;
     background: rgba(88, 166, 255, 0.06);
     border-color: rgba(88, 166, 255, 0.12);
 }
 
 .travel-times .mode-badge--bike {
-    color: #0aa65a; /* green */
+    color: #0aa65a;
     background: rgba(46, 204, 113, 0.04);
     border-color: rgba(46, 204, 113, 0.08);
 }
 
 .travel-times .mode-badge--car {
-    color: #d97a00; /* orange */
+    color: #d97a00;
     background: rgba(255, 165, 64, 0.04);
     border-color: rgba(255, 165, 64, 0.08);
 }
 
-/* Slightly closer zebra striping for compact rows (dark background) */
 .travel-times tbody tr:nth-child(even) {
     background: rgba(255, 255, 255, 0.01);
 }
 
-/* Responsive: collapse into stacked items on very small screens */
 @media (max-width: 640px) {
     .travel-times {
         font-size: 14px;
@@ -371,17 +349,14 @@ body.listing-page .hero-image::after {
     }
 }
 
-/* Small utility tweak: keep the table visually compact on desktop */
 @media (min-width: 700px) {
-    .travel-times thead th,
-    .travel-times tbody td {
+    .travel-times thead th, .travel-times tbody td {
         padding: 10px 12px;
     }
 }
 
-/* Site header and global layout */
+/* Site header and layout */
 .site-header {
-    /* make header fixed so it doesn't shift during scroll and we can reserve space for it */
     position: fixed;
     top: 0;
     left: 0;
@@ -394,44 +369,36 @@ body.listing-page .hero-image::after {
     align-items: center;
 }
 
-/* push the page content down so it isn't hidden under the fixed header */
 .site-main {
     max-width: 900px;
     margin: 24px auto;
-    padding: var(--site-header-height) 16px 0 16px; /* top padding reserves header space */
+    padding: var(--site-header-height) 16px 0 16px;
 }
 
-/* Listing pages: keep full-bleed layout but still reserve header space so hero fits exactly */
 body.listing-page {
     max-width: none;
-    margin: 0; /* remove the site-wide 40px margin on listing pages */
-    padding: 0; /* remove site padding so hero-image can reach the top */
+    margin: 0;
+    padding: 0;
     overflow-x: hidden;
 }
 
 body.listing-page .site-main {
     margin: 0;
-    padding-top: 0; /* remove main padding — we'll offset the hero itself */
+    padding-top: 0;
     padding-left: 0;
     padding-right: 0;
 }
 
-/* Offset the full-bleed hero so it sits below the fixed header and fills the remaining viewport */
 body.listing-page .hero-image {
     margin-top: var(--site-header-height);
 }
 
-/* Make sure header's inner layout still aligns with page content width */
 .site-header__inner {
     max-width: 900px;
     margin: 0 auto;
     padding: 0 16px;
     display: flex;
     align-items: center;
-    /* center the header content; we'll absolutely position the logo and nav
-       so the logo can be pinned flush to the left edge while the nav stays
-       pinned to the right. (Do not set position here so absolute children
-       are positioned relative to the fixed .site-header / viewport.) */
     justify-content: center;
     gap: 16px;
 }
@@ -441,7 +408,6 @@ body.listing-page .hero-image {
     font-weight: 700;
     font-size: 18px;
     text-decoration: none;
-    /* Pin the logo to the left edge of the header (viewport) and vertically center it */
     position: absolute;
     left: 16px;
     top: 50%;
@@ -449,7 +415,6 @@ body.listing-page .hero-image {
 }
 
 .site-nav {
-    /* Keep the navigation pinned to the right edge of the header */
     position: absolute;
     right: 16px;
 }
@@ -474,18 +439,16 @@ body.listing-page .hero-image {
     background: rgba(255, 255, 255, 0.02);
 }
 
-/* keep the blurb visually separated */
 body.listing-page .blurb {
     background: var(--card-bg);
     padding: 16px;
     border-top: 1px solid var(--border);
-    box-sizing: border-box; /* ensure padding counts into width */
-    flex: 0 1 auto; /* don't stretch to fill flex container */
-    /* use min() so the blurb never exceeds the site max-width but keeps 16px gutters on each side */
+    box-sizing: border-box;
+    flex: 0 1 auto;
     width: min(900px, calc(100% - 32px));
-    max-width: 900px; /* constrain content to main site width */
-    margin: 12px auto 0 auto; /* center the blurb and add a small top gap */
-    align-self: center; /* ensure it stays centered inside the full-bleed hero */
+    max-width: 900px;
+    margin: 12px auto 0;
+    align-self: center;
 }
 
 @media (max-width: 480px) {
@@ -496,13 +459,12 @@ body.listing-page .blurb {
 }
 
 @media (min-width: 1000px) {
-    /* on very large screens keep the blurb constrained by max-width */
     body.listing-page .blurb {
         width: auto;
     }
 }
 
-/* Buttons: base and modifiers */
+/* Buttons */
 .btn {
     display: inline-flex;
     align-items: center;
@@ -518,10 +480,9 @@ body.listing-page .blurb {
     transition: background-color 120ms ease, transform 80ms ease;
 }
 
-/* Color modifiers for buttons (home/actions) */
 .btn--green {
-    background: #2eb85c; /* green */
-    color: #000; /* use black text for contrast */
+    background: #2eb85c;
+    color: #000;
 }
 
 .btn--green:focus {
@@ -530,8 +491,8 @@ body.listing-page .blurb {
 }
 
 .btn--red {
-    background: #e74c3c; /* red */
-    color: #000; /* use black text for contrast */
+    background: #e74c3c;
+    color: #000;
 }
 
 .btn--red:focus {
@@ -541,38 +502,34 @@ body.listing-page .blurb {
 
 .btn--blue {
     background: var(--accent);
-    color: #000; /* black text for contrast */
-    border-radius: 8px;
+    color: #000;
 }
 
 .btn--blue:focus {
-    background: #2b8fff; /* slightly darker blue on focus */
+    background: #2b8fff;
     color: #000;
 }
 
 .btn--purple {
-    /* changed from teal to purple to give a distinct color */
-    background: #8e44ad; /* purple */
-    color: #000; /* black text for contrast */
-}
-
-.btn--purple:focus {
-    background: #7a2fa0; /* slightly darker purple on focus */
+    background: #8e44ad;
     color: #000;
 }
 
-/* Stack home page buttons vertically and center them */
+.btn--purple:focus {
+    background: #7a2fa0;
+    color: #000;
+}
+
 .home-actions {
     display: flex;
     flex-direction: column;
     gap: 12px;
     align-items: center;
     justify-content: center;
-    margin: 0; /* card handles spacing */
-    padding: 16px 12px; /* provide some internal breathing room inside card */
+    margin: 0;
+    padding: 16px 12px;
 }
 
-/* Card that wraps the home actions */
 .home-card {
     max-width: 400px;
     margin: 24px auto;
@@ -583,21 +540,18 @@ body.listing-page .blurb {
     overflow: hidden;
 }
 
-/* Add-filter controls: keep select, input and add button inline and cohesive */
+/* Add-filter controls */
 .add-filter-controls {
     display: flex;
     gap: 8px;
-    align-items: center; /* vertically center controls */
-    flex-wrap: nowrap; /* keep controls inline */
+    align-items: center;
+    flex-wrap: nowrap;
 }
 
-/* Make the controls clearly visible on the dark background */
-.add-filter-controls select,
-.add-filter-controls input[type="text"] {
+.add-filter-controls select, .add-filter-controls input[type="text"] {
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
-    /* stronger control background so selects stand out from the card */
     background: rgba(255, 255, 255, 0.07);
     color: var(--text);
     border: 1px solid rgba(255, 255, 255, 0.12);
@@ -605,88 +559,70 @@ body.listing-page .blurb {
     border-radius: 10px;
     font-size: 14px;
     line-height: 1;
-    height: 44px; /* ensure same height as buttons */
-    box-sizing: border-box; /* consistent sizing */
+    height: 44px;
+    box-sizing: border-box;
 }
 
-/* Ensure the add button lines up with the selects/inputs */
 .add-filter-controls .btn {
     height: 44px;
     padding: 10px 14px;
     box-sizing: border-box;
 }
 
-/* Custom, larger arrow for better discoverability */
 .add-filter-controls select {
-    padding-right: 44px; /* room for the arrow */
-    /* use a single inline-SVG chevron for a clean, crisp arrow across browsers */
+    padding-right: 44px;
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='8' viewBox='0 0 14 8'><path d='M1 2.5 L7 6.5 L13 2.5' stroke='%239aa0a6' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round' fill='none'/></svg>");
     background-position: calc(100% - 16px) 50%;
     background-size: 14px 8px;
     background-repeat: no-repeat;
 }
 
-/* Operator should only be as wide as its content */
 #filter-operator {
-    /* keep the native arrow removed */
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
     background-image: none;
-
-    /* shrink to fit the symbol while keeping the same control height */
     width: auto;
-    min-width: 32px; /* small sensible minimum so it fits the symbol */
-    flex: 0 0 auto; /* don't grow — shrink to fit content */
-
-    /* tight padding so the control only takes as much room as needed */
+    min-width: 32px;
+    flex: 0 0 auto;
     padding: 0 8px;
-    height: 44px; /* keep same height as other controls */
+    height: 44px;
     box-sizing: border-box;
-
-    /* center the symbol horizontally and vertically */
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    text-align: center; /* selected value */
-    text-align-last: center; /* Firefox */
-    -moz-text-align-last: center;
-    white-space: nowrap; /* prevent wrapping of symbol */
-
-    font-size: 16px; /* ensure symbol remains legible */
+    text-align: center;
+    text-align-last: center;
+    white-space: nowrap;
+    font-size: 16px;
     line-height: 1;
 }
 
-/* ensure the options are centered when the dropdown opens */
 #filter-operator option {
     text-align: center;
 }
 
-/* Hide the dropdown arrow in IE/Edge for just this select */
 #filter-operator::-ms-expand {
     display: none;
 }
 
-/* Type select: sized to content but can stay compact */
 #filter-type {
-    flex: 0 0 auto; /* size to content */
+    flex: 0 0 auto;
     min-width: 80px;
 }
 
-/* Value input should fill remaining space */
 #filter-value {
-    flex: 1 1 auto; /* grow to take available space */
-    min-width: 120px; /* remain usable on small screens */
+    flex: 1 1 auto;
+    min-width: 120px;
 }
 
 @media (max-width: 420px) {
     .add-filter-controls {
         gap: 6px;
-        flex-wrap: wrap; /* allow wrapping on very small screens */
+        flex-wrap: wrap;
     }
 
-    .add-filter-controls select,
-    .add-filter-controls input[type="text"] {
+    .add-filter-controls select, .add-filter-controls input[type="text"] {
         padding: 8px 10px;
         height: 40px;
         min-height: 40px;
@@ -698,11 +634,11 @@ body.listing-page .blurb {
     }
 }
 
-/* Listing actions layout: two equal buttons side-by-side */
+/* Listing actions */
 .listing-actions {
     display: flex;
-    gap: 0; /* no gap so the buttons meet exactly at the middle */
-    margin: 12px auto 24px auto;
+    gap: 0;
+    margin: 12px auto 24px;
     width: min(900px, calc(100% - 32px));
     max-width: 900px;
     box-sizing: border-box;
@@ -710,17 +646,16 @@ body.listing-page .blurb {
 
 .listing-actions form {
     flex: 1 1 50%;
-    margin: 0; /* remove default form margins */
+    margin: 0;
 }
 
 .listing-actions form .btn {
     width: 100%;
     padding: 14px 12px;
-    border-radius: 0; /* square edges so buttons line up seamlessly */
+    border-radius: 0;
     box-sizing: border-box;
 }
 
-/* Make the left button have a left-rounded corner and the right button have right-rounded corner on wider screens */
 @media (min-width: 480px) {
     .listing-actions form:first-child .btn {
         border-radius: 8px 0 0 8px;
@@ -731,7 +666,6 @@ body.listing-page .blurb {
     }
 }
 
-/* On very small screens stack them vertically so touch targets are easier */
 @media (max-width: 420px) {
     .listing-actions {
         flex-direction: column;
@@ -740,11 +674,11 @@ body.listing-page .blurb {
     }
 
     .listing-actions form .btn {
-        border-radius: 8px; /* restore rounded corners when stacked */
+        border-radius: 8px;
     }
 }
 
-/* Listing/table utility styles: make generic listing tables look like tables */
+/* Listing/table utilities */
 .listing-table {
     width: 100%;
     border-collapse: collapse;
@@ -752,7 +686,7 @@ body.listing-page .blurb {
     background: var(--card-bg);
     border: 1px solid var(--border);
     border-radius: 8px;
-    overflow: hidden; /* keep rounded corners */
+    overflow: hidden;
     box-sizing: border-box;
 }
 
@@ -775,7 +709,7 @@ body.listing-page .blurb {
 }
 
 .listing-table tbody tr:last-child td {
-    border-bottom: none; /* tidy last row */
+    border-bottom: none;
 }
 
 .listing-table td:first-child {
@@ -788,7 +722,7 @@ body.listing-page .blurb {
     justify-content: flex-end;
 }
 
-/* Small utility classes */
+/* Utilities */
 .muted {
     color: var(--muted);
 }
@@ -801,7 +735,6 @@ body.listing-page .blurb {
     margin: -1px !important;
     overflow: hidden !important;
     clip: rect(0, 0, 0, 0) !important;
-    white-space: nowrap !important; /* added line */
+    white-space: nowrap !important;
     border: 0 !important;
 }
-
