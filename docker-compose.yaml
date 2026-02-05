@@ -1,6 +1,6 @@
 services:
   rent-hunter:
-    build: .
+    image: knotatypo/rent-finder
     container_name: rent-hunter
     ports:
       - "4321:4321"
