@@ -46,6 +46,7 @@ class FilterType(Enum):
         elif self == FilterType.BEDS:
             return lambda l: Address.select().join(Listing).where(Listing.id == l.id).get().beds
 
+
 class Operator(Enum):
     LESS_EQ = "LessEq"
     GREATER_EQ = "GreaterEq"

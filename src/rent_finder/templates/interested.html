@@ -3,37 +3,40 @@
 {% block title %}Interested listings{% endblock %}
 
 {% block content %}
-<h1>Interested listings</h1>
+    <h1>Interested listings</h1>
 
-{% if listing and listing|length > 0 %}
-<table class="listing-table">
-    <thead>
-        <tr>
-            <th>Image</th>
-            <th>Address</th>
-            <th>Price</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for l in listing %}
-            <tr {% if l.unavailable %}style="text-decoration: line-through; opacity: 0.6;" title="Unavailable"{% endif %}>
-                <td>
-                    <a href="{{ url_for('listing', listing_id=l.id) }}">
-                        <img src="{{ url_for('serve_data', listing_id=l.id, filename='0.webp') }}" alt="{{ l.address.address }}" style="width:120px;max-width:120px;height:auto;border:1px solid var(--border);">
-                    </a>
-                </td>
-                <td>
-                    <a href="{{ url_for('listing', listing_id=l.id) }}">{{ l.address.address }}</a>
-                </td>
-                <td>
-                    ${{ l.price }}
-                </td>
+    {% if listing and listing|length > 0 %}
+        <table class="listing-table">
+            <thead>
+            <tr>
+                <th>Image</th>
+                <th>Address</th>
+                <th>Price</th>
             </tr>
-        {% endfor %}
-    </tbody>
-</table>
-{% else %}
-    <p>No interested listings yet.</p>
-{% endif %}
+            </thead>
+            <tbody>
+            {% for l in listing %}
+                <tr {% if l.unavailable %}style="text-decoration: line-through; opacity: 0.6;"
+                    title="Unavailable"{% endif %}>
+                    <td>
+                        <a href="{{ url_for('listing', listing_id=l.id) }}">
+                            <img src="{{ url_for('serve_data', listing_id=l.id, filename='0.webp') }}"
+                                 alt="{{ l.address.address }}"
+                                 style="width:120px;max-width:120px;height:auto;border:1px solid var(--border);">
+                        </a>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('listing', listing_id=l.id) }}">{{ l.address.address }}</a>
+                    </td>
+                    <td>
+                        ${{ l.price }}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No interested listings yet.</p>
+    {% endif %}
 
 {% endblock %}
