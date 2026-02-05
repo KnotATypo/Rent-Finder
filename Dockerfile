@@ -12,4 +12,4 @@ COPY . .
 ENV PYTHONBUFFERED=1
 
 ENTRYPOINT ["/rent-finder/entrypoint.sh"]
-CMD ["uv", "run", "--env-file", ".env", "search"]
+CMD ["uv", "run", "host"]
