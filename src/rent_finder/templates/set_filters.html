@@ -44,7 +44,11 @@
                             <td>{{ f.type.value }}</td>
                             <td>{{ f.value }}</td>
                             <td class="actions">
-                                <button class="btn btn--red delete-filter" data-filter-id="{{ f.id }}">Delete</button>
+                                <form method="post" action="{{ url_for('filter_update') }}">
+                                    <input type="hidden" name="filter_id" value="{{ f.id }}">
+                                    <input type="hidden" name="_method" value="DELETE">
+                                    <button class="btn btn--red" type="submit">Delete</button>
+                                </form>
                             </td>
                         </tr>
                     {% endfor %}
@@ -56,22 +60,4 @@
         </div>
     </section>
 
-{% endblock %}
-
-{% block scripts %}
-    <script>
-    document.addEventListener('click', e => {
-        const btn = e.target.closest('.delete-filter');
-        if (!btn) return;
-        e.preventDefault();
-        if (!confirm('Delete this filter?')) return;
-        const id = btn.dataset.filterId;
-        fetch('{{ url_for('filter_update') }}', {
-            method: 'DELETE',
-            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-            body: 'filter_id=' + encodeURIComponent(id)
-        }).then(r => r.redirected ? location = r.url : location.reload())
-          .catch(() => alert('Failed to delete filter'));
-    });
-    </script>
 {% endblock %}

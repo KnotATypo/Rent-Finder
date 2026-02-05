@@ -6,8 +6,17 @@ from flask import url_for
 from waitress import serve
 
 from rent_finder.logger import logger, configure_logging
-from rent_finder.model import Listing, TravelTime, SavedLocations, AddressStatus, UserStatus, User, Address, Filter, \
-    FilterType
+from rent_finder.model import (
+    Listing,
+    TravelTime,
+    SavedLocations,
+    AddressStatus,
+    UserStatus,
+    User,
+    Address,
+    Filter,
+    FilterType,
+)
 from rent_finder.s3_client import S3Client
 
 app = Flask(__name__)
@@ -130,22 +139,25 @@ def saved_locations():
 
 
 @app.route("/set_filters")
+@require_user
 def set_filters():
     user_id = get_current_user()
     return render_template("set_filters.html", filters=Filter.select().where(Filter.user == user_id))
 
-@app.route("/filter_update", methods=["POST", "DELETE"])
+
+@app.route("/filter_update", methods=["POST"])
 @require_user
 def filter_update():
     user_id = get_current_user()
-    if request.method == "DELETE":
-        Filter.delete().where(Filter.id == request.form.get("filter_id"))
+    if request.form.get("_method") == "DELETE":
+        Filter.delete().where(Filter.id == request.form.get("filter_id")).execute()
         return redirect(url_for("set_filters"))
-    elif request.method == "POST":
-        filter_type = request.form.get("type")
-        filter_value = request.form.get("value")
-        Filter.create(type=FilterType(filter_type), value=filter_value, user=user_id)
-        return redirect(url_for("set_filters"))
+
+    filter_type = request.form.get("type")
+    filter_value = request.form.get("value")
+    Filter.create(type=FilterType(filter_type), value=filter_value, user=user_id)
+    return redirect(url_for("set_filters"))
+
 
 @app.route("/data/<listing_id>/<path:filename>")
 def serve_data(listing_id, filename):
