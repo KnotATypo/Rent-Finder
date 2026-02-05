@@ -587,8 +587,8 @@ body.listing-page .blurb {
 .add-filter-controls {
     display: flex;
     gap: 8px;
-    align-items: center;
-    flex-wrap: wrap; /* allow wrapping on small screens */
+    align-items: center; /* vertically center controls */
+    flex-wrap: nowrap; /* keep controls inline */
 }
 
 /* Make the controls clearly visible on the dark background */
@@ -605,7 +605,15 @@ body.listing-page .blurb {
     border-radius: 10px;
     font-size: 14px;
     line-height: 1;
-    min-height: 44px; /* align slightly larger with buttons */
+    height: 44px; /* ensure same height as buttons */
+    box-sizing: border-box; /* consistent sizing */
+}
+
+/* Ensure the add button lines up with the selects/inputs */
+.add-filter-controls .btn {
+    height: 44px;
+    padding: 10px 14px;
+    box-sizing: border-box;
 }
 
 /* Custom, larger arrow for better discoverability */
@@ -618,42 +626,69 @@ body.listing-page .blurb {
     background-repeat: no-repeat;
 }
 
-/* Brighter chevron on focus for discoverability */
-.add-filter-controls select:focus {
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='8' viewBox='0 0 14 8'><path d='M1 2.5 L7 6.5 L13 2.5' stroke='%23e6e6e6' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round' fill='none'/></svg>");
-}
-
-/* Make the operator dropdown slightly wider for clarity */
+/* Operator should only be as wide as its content */
 #filter-operator {
-    min-width: 110px;
-    width: 110px;
-}
+    /* keep the native arrow removed */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: none;
 
-/* Stronger focus state for keyboard users */
-.add-filter-controls select:focus,
-.add-filter-controls input[type="text"]:focus {
-    outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 6px 18px rgba(88, 166, 255, 0.08), 0 0 0 6px rgba(88, 166, 255, 0.12);
-}
+    /* shrink to fit the symbol while keeping the same control height */
+    width: auto;
+    min-width: 32px; /* small sensible minimum so it fits the symbol */
+    flex: 0 0 auto; /* don't grow — shrink to fit content */
 
-/* Ensure add button aligns with now-larger controls */
-.add-filter-controls .btn {
-    padding: 10px 14px;
-    height: 44px;
+    /* tight padding so the control only takes as much room as needed */
+    padding: 0 8px;
+    height: 44px; /* keep same height as other controls */
+    box-sizing: border-box;
+
+    /* center the symbol horizontally and vertically */
     display: inline-flex;
     align-items: center;
+    justify-content: center;
+    text-align: center; /* selected value */
+    text-align-last: center; /* Firefox */
+    -moz-text-align-last: center;
+    white-space: nowrap; /* prevent wrapping of symbol */
+
+    font-size: 16px; /* ensure symbol remains legible */
+    line-height: 1;
 }
 
-/* Reduce spacing on very small screens so controls fit */
+/* ensure the options are centered when the dropdown opens */
+#filter-operator option {
+    text-align: center;
+}
+
+/* Hide the dropdown arrow in IE/Edge for just this select */
+#filter-operator::-ms-expand {
+    display: none;
+}
+
+/* Type select: sized to content but can stay compact */
+#filter-type {
+    flex: 0 0 auto; /* size to content */
+    min-width: 80px;
+}
+
+/* Value input should fill remaining space */
+#filter-value {
+    flex: 1 1 auto; /* grow to take available space */
+    min-width: 120px; /* remain usable on small screens */
+}
+
 @media (max-width: 420px) {
     .add-filter-controls {
         gap: 6px;
+        flex-wrap: wrap; /* allow wrapping on very small screens */
     }
 
     .add-filter-controls select,
     .add-filter-controls input[type="text"] {
         padding: 8px 10px;
+        height: 40px;
         min-height: 40px;
     }
 
