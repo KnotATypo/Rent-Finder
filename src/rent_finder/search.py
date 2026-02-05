@@ -9,7 +9,7 @@ from rent_finder.travel_times import get_travel_times
 from rent_finder.util import new_browser
 
 
-def main():
+def search():
     configure_logging()
     logger.info("Starting search")
     get_rentals()
@@ -103,4 +103,4 @@ def update_listings():
 
 
 if __name__ == "__main__":
-    main()
+    search()

@@ -1,6 +1,8 @@
+import atexit
 import os
 from functools import wraps
 
+from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask, render_template, session, request, redirect
 from flask import url_for
 from waitress import serve
@@ -19,11 +21,14 @@ from rent_finder.model import (
     Operator,
 )
 from rent_finder.s3_client import S3Client
+from rent_finder.search import search
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
 s3_client = S3Client()
+
+scheduler = BackgroundScheduler(daemon=True)
 
 
 @app.route("/set_username")
@@ -101,11 +106,13 @@ def listing(listing_id=None):
         "listing.html", listing=listing, blurb_html=blurb_html, image_urls=image_urls, travel_times=travel_times
     )
 
+
 def pass_filter(filter: Filter, listing: Listing):
     listing_value = filter.type.function()(listing)
     op_fn = filter.operator.function()
 
     return op_fn(listing_value, filter.value)
+
 
 @app.route("/listing/<listing_id>/status/<status>", methods=["POST"])
 @require_user
@@ -179,6 +186,8 @@ def serve_data(listing_id, filename):
 
 
 def host():
+    scheduler.add_job(search, "cron", hour=16, minute=0)
+    atexit.register(lambda: scheduler.shutdown())
     logger.info("Starting Flask app...")
     serve(app, host="0.0.0.0", port=4321)
 
