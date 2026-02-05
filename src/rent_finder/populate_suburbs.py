@@ -9,6 +9,10 @@ from rent_finder.util import new_browser
 
 
 def main():
+    """
+    Populates the database with suburbs. Currently configured for Queensland.
+    TODO - Make configurable
+    """
     configure_logging()
     domain = Domain()
 

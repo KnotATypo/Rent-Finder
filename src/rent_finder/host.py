@@ -78,6 +78,11 @@ def index():
 @app.route("/listing/<listing_id>")
 @require_user
 def listing(listing_id=None):
+    """
+    Serve the given listing or redirect to the next listing following the user's filters.
+
+    :param listing_id:
+    """
     if listing_id is None:
         user_id = get_current_user()
         checked_addresses = [addr.address for addr in AddressStatus.select().where(AddressStatus.user == user_id)]
@@ -117,6 +122,12 @@ def pass_filter(filter: Filter, listing: Listing):
 @app.route("/listing/<listing_id>/status/<status>", methods=["POST"])
 @require_user
 def listing_status(listing_id, status):
+    """
+    Updates or creates the status of the given listing for the logged-in user.
+
+    :param listing_id:
+    :param status:
+    """
     status = UserStatus(status)
     listing = Listing.get(Listing.id == listing_id)
     user_id = get_current_user()
@@ -137,6 +148,9 @@ def listing_status(listing_id, status):
 @app.route("/interested")
 @require_user
 def interested():
+    """
+    Serves the page containing all the listings that the user has marked as interested.
+    """
     user_id = get_current_user()
     listing = list(
         Listing.select()
@@ -154,6 +168,9 @@ def interested():
 
 @app.route("/saved_locations")
 def saved_locations():
+    """
+    Serves the page containing the list of locations which travel time is calculated to.
+    """
     return render_template("saved_locations.html", saved_locations=list(SavedLocations.select()))
 
 
@@ -168,6 +185,9 @@ def set_filters():
 @app.route("/filter_update", methods=["POST"])
 @require_user
 def filter_update():
+    """
+    Creates or deletes a filter.
+    """
     user_id = get_current_user()
     if request.form.get("_method") == "DELETE":
         Filter.delete().where(Filter.id == request.form.get("filter_id")).execute()

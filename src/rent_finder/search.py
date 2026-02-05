@@ -19,6 +19,9 @@ def search():
 
 
 def get_rentals():
+    """
+    Populate the database with information regarding rentals within the given suburbs.
+    """
     logger.info("Getting rentals")
 
     domain = Domain()
@@ -33,6 +36,9 @@ def get_rentals():
 
 
 def populate_travel_times():
+    """
+    Populates the missing travel times in the database using Google Maps.
+    """
     logger.info("Populating travel times")
 
     modes = {TravelMode.PT, TravelMode.BIKE}
@@ -79,7 +85,7 @@ def populate_travel_times():
 
 def update_listings():
     """
-    Update the status and download blurbs and images for listings
+    Update the status and download blurbs and images for listings.
     """
     logger.info("Updating listings")
 

@@ -1,6 +1,5 @@
 import os
 import re
-import time
 
 import requests
 
@@ -12,20 +11,25 @@ class StatusException(Exception):
 
 
 class GeocodeClient:
-    last_request: float
+    """
+    Client to forward geocode addresses to coordinates using https://geocode.maps.co/.
+    """
+
     api_key = os.getenv("GEOCODE_API_KEY")
 
-    def __init__(self):
-        self.last_request = time.time()
-
     def get_coordinate(self, address: str) -> tuple[None, None] | tuple[float, float]:
+        """
+        Get the coordinates for a given address.
+
+        :param address: A standard street address.
+        :return: Returns a tuple (lat, lon) of the coordinate or (None, None) if no coordinates found.
+        """
         if "/" in address:
             address = address[address.index("/") + 1 :]
         elif re.match(r"^\d+ \d", address):
             address = address[address.index(" ") + 1 :]
 
         response = requests.get(f"https://geocode.maps.co/search?q={address}&api_key={self.api_key}")
-        self.last_request = time.time()
 
         if response.status_code != 200:
             raise StatusException(f"{response.status_code}: {response.text}")

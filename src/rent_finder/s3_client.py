@@ -1,11 +1,15 @@
 import os
-from typing import Dict
+from typing import Dict, List
 
 import boto3
 import botocore
 
 
 class S3Client:
+    """
+    Client to support interacting with the S3 bucket.
+    """
+
     def __init__(self):
         s3 = boto3.resource(
             "s3",
@@ -19,10 +23,20 @@ class S3Client:
         self.bucket = s3.Bucket("rent-finder")
 
     def put_objects(self, objects: Dict[str, str]) -> None:
+        """
+        Puts objects into S3 storage.
+
+        :param objects: Dictionary of (filename, content) pairs to store.
+        """
         for key, body in objects.items():
             self.bucket.put_object(Key=key, Body=body)
 
     def object_exists(self, object_name: str) -> bool:
+        """
+        Checks if the object exists in the S3 bucket.
+
+        :param object_name:
+        """
         try:
             self.bucket.Object(object_name).load()
             return True
@@ -30,6 +44,11 @@ class S3Client:
             return False
 
     def get_object(self, object_name: str) -> bytes:
+        """
+        Returns the contents of an object stored in the S3 bucket.
+
+        :param object_name:
+        """
         resp = self.bucket.Object(object_name).get()
         content = resp["Body"].read()
         # Ensure the string content is decoded from bytes
@@ -37,7 +56,12 @@ class S3Client:
             content = content.decode("utf-8")
         return content
 
-    def get_image_names(self, listing_id: str):
+    def get_image_names(self, listing_id: str) -> List[str]:
+        """
+        Returns a list of image filenames associated with the listing id.
+
+        :param listing_id:
+        """
         resp = self.bucket.meta.client.list_objects_v2(Bucket=self.bucket.name, Prefix=f"{listing_id}/")
         files = [os.path.basename(x["Key"]) for x in resp["Contents"]]
         return [file for file in files if file != "blurb.html"]

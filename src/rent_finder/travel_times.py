@@ -12,6 +12,17 @@ from rent_finder.model import TravelMode
 
 
 def get_travel_times(lat1, lon1, lat2, lon2, travel_modes: Set[TravelMode], browser) -> Dict[TravelMode, int]:
+    """
+    Get travel times between two locations using the given travel modes. Currently supported travel modes are Bike and PT.
+
+    :param lat1:
+    :param lon1:
+    :param lat2:
+    :param lon2:
+    :param travel_modes: Set of travel modes
+    :param browser: WebDriver to use for the search
+    :return: Dictionary of (travel mode, travel time)
+    """
     link = f"https://www.google.com/maps/dir/{lat1},{lon1}/{lat2},{lon2}"
     browser.get(link)
     times = {}
@@ -27,6 +38,12 @@ def get_travel_times(lat1, lon1, lat2, lon2, travel_modes: Set[TravelMode], brow
 
 
 def calculate_bike_travel_time(browser) -> int:
+    """
+    Navigate to and grab the bike travel time.
+
+    :param browser: WebDriver to use for the search
+    :return: Travel time in minutes
+    """
     browser.find_element(By.CSS_SELECTOR, 'div[aria-label="Cycling"]').click()
     sleep(1)
 
@@ -36,6 +53,13 @@ def calculate_bike_travel_time(browser) -> int:
 
 
 def calculate_pt_travel_time(browser) -> int:
+    """
+    Navigate to and grab the public transport travel time. This checks the first two weekdays of the current month and
+    next month.
+
+    :param browser: WebDriver to use for the search
+    :return: Minimum travel time across checked dates in minutes
+    """
     browser.find_element(By.CSS_SELECTOR, 'div[aria-label="Public transport"]').click()
     # Occasionally this will error when the PT info doesn't load. Not catching the error here is intentional
     browser.find_element(By.XPATH, '//span[text()="Leave now"]').click()
@@ -69,6 +93,12 @@ def calculate_pt_travel_time(browser) -> int:
 
 
 def get_min_time(browser: WebDriver) -> int:
+    """
+    Gets the minimum travel time between the displayed options.
+
+    :param browser: WebDriver to use for the search
+    :return: Minimum travel time in minutes
+    """
     WebDriverWait(browser, 10).until(ec.presence_of_element_located((By.CSS_SELECTOR, 'div[data-trip-index="0"]')))
     soup = BeautifulSoup(browser.page_source, features="html.parser")
 
