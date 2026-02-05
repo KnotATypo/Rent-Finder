@@ -40,6 +40,11 @@ class FilterType(Enum):
     BEDS = "Beds"
 
 
+class Operator(Enum):
+    EQ_LESS = "EQ_LESS"
+    EQ_GREATER = "EQ_GREATER"
+
+
 @dataclass
 class Coordinate:
     lat: float
@@ -112,6 +117,7 @@ class Filter(BaseModel):
     id = AutoField(primary_key=True)
     user = ForeignKeyField(User)
     type = EnumField(FilterType)
+    operator = EnumField(Operator)
     value = TextField()
 
 

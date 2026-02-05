@@ -386,7 +386,7 @@ body.listing-page .hero-image::after {
     top: 0;
     left: 0;
     right: 0;
-    background: linear-gradient(180deg, rgba(11,11,13,0.95), rgba(11,11,13,0.9));
+    background: linear-gradient(180deg, rgba(11, 11, 13, 0.95), rgba(11, 11, 13, 0.9));
     border-bottom: 1px solid var(--border);
     z-index: 1000;
     height: var(--site-header-height);
@@ -471,7 +471,7 @@ body.listing-page .hero-image {
 
 .site-nav a:focus {
     color: var(--text);
-    background: rgba(255,255,255,0.02);
+    background: rgba(255, 255, 255, 0.02);
 }
 
 /* keep the blurb visually separated */
@@ -518,29 +518,7 @@ body.listing-page .blurb {
     transition: background-color 120ms ease, transform 80ms ease;
 }
 
-/* Stack home page buttons vertically and center them */
-.home-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    align-items: center;
-    justify-content: center;
-    margin: 0; /* card handles spacing */
-    padding: 16px 12px; /* provide some internal breathing room inside card */
-}
-
-/* Card that wraps the home actions */
-.home-card {
-    max-width: 400px;
-    margin: 24px auto;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.04);
-    border-radius: 12px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.45);
-    overflow: hidden;
-}
-
-/* Green / Red modifiers */
+/* Color modifiers for buttons (home/actions) */
 .btn--green {
     background: #2eb85c; /* green */
     color: #000; /* use black text for contrast */
@@ -561,7 +539,6 @@ body.listing-page .blurb {
     color: #000;
 }
 
-/* Blue modifier for the home 'Interested listings' button */
 .btn--blue {
     background: var(--accent);
     color: #000; /* black text for contrast */
@@ -573,7 +550,6 @@ body.listing-page .blurb {
     color: #000;
 }
 
-/* Teal modifier for the saved 'Saved locations' button */
 .btn--purple {
     /* changed from teal to purple to give a distinct color */
     background: #8e44ad; /* purple */
@@ -583,6 +559,108 @@ body.listing-page .blurb {
 .btn--purple:focus {
     background: #7a2fa0; /* slightly darker purple on focus */
     color: #000;
+}
+
+/* Stack home page buttons vertically and center them */
+.home-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+    margin: 0; /* card handles spacing */
+    padding: 16px 12px; /* provide some internal breathing room inside card */
+}
+
+/* Card that wraps the home actions */
+.home-card {
+    max-width: 400px;
+    margin: 24px auto;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+    overflow: hidden;
+}
+
+/* Add-filter controls: keep select, input and add button inline and cohesive */
+.add-filter-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap; /* allow wrapping on small screens */
+}
+
+/* Make the controls clearly visible on the dark background */
+.add-filter-controls select,
+.add-filter-controls input[type="text"] {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    /* stronger control background so selects stand out from the card */
+    background: rgba(255, 255, 255, 0.07);
+    color: var(--text);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 1;
+    min-height: 44px; /* align slightly larger with buttons */
+}
+
+/* Custom, larger arrow for better discoverability */
+.add-filter-controls select {
+    padding-right: 44px; /* room for the arrow */
+    /* use a single inline-SVG chevron for a clean, crisp arrow across browsers */
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='8' viewBox='0 0 14 8'><path d='M1 2.5 L7 6.5 L13 2.5' stroke='%239aa0a6' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round' fill='none'/></svg>");
+    background-position: calc(100% - 16px) 50%;
+    background-size: 14px 8px;
+    background-repeat: no-repeat;
+}
+
+/* Brighter chevron on focus for discoverability */
+.add-filter-controls select:focus {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='8' viewBox='0 0 14 8'><path d='M1 2.5 L7 6.5 L13 2.5' stroke='%23e6e6e6' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round' fill='none'/></svg>");
+}
+
+/* Make the operator dropdown slightly wider for clarity */
+#filter-operator {
+    min-width: 110px;
+    width: 110px;
+}
+
+/* Stronger focus state for keyboard users */
+.add-filter-controls select:focus,
+.add-filter-controls input[type="text"]:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 6px 18px rgba(88, 166, 255, 0.08), 0 0 0 6px rgba(88, 166, 255, 0.12);
+}
+
+/* Ensure add button aligns with now-larger controls */
+.add-filter-controls .btn {
+    padding: 10px 14px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+}
+
+/* Reduce spacing on very small screens so controls fit */
+@media (max-width: 420px) {
+    .add-filter-controls {
+        gap: 6px;
+    }
+
+    .add-filter-controls select,
+    .add-filter-controls input[type="text"] {
+        padding: 8px 10px;
+        min-height: 40px;
+    }
+
+    .add-filter-controls .btn {
+        padding: 8px 10px;
+        height: 40px;
+    }
 }
 
 /* Listing actions layout: two equal buttons side-by-side */
@@ -609,8 +687,13 @@ body.listing-page .blurb {
 
 /* Make the left button have a left-rounded corner and the right button have right-rounded corner on wider screens */
 @media (min-width: 480px) {
-    .listing-actions form:first-child .btn { border-radius: 8px 0 0 8px; }
-    .listing-actions form:last-child  .btn { border-radius: 0 8px 8px 0; }
+    .listing-actions form:first-child .btn {
+        border-radius: 8px 0 0 8px;
+    }
+
+    .listing-actions form:last-child .btn {
+        border-radius: 0 8px 8px 0;
+    }
 }
 
 /* On very small screens stack them vertically so touch targets are easier */
@@ -639,7 +722,7 @@ body.listing-page .blurb {
 }
 
 .listing-table thead th {
-    background: rgba(255,255,255,0.03);
+    background: rgba(255, 255, 255, 0.03);
     color: var(--muted);
     font-weight: 700;
     padding: 12px 14px;
@@ -651,13 +734,9 @@ body.listing-page .blurb {
 .listing-table tbody td {
     padding: 12px 14px;
     vertical-align: middle;
-    border-bottom: 1px solid rgba(255,255,255,0.02);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.02);
     color: var(--text);
     font-size: 14px;
-}
-
-.listing-table tbody tr:hover {
-    background: rgba(255,255,255,0.015);
 }
 
 .listing-table tbody tr:last-child td {

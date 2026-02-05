@@ -12,16 +12,24 @@
         <div class="card-body">
             <h2>Add filter</h2>
             <form id="add-filter-form" method="post" action="{{ url_for('filter_update') }}">
-                <label for="filter-type">Type</label>
-                <select id="filter-type" name="type">
-                    <option value="Price">Price</option>
-                    <option value="Beds">Beds</option>
-                </select>
+                <div class="add-filter-controls">
+                    <label for="filter-type" class="sr-only">Type</label>
+                    <select id="filter-type" name="type">
+                        <option value="Price">Price</option>
+                        <option value="Beds">Beds</option>
+                    </select>
 
-                <label for="filter-value">Value</label>
-                <input id="filter-value" name="value" type="text" placeholder="e.g. &lt;1500 or 2+" required>
+                    <label for="filter-operator" class="sr-only">Operator</label>
+                    <select id="filter-operator" name="operator">
+                        <option value="EQ_LESS">&lt;=</option>
+                        <option value="EQ_GREATER">&gt;=</option>
+                    </select>
 
-                <button class="btn btn--green" type="submit">Add</button>
+                    <label for="filter-value" class="sr-only">Value</label>
+                    <input id="filter-value" name="value" type="text" required>
+
+                    <button class="btn btn--green" type="submit">Add</button>
+                </div>
             </form>
         </div>
 

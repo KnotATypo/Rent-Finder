@@ -16,6 +16,7 @@ from rent_finder.model import (
     Address,
     Filter,
     FilterType,
+    Operator,
 )
 from rent_finder.s3_client import S3Client
 
@@ -154,8 +155,9 @@ def filter_update():
         return redirect(url_for("set_filters"))
 
     filter_type = request.form.get("type")
+    filter_operator = request.form.get("operator")
     filter_value = request.form.get("value")
-    Filter.create(type=FilterType(filter_type), value=filter_value, user=user_id)
+    Filter.create(type=FilterType(filter_type), operator=Operator(filter_operator), value=filter_value, user=user_id)
     return redirect(url_for("set_filters"))
 
 
