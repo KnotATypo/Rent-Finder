@@ -1,4 +1,5 @@
 import datetime
+import operator
 import os
 from dataclasses import dataclass
 from enum import Enum
@@ -39,10 +40,27 @@ class FilterType(Enum):
     PRICE = "Price"
     BEDS = "Beds"
 
+    def function(self):
+        if self == FilterType.PRICE:
+            return lambda l: l.price
+        elif self == FilterType.BEDS:
+            return lambda l: Address.select().join(Listing).where(Listing.id == l.id).get().beds
 
 class Operator(Enum):
-    EQ_LESS = "EQ_LESS"
-    EQ_GREATER = "EQ_GREATER"
+    LESS_EQ = "LessEq"
+    GREATER_EQ = "GreaterEq"
+
+    def function(self):
+        if self == Operator.LESS_EQ:
+            return operator.le
+        elif self == Operator.GREATER_EQ:
+            return operator.ge
+
+    def display(self):
+        if self == Operator.LESS_EQ:
+            return "<="
+        elif self == Operator.GREATER_EQ:
+            return ">="
 
 
 @dataclass
@@ -118,7 +136,7 @@ class Filter(BaseModel):
     user = ForeignKeyField(User)
     type = EnumField(FilterType)
     operator = EnumField(Operator)
-    value = TextField()
+    value = IntegerField()
 
 
 db.create_tables([Address, Listing, TravelTime, SavedLocations, User, AddressStatus, Suburb, Filter], safe=True)

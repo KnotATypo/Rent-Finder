@@ -21,8 +21,8 @@
 
                     <label for="filter-operator" class="sr-only">Operator</label>
                     <select id="filter-operator" name="operator">
-                        <option value="EQ_LESS">&lt;=</option>
-                        <option value="EQ_GREATER">&gt;=</option>
+                        <option value="LessEq">&lt;=</option>
+                        <option value="GreaterEq">&gt;=</option>
                     </select>
 
                     <label for="filter-value" class="sr-only">Value</label>
@@ -42,6 +42,7 @@
                     <thead>
                     <tr>
                         <th>Type</th>
+                        <th>Operator</th>
                         <th>Value</th>
                         <th class="actions">Actions</th>
                     </tr>
@@ -50,6 +51,7 @@
                     {% for f in filters %}
                         <tr>
                             <td>{{ f.type.value }}</td>
+                            <td>{{ f.operator.display() }}</td>
                             <td>{{ f.value }}</td>
                             <td class="actions">
                                 <form method="post" action="{{ url_for('filter_update') }}">

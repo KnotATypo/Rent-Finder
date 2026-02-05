@@ -73,13 +73,19 @@ def index():
 @app.route("/listing/<listing_id>")
 @require_user
 def listing(listing_id=None):
-    user_id = get_current_user()
     if listing_id is None:
+        user_id = get_current_user()
         checked_addresses = [addr.address for addr in AddressStatus.select().where(AddressStatus.user == user_id)]
-        listing = list(
+        listings = list(
             Listing.select().where(Listing.unavailable.is_null(), Listing.address.not_in(checked_addresses))
-        )[0]
-        return redirect(url_for("listing", listing_id=listing.id))
+        )
+        filters = list(Filter.select().where(Filter.user == user_id))
+        filtered_listings = []
+        for listing in listings:
+            if all(pass_filter(filter, listing) for filter in filters):
+                filtered_listings.append(listing)
+
+        return redirect(url_for("listing", listing_id=filtered_listings[0].id))
 
     listing = Listing.get(Listing.id == listing_id)
     blurb_html = s3_client.get_object(listing_id + "/blurb.html")
@@ -95,6 +101,11 @@ def listing(listing_id=None):
         "listing.html", listing=listing, blurb_html=blurb_html, image_urls=image_urls, travel_times=travel_times
     )
 
+def pass_filter(filter: Filter, listing: Listing):
+    listing_value = filter.type.function()(listing)
+    op_fn = filter.operator.function()
+
+    return op_fn(listing_value, filter.value)
 
 @app.route("/listing/<listing_id>/status/<status>", methods=["POST"])
 @require_user
@@ -143,7 +154,8 @@ def saved_locations():
 @require_user
 def set_filters():
     user_id = get_current_user()
-    return render_template("set_filters.html", filters=Filter.select().where(Filter.user == user_id))
+    filters = list(Filter.select().where(Filter.user == user_id))
+    return render_template("set_filters.html", filters=filters)
 
 
 @app.route("/filter_update", methods=["POST"])
