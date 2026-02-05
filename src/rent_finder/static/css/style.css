@@ -3,7 +3,7 @@
     --bg: #0b0b0d;
     --text: #e6e6e6;
     --muted: #9aa0a6;
-    --accent: #58a6ff;
+    --accent: #2b91ff;
     --card-bg: #0f1113;
     --border: #222222;
     --hero-bg: #000000;
@@ -73,6 +73,7 @@ body.listing-page .hero-image {
     align-items: center;
     justify-content: center;
     background: var(--hero-bg);
+    margin-top: var(--site-header-height);
 }
 
 body.listing-page .hero-image img {
@@ -90,7 +91,7 @@ body.listing-page .hero-image::after {
     bottom: calc(40px + 28px + env(safe-area-inset-bottom, 0px));
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.6);
     color: #fff;
     width: 28px;
     height: 28px;
@@ -151,8 +152,8 @@ body.listing-page .hero-image::after {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background: var(--control-bg);
-    color: var(--control-color);
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
     border: none;
     width: 30px;
     height: 30px;
@@ -286,29 +287,26 @@ body.listing-page .hero-image::after {
     border-radius: 999px;
     font-size: 12px;
     font-weight: 600;
-    color: var(--accent);
-    background: rgba(5, 85, 150, 0.06);
-    border: 1px solid rgba(5, 85, 150, 0.08);
+    color: #fff;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.06);
     text-transform: uppercase;
     letter-spacing: 0.4px;
 }
 
 .travel-times .mode-badge--pt {
-    color: #0b5fff;
-    background: rgba(88, 166, 255, 0.06);
-    border-color: rgba(88, 166, 255, 0.12);
+    background: #2b7dff;
+    border-color: rgba(43,125,255,0.12);
 }
 
 .travel-times .mode-badge--bike {
-    color: #0aa65a;
-    background: rgba(46, 204, 113, 0.04);
-    border-color: rgba(46, 204, 113, 0.08);
+    background: #16a34a;
+    border-color: rgba(22,163,74,0.12);
 }
 
 .travel-times .mode-badge--car {
-    color: #d97a00;
-    background: rgba(255, 165, 64, 0.04);
-    border-color: rgba(255, 165, 64, 0.08);
+    background: #d97706;
+    border-color: rgba(217,119,6,0.12);
 }
 
 .travel-times tbody tr:nth-child(even) {
@@ -387,10 +385,6 @@ body.listing-page .site-main {
     padding-top: 0;
     padding-left: 0;
     padding-right: 0;
-}
-
-body.listing-page .hero-image {
-    margin-top: var(--site-header-height);
 }
 
 .site-header__inner {
@@ -475,49 +469,29 @@ body.listing-page .blurb {
     border: none;
     cursor: pointer;
     font-weight: 700;
-    color: var(--text);
+    color: #fff;
     background: var(--control-bg);
     transition: background-color 120ms ease, transform 80ms ease;
 }
 
 .btn--green {
-    background: #2eb85c;
-    color: #000;
-}
-
-.btn--green:focus {
-    background: #28a745;
-    color: #000;
+    background: #17a247;
+    color: #fff;
 }
 
 .btn--red {
-    background: #e74c3c;
-    color: #000;
-}
-
-.btn--red:focus {
     background: #c0392b;
-    color: #000;
+    color: #fff;
 }
 
 .btn--blue {
     background: var(--accent);
-    color: #000;
-}
-
-.btn--blue:focus {
-    background: #2b8fff;
-    color: #000;
+    color: #fff;
 }
 
 .btn--purple {
     background: #8e44ad;
-    color: #000;
-}
-
-.btn--purple:focus {
-    background: #7a2fa0;
-    color: #000;
+    color: #fff;
 }
 
 .home-actions {
