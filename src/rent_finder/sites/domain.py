@@ -13,6 +13,8 @@ from rent_finder.logger import logger
 from rent_finder.model import Suburb, Listing, Address
 from rent_finder.sites.site import Site
 
+PARSER = "html.parser"
+
 
 class Domain(Site):
     def __init__(self):
@@ -23,7 +25,7 @@ class Domain(Site):
 
         search_link = self._get_search_link(suburb, page_num)
         browser.get(search_link)
-        soup = BeautifulSoup(browser.page_source, "html.parser")
+        soup = BeautifulSoup(browser.page_source, PARSER)
         cards = soup.find_all(attrs={"data-testid": re.compile(r"^listing-card-wrapper")})
 
         for card in cards:
@@ -106,7 +108,7 @@ class Domain(Site):
             browser.implicitly_wait(10)
 
         browser.find_element(By.CSS_SELECTOR, 'button[data-testid="listing-details__description-button"]').click()
-        soup = BeautifulSoup(browser.page_source, features="html.parser")
+        soup = BeautifulSoup(browser.page_source, features=PARSER)
         tag = soup.find("div", attrs={"data-testid": "listing-details__description"})
 
         objects_to_save = {listing.id + "/blurb.html": tag.contents[1].prettify()}
@@ -128,11 +130,11 @@ class Domain(Site):
                 return
         sleep(1)
 
-        soup = BeautifulSoup(browser.page_source, features="html.parser")
+        soup = BeautifulSoup(browser.page_source, features=PARSER)
         footer = soup.find("div", attrs={"data-testid": "pswp-thumbnails-carousel"})
         total_page = int(footer.text.split(" / ")[1])
         for i in range(total_page):
-            soup = BeautifulSoup(browser.page_source, features="html.parser")
+            soup = BeautifulSoup(browser.page_source, features=PARSER)
             tag = soup.find("div", attrs={"data-testid": "pswp-current-item"})
             images = tag.find_all("img")
             # Some listings contain videos and won't return any images
@@ -157,6 +159,6 @@ class Domain(Site):
 
     def page_exists(self, driver, location: str) -> bool:
         driver.get(f"https://www.domain.com.au/rent/{location}/?excludedeposittaken=1&page=1&ssubs=0")
-        soup = BeautifulSoup(driver.page_source, "html.parser")
+        soup = BeautifulSoup(driver.page_source, PARSER)
         summary = soup.find_all(attrs={"data-testid": "summary"})
         return len(summary) > 0
