@@ -7,6 +7,11 @@
     <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
     <title>{% block title %}Rent Finder{% endblock %}</title>
+    <!-- Critical inline background/text to avoid white flash while styles load -->
+    <style>html, body {
+        background: #0b0b0d;
+        color: #e6e6e6
+    }</style>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     {% block head %}{% endblock %}
 </head>

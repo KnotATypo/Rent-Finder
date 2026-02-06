@@ -1,0 +1,51 @@
+/* Base styles (typography, resets, base layout) extracted from style.css */
+body {
+    font-family: Arial, sans-serif;
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 16px;
+    color: var(--text);
+    background: var(--bg);
+    transition: background-color 200ms ease, color 200ms ease;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+li {
+    margin: 8px 0;
+}
+
+a {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+/* Hero and blurb base */
+body .hero {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    flex-direction: column;
+}
+
+body .hero img {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    border: 1px solid var(--border);
+}
+
+body .blurb {
+    flex: 1;
+    margin-top: 12px;
+    background: var(--card-bg);
+    /* increased padding and typography for better readability */
+    padding: 18px;
+    font-size: 16px;
+    line-height: 1.5;
+}
+

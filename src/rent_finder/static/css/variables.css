@@ -1,0 +1,14 @@
+:root {
+    --bg: #0b0b0d;
+    --text: #e6e6e6;
+    --muted: #9aa0a6;
+    --accent: #2b91ff;
+    --card-bg: #0f1113;
+    --border: #222222;
+    --hero-bg: #000000;
+    --control-bg: rgba(0, 0, 0, 0.33);
+    --control-color: #ffffff;
+    --dot-bg: rgba(255, 255, 255, 0.3);
+    --site-header-height: 48px;
+}
+

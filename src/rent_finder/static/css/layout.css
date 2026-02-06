@@ -1,0 +1,304 @@
+/* Listing-page hero: full-bleed on small screens, constrained on desktop */
+body.listing-page .hero-image {
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    width: 100vw;
+    height: calc(100vh - var(--site-header-height));
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--hero-bg);
+    margin-top: var(--site-header-height);
+}
+
+body.listing-page .hero-image img {
+    max-width: 100vw;
+    max-height: calc(100vh - var(--site-header-height));
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    display: block;
+}
+
+body.listing-page .hero-image::after {
+    content: '\2191';
+    position: absolute;
+    bottom: calc(40px + 28px + env(safe-area-inset-bottom, 0px));
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    width: 28px;
+    height: 28px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    backdrop-filter: blur(4px);
+    z-index: 46;
+}
+
+/* Site header and layout */
+.site-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(180deg, rgba(11, 11, 13, 0.95), rgba(11, 11, 13, 0.9));
+    border-bottom: 1px solid var(--border);
+    z-index: 1000;
+    height: var(--site-header-height);
+    display: flex;
+    align-items: center;
+}
+
+.site-main {
+    max-width: 900px;
+    margin: 24px auto;
+    padding: var(--site-header-height) 16px 0 16px;
+}
+
+.site-header__inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+}
+
+.site-logo {
+    color: var(--text);
+    font-weight: 700;
+    font-size: 18px;
+    text-decoration: none;
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.site-nav {
+    position: absolute;
+    right: 16px;
+}
+
+.site-nav ul {
+    display: flex;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    align-items: center;
+}
+
+.site-nav a {
+    color: var(--muted);
+    padding: 6px 8px;
+    border-radius: 6px;
+}
+
+.site-nav a:focus {
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+/* Listing page adjustments */
+body.listing-page {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+body.listing-page .site-main {
+    margin: 0;
+    padding-top: 0;
+    padding-left: 0;
+    padding-right: 0;
+    max-width: none;
+}
+
+body.listing-page .blurb {
+    background: var(--card-bg);
+    padding: 18px;
+    border-top: 1px solid var(--border);
+    flex: 0 1 auto;
+    width: min(900px, calc(100% - 32px));
+    max-width: 900px;
+    margin: 12px auto 0;
+    align-self: center;
+}
+
+@media (max-width: 480px) {
+    body.listing-page .blurb {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+}
+
+@media (min-width: 1000px) {
+    body.listing-page .blurb {
+        width: auto;
+    }
+}
+
+/* Consolidated desktop/tablet breakpoints */
+@media (min-width: 700px) {
+    /* Slightly adjust hero/image layout for larger screens */
+    body .hero img, body .no-image {
+        width: 100%;
+        max-width: 100%;
+        height: auto;
+    }
+
+    body.listing-page {
+        max-width: none;
+        margin: 40px auto;
+        padding: 0 16px;
+        overflow-x: visible;
+    }
+
+    /* Constrain the hero to a centered container */
+    body .hero {
+        width: min(1400px, 98vw);
+        max-width: none;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: row;
+        gap: 24px;
+        align-items: flex-start;
+        justify-content: flex-start;
+    }
+
+    /* Merge desktop hero-image adjustments here to avoid duplicate selectors */
+    body.listing-page .hero-image {
+        position: relative; /* ensure absolute children are positioned over the image */
+        left: auto;
+        right: auto;
+        margin: 0;
+        flex: 0 0 70%;
+        max-width: none;
+        height: min(80vh, 820px);
+        overflow: hidden;
+        align-items: center;
+        background: transparent;
+        box-sizing: border-box;
+        /* desktop reset for mobile full-bleed offsets */
+    }
+
+    body.listing-page .hero-image img {
+        width: 100%;
+        height: 100%;
+        max-height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    body.listing-page .blurb {
+        flex: 1 1 42%;
+        width: auto;
+        max-width: none;
+        margin: 0;
+        padding: 28px;
+        align-self: flex-start;
+        box-sizing: border-box;
+        min-width: 340px;
+    }
+
+    .carousel-dots {
+        bottom: 40px;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 60;
+    }
+
+    /* Desktop: slightly adjust footer inset */
+    .carousel-footer {
+        left: 12px;
+        bottom: calc(40px + 16px + env(safe-area-inset-bottom, 0px));
+    }
+
+    /* Restore top spacing under fixed header on listing pages */
+    body.listing-page .site-main {
+        padding-top: calc(var(--site-header-height) + 8px);
+    }
+
+    /* Ensure hero isn't pushed behind the header */
+    body.listing-page .hero {
+        margin-top: 0;
+    }
+}
+
+@media (min-width: 900px) {
+    /* Grid layout for large screens */
+    body.listing-page .hero {
+        display: grid;
+        grid-template-columns: minmax(680px, 1fr) 480px;
+        gap: 28px;
+        width: min(1400px, 98vw);
+        margin: 0 auto;
+        align-items: start;
+    }
+
+    body.listing-page .hero-image {
+        grid-column: 1 / 2;
+        width: 100%;
+        height: min(88vh, 940px);
+        display: block;
+        overflow: hidden;
+        position: relative;
+    }
+
+    body.listing-page .hero-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    body.listing-page .hero > .blurb, body.listing-page .blurb {
+        grid-column: 2 / 3;
+        width: 100%;
+        max-width: 480px;
+        margin: 0;
+        padding: 30px;
+        box-sizing: border-box;
+    }
+
+    /* Hide dots on very wide screens to reduce clutter */
+    body.listing-page .carousel-dots {
+        display: none;
+    }
+
+    /* Larger prev/next controls on wide screens */
+    body.listing-page .carousel-prev, body.listing-page .carousel-next {
+        width: 56px;
+        height: 56px;
+        border-radius: 28px;
+        font-size: 28px;
+        line-height: 1;
+        padding: 0;
+        background: rgba(0, 0, 0, 0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 90;
+    }
+
+    body.listing-page .carousel-prev {
+        left: 18px;
+    }
+
+    body.listing-page .carousel-next {
+        right: 18px;
+    }
+}
+

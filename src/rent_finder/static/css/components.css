@@ -1,0 +1,615 @@
+/* Components (buttons, cards, forms, listing controls) extracted from style.css */
+/* Carousel base */
+.carousel-slide {
+    display: none;
+}
+
+.carousel-slide img {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-width: none;
+}
+
+.carousel-prev, .carousel-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 15px;
+}
+
+.carousel-prev {
+    left: 12px;
+}
+
+.carousel-next {
+    right: 12px;
+}
+
+.carousel-dots {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: calc(40px + env(safe-area-inset-bottom, 0px));
+    display: flex;
+    gap: 8px;
+}
+
+.carousel-dots .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+    background: var(--dot-bg);
+    border: none;
+}
+
+.carousel-dots .dot.active {
+    background: #fff;
+}
+
+.carousel-footer {
+    position: absolute;
+    left: calc(12px + env(safe-area-inset-left, 0px));
+    bottom: calc(40px + 16px + env(safe-area-inset-bottom, 0px));
+    z-index: 45;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    pointer-events: none;
+}
+
+.carousel-footer__price {
+    background: rgba(0, 0, 0, 0.75);
+    color: #fff;
+    padding: 8px 10px;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1;
+    pointer-events: auto;
+}
+
+.carousel-footer__text {
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 14px;
+    pointer-events: auto;
+    text-align: left;
+}
+
+.carousel-footer__text > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-inline-end: 12px;
+}
+
+.carousel-footer__text svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+/* Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
+    color: #fff;
+    background: var(--control-bg);
+    transition: background-color 120ms ease, transform 80ms ease;
+}
+
+.btn--green {
+    background: #17a247;
+}
+
+.btn--red {
+    background: #c0392b;
+}
+
+.btn--blue {
+    background: var(--accent);
+}
+
+.btn--purple {
+    background: #8e44ad;
+}
+
+.btn--small {
+    font-size: 0.85rem;
+    border-radius: 6px;
+    height: 32px;
+    line-height: 1;
+    box-sizing: border-box;
+    min-width: 0;
+}
+
+.home-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 16px 12px;
+}
+
+.home-card {
+    max-width: 400px;
+    margin: 24px auto;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+    overflow: hidden;
+}
+
+/* Add-filter controls */
+.add-filter-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: nowrap;
+}
+
+.add-filter-controls select, .add-filter-controls input[type="text"] {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background: rgba(255, 255, 255, 0.07);
+    color: var(--text);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 1.4;
+    height: 44px;
+    box-sizing: border-box;
+}
+
+.add-filter-controls .btn {
+    height: 44px;
+    padding: 10px 14px;
+    box-sizing: border-box;
+}
+
+.add-filter-controls select {
+    padding-right: 44px;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='8' viewBox='0 0 14 8'><path d='M1 2.5 L7 6.5 L13 2.5' stroke='%239aa0a6' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round' fill='none'/></svg>");
+    background-position: calc(100% - 16px) 50%;
+    background-size: 14px 8px;
+    background-repeat: no-repeat;
+}
+
+#filter-operator {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: none;
+    width: auto;
+    min-width: 32px;
+    flex: 0 0 auto;
+    padding: 0 8px;
+    height: 44px;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    text-align-last: center;
+    white-space: nowrap;
+    font-size: 16px;
+    line-height: 1;
+}
+
+#filter-operator option {
+    text-align: center;
+}
+
+#filter-operator::-ms-expand {
+    display: none;
+}
+
+#filter-type {
+    flex: 0 0 auto;
+    min-width: 80px;
+}
+
+#filter-value {
+    flex: 1 1 auto;
+    min-width: 120px;
+}
+
+@media (max-width: 420px) {
+    .add-filter-controls {
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    .add-filter-controls select, .add-filter-controls input[type="text"] {
+        padding: 8px 10px;
+        height: 40px;
+        min-height: 40px;
+    }
+
+    .add-filter-controls .btn {
+        padding: 8px 10px;
+        height: 40px;
+    }
+}
+
+/* Small form controls */
+.form-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: nowrap;
+}
+
+.form-controls select, .form-controls input[type="text"] {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background: rgba(255, 255, 255, 0.07);
+    color: var(--text);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 1;
+    height: 44px;
+    box-sizing: border-box;
+    flex: 1 1 auto;
+    font-family: inherit;
+    vertical-align: middle;
+    display: inline-flex;
+    align-items: center;
+}
+
+.form-controls select::-ms-expand {
+    display: none;
+}
+
+.form-controls select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(88, 166, 255, 0.08);
+}
+
+.form-controls select option {
+    background: var(--card-bg);
+    color: var(--text);
+}
+
+.form-controls select {
+    border-radius: 8px 0 0 8px;
+    min-width: 260px;
+    flex: 1 1 auto;
+    border-right: none;
+    background-clip: padding-box;
+}
+
+.form-controls .btn {
+    border-radius: 0 8px 8px 0;
+    flex: 0 0 auto;
+    border-left: none;
+}
+
+@media (max-width: 420px) {
+    .form-controls {
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    .form-controls select, .form-controls input[type="text"] {
+        padding: 8px 10px;
+        height: 40px;
+        min-height: 40px;
+    }
+
+    .form-controls .btn {
+        padding: 8px 10px;
+        height: 40px;
+    }
+}
+
+/* Listing actions */
+.listing-actions {
+    display: flex;
+    gap: 0;
+    margin: 12px auto 24px;
+    width: min(900px, calc(100% - 32px));
+    max-width: 900px;
+    box-sizing: border-box;
+}
+
+.listing-actions form {
+    flex: 1 1 50%;
+    margin: 0;
+}
+
+.listing-actions form .btn {
+    width: 100%;
+    padding: 14px 12px;
+    border-radius: 0;
+    box-sizing: border-box;
+}
+
+@media (min-width: 480px) {
+    .listing-actions form:first-child .btn {
+        border-radius: 8px 0 0 8px;
+    }
+
+    .listing-actions form:last-child .btn {
+        border-radius: 0 8px 8px 0;
+    }
+}
+
+@media (max-width: 420px) {
+    .listing-actions {
+        flex-direction: column;
+        gap: 8px;
+        width: calc(100% - 24px);
+    }
+
+    .listing-actions form .btn {
+        border-radius: 8px;
+    }
+}
+
+/* Listing/table utilities */
+.listing-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.listing-table thead th {
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--muted);
+    font-weight: 700;
+    padding: 12px 14px;
+    text-align: left;
+    font-size: 13px;
+    border-bottom: 1px solid var(--border);
+}
+
+.listing-table tbody td {
+    padding: 12px 14px;
+    vertical-align: middle;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+    color: var(--text);
+    font-size: 14px;
+}
+
+.listing-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.listing-table td:first-child {
+    font-weight: 600;
+}
+
+.listing-table .actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+/* Interested page: card/grid styles */
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.card {
+    background: var(--card-bg, #fff);
+    border: 1px solid var(--border, #ddd);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    display: flex;
+    flex-direction: column;
+    transition: transform .12s ease, box-shadow .12s ease;
+}
+
+.card-header {
+    padding: 0.75rem 0.85rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.card-body {
+    padding: 0.75rem 0.85rem;
+    display: block;
+}
+
+.card__image {
+    width: 100%;
+    height: 170px;
+    object-fit: cover;
+    display: block;
+    background: #f6f6f6;
+}
+
+.card__body {
+    padding: 0.75rem 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.card__title {
+    font-size: 1rem;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.card__meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    color: var(--muted, #666);
+}
+
+.card__actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.price {
+    font-weight: 700;
+    color: var(--accent, #0b72ff);
+}
+
+.unavailable-badge {
+    background: #c62828;
+    color: #fff;
+    padding: 0.15rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.card.unavailable {
+    opacity: 0.6;
+}
+
+.card.unavailable .card__title, .card.unavailable .price {
+    text-decoration: line-through;
+}
+
+@media (max-width: 420px) {
+    .card__image {
+        height: 140px;
+    }
+}
+
+.travel-times {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--text);
+    background: transparent;
+}
+
+.travel-times thead th {
+    text-align: left;
+    padding: 8px 10px;
+    font-weight: 700;
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: 0.2px;
+    border-bottom: 1px solid var(--border);
+}
+
+.travel-times tbody td {
+    padding: 8px 10px;
+    vertical-align: middle;
+    border-bottom: 1px dashed var(--border);
+}
+
+.travel-times__badges {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.travel-times .mode-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.travel-times .mode-badge--pt {
+    background: #2b7dff;
+    border-color: rgba(43, 125, 255, 0.12);
+}
+
+.travel-times .mode-badge--bike {
+    background: #16a34a;
+    border-color: rgba(22, 163, 74, 0.12);
+}
+
+.travel-times .mode-badge--car {
+    background: #d97706;
+    border-color: rgba(217, 119, 6, 0.12);
+}
+
+.travel-times tbody tr:nth-child(even) {
+    background: rgba(255, 255, 255, 0.01);
+}
+
+@media (max-width: 640px) {
+    .travel-times {
+        font-size: 14px;
+    }
+
+    .travel-times thead {
+        display: none;
+    }
+
+    .travel-times tbody tr {
+        display: block;
+        padding: 6px 0;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .travel-times tbody td {
+        display: flex;
+        justify-content: space-between;
+        padding: 6px 0;
+        border: none;
+    }
+
+    .travel-times tbody td::before {
+        content: attr(data-label);
+        color: var(--muted);
+        margin-right: 12px;
+        font-weight: 700;
+    }
+
+    .travel-times__badges {
+        justify-content: flex-end;
+    }
+}
+
+@media (min-width: 700px) {
+    .travel-times thead th, .travel-times tbody td {
+        padding: 10px 12px;
+    }
+}
