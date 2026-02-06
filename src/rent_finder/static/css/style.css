@@ -107,155 +107,7 @@ body.listing-page .hero-image::after {
     z-index: 46;
 }
 
-@media (min-width: 700px) {
-    body.listing-page .hero-image::after {
-        bottom: calc(40px + 36px + env(safe-area-inset-bottom, 0px));
-    }
-
-    /* Make the carousel image responsive and larger on desktop instead of a fixed tiny width */
-    body .hero img, body .no-image {
-        /* allow image to fill the hero-image container */
-        width: 100%;
-        max-width: 100%;
-        height: auto;
-    }
-
-    body.listing-page {
-        /* allow page to use wider space for listing layout */
-        max-width: none;
-        margin: 40px auto;
-        padding: 0 16px;
-        overflow-x: visible;
-    }
-
-    /* Constrain the hero to a generous centered container so the image can be large */
-    body .hero {
-        /* allow the hero to almost fill the viewport width so the image can expand */
-        width: min(1400px, 98vw);
-        max-width: none;
-        margin: 0 auto;
-        display: flex;
-        flex-direction: row;
-        gap: 24px;
-        align-items: flex-start;
-        justify-content: flex-start;
-    }
-
-    /* Keep the hero-image positioned so absolute children (dots/footer) overlay it */
-    body.listing-page .hero-image {
-        position: relative; /* ensure absolute children are positioned over the image */
-        /* reset the full-bleed offsets from the mobile rules */
-        left: auto;
-        right: auto;
-        margin: 0;
-        /* use flex-basis so the image column claims more horizontal space */
-        flex: 0 0 70%;
-        max-width: none;
-        /* make the hero taller on desktop so the image isn't tiny */
-        height: min(80vh, 820px);
-        overflow: hidden;
-        align-items: center;
-        background: transparent;
-        box-sizing: border-box;
-    }
-
-    /* Let the image fill the hero-image area without squashing */
-    body.listing-page .hero-image img {
-        width: 100%;
-        height: 100%;
-        max-height: 100%;
-        object-fit: cover; /* crop if necessary to fill area */
-        display: block;
-    }
-
-    /* Ensure the blurb sits to the right of the image and takes remaining space */
-    body.listing-page .blurb {
-        /* make the blurb column larger to give more space for content */
-        flex: 1 1 42%;
-        width: auto;
-        max-width: none;
-        margin: 0;
-        padding: 28px;
-        align-self: flex-start;
-        box-sizing: border-box;
-        min-width: 340px; /* give blurb more minimum space on medium screens */
-    }
-
-    /* Make listing actions full width of the blurb instead of centered page width */
-    .listing-actions {
-        width: 100%;
-        margin: 12px 0 24px 0;
-    }
-
-    /* Pull dots and the footer closer to the image on desktop and ensure they overlay the image */
-    .carousel-dots {
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-        bottom: 12px;
-        z-index: 60;
-    }
-
-    .carousel-footer {
-        position: absolute;
-        bottom: 12px;
-        left: 12px;
-        z-index: 60;
-    }
-}
-
-@media (min-width: 900px) {
-    /* Use grid to reliably allocate a larger column to the image */
-    body.listing-page .hero {
-        display: grid;
-        /* ensure image column cannot shrink below 680px and blurb gets a bit more room */
-        grid-template-columns: minmax(680px, 1fr) 480px;
-        gap: 28px;
-        width: min(1400px, 98vw);
-        margin: 0 auto;
-        align-items: start;
-    }
-
-    body.listing-page .hero-image {
-        /* ensure the image column fills its grid cell */
-        grid-column: 1 / 2;
-        width: 100%;
-        height: min(88vh, 940px);
-        display: block; /* grid item */
-        overflow: hidden;
-        position: relative;
-    }
-
-    body.listing-page .hero-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-    }
-
-    /* blurb column: occupy the second grid cell */
-    body.listing-page .hero > .blurb,
-    body.listing-page .blurb {
-        grid-column: 2 / 3;
-        width: 100%;
-        max-width: 480px; /* match the new grid column width */
-        margin: 0;
-        padding: 30px;
-        box-sizing: border-box;
-    }
-
-    /* hide dots on very wide screens to reduce clutter */
-    body.listing-page .carousel-dots {
-        display: none;
-    }
-
-    /* keep prev/next on top */
-    body.listing-page .carousel-prev,
-    body.listing-page .carousel-next {
-        z-index: 80;
-    }
-}
-
+/* Carousel base */
 .carousel-slide {
     display: none;
 }
@@ -287,7 +139,6 @@ body.listing-page .hero-image::after {
     right: 12px;
 }
 
-/* Dots and footer: keep base rules and only override small differences in media queries */
 .carousel-dots {
     position: absolute;
     left: 50%;
@@ -355,19 +206,7 @@ body.listing-page .hero-image::after {
     flex-shrink: 0;
 }
 
-@media (min-width: 700px) {
-    .carousel-dots {
-        bottom: 40px;
-    }
-
-    /* Desktop: slightly adjust footer inset */
-    .carousel-footer {
-        left: 12px;
-        bottom: calc(40px + 16px + env(safe-area-inset-bottom, 0px));
-    }
-}
-
-/* Travel-times table: compact, readable, responsive */
+/* Travel-times table */
 .travel-times {
     width: 100%;
     border-collapse: collapse;
@@ -492,21 +331,6 @@ body.listing-page .hero-image::after {
     padding: var(--site-header-height) 16px 0 16px;
 }
 
-body.listing-page {
-    max-width: none;
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
-}
-
-body.listing-page .site-main {
-    margin: 0;
-    padding-top: 0;
-    padding-left: 0;
-    padding-right: 0;
-    max-width: none; /* allow hero to span wider than the normal site max */
-}
-
 .site-header__inner {
     max-width: 900px;
     margin: 0 auto;
@@ -553,12 +377,26 @@ body.listing-page .site-main {
     background: rgba(255, 255, 255, 0.02);
 }
 
+/* Listing page adjustments */
+body.listing-page {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+body.listing-page .site-main {
+    margin: 0;
+    padding-top: 0;
+    padding-left: 0;
+    padding-right: 0;
+    max-width: none;
+}
+
 body.listing-page .blurb {
     background: var(--card-bg);
-    /* ensure mobile listing-page blurb preserves larger padding set above */
     padding: 18px;
     border-top: 1px solid var(--border);
-    box-sizing: border-box;
     flex: 0 1 auto;
     width: min(900px, calc(100% - 32px));
     max-width: 900px;
@@ -597,25 +435,20 @@ body.listing-page .blurb {
 
 .btn--green {
     background: #17a247;
-    color: #fff;
 }
 
 .btn--red {
     background: #c0392b;
-    color: #fff;
 }
 
 .btn--blue {
     background: var(--accent);
-    color: #fff;
 }
 
 .btn--purple {
     background: #8e44ad;
-    color: #fff;
 }
 
-/* New: small button variant */
 .btn--small {
     font-size: 0.85rem;
     border-radius: 6px;
@@ -739,7 +572,7 @@ body.listing-page .blurb {
     }
 }
 
-/* Form controls used by small forms (e.g., set username) */
+/* Small form controls */
 .form-controls {
     display: flex;
     gap: 8px;
@@ -751,7 +584,7 @@ body.listing-page .blurb {
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
-    background: rgba(255, 255, 255, 0.07); /* match add-filter-controls */
+    background: rgba(255, 255, 255, 0.07);
     color: var(--text);
     border: 1px solid rgba(255, 255, 255, 0.12);
     padding: 10px 12px;
@@ -782,7 +615,6 @@ body.listing-page .blurb {
     color: var(--text);
 }
 
-/* Make select and button appear as a single joined control */
 .form-controls select {
     border-radius: 8px 0 0 8px;
     min-width: 260px;
@@ -920,7 +752,7 @@ body.listing-page .blurb {
     border: 0 !important;
 }
 
-/* Interested page: card/grid styles (moved from inline template) */
+/* Interested page: card/grid styles */
 .cards {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -979,7 +811,6 @@ body.listing-page .blurb {
     color: var(--muted, #666);
 }
 
-/* New: actions container inside card meta (right side) */
 .card__actions {
     display: inline-flex;
     align-items: center;
@@ -1005,8 +836,7 @@ body.listing-page .blurb {
     opacity: 0.6;
 }
 
-.card.unavailable .card__title,
-.card.unavailable .price {
+.card.unavailable .card__title, .card.unavailable .price {
     text-decoration: line-through;
 }
 
@@ -1016,52 +846,155 @@ body.listing-page .blurb {
     }
 }
 
+/* Consolidated desktop/tablet breakpoints */
 @media (min-width: 700px) {
-    /* On desktop/tablet sizes restore top spacing under the fixed header for listing pages
-       so the header doesn't overlap the hero/content. Mobile keeps the full-bleed effect. */
+    /* Slightly adjust hero/image layout for larger screens */
+    body .hero img, body .no-image {
+        width: 100%;
+        max-width: 100%;
+        height: auto;
+    }
+
+    body.listing-page {
+        max-width: none;
+        margin: 40px auto;
+        padding: 0 16px;
+        overflow-x: visible;
+    }
+
+    /* Constrain the hero to a centered container */
+    body .hero {
+        width: min(1400px, 98vw);
+        max-width: none;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: row;
+        gap: 24px;
+        align-items: flex-start;
+        justify-content: flex-start;
+    }
+
+    /* Merge desktop hero-image adjustments here to avoid duplicate selectors */
+    body.listing-page .hero-image {
+        position: relative; /* ensure absolute children are positioned over the image */
+        left: auto;
+        right: auto;
+        margin: 0;
+        flex: 0 0 70%;
+        max-width: none;
+        height: min(80vh, 820px);
+        overflow: hidden;
+        align-items: center;
+        background: transparent;
+        box-sizing: border-box;
+        /* desktop reset for mobile full-bleed offsets */
+    }
+
+    body.listing-page .hero-image img {
+        width: 100%;
+        height: 100%;
+        max-height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    body.listing-page .blurb {
+        flex: 1 1 42%;
+        width: auto;
+        max-width: none;
+        margin: 0;
+        padding: 28px;
+        align-self: flex-start;
+        box-sizing: border-box;
+        min-width: 340px;
+    }
+
+    .carousel-dots {
+        bottom: 40px;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 60;
+    }
+
+    /* Desktop: slightly adjust footer inset */
+    .carousel-footer {
+        left: 12px;
+        bottom: calc(40px + 16px + env(safe-area-inset-bottom, 0px));
+    }
+
+    /* Restore top spacing under fixed header on listing pages */
     body.listing-page .site-main {
         padding-top: calc(var(--site-header-height) + 8px);
     }
 
-    /* Ensure hero isn't pushed behind the header by any leftover negative margins */
+    /* Ensure hero isn't pushed behind the header */
     body.listing-page .hero {
         margin-top: 0;
-    }
-
-    /* Force hero-image to not use the mobile full-bleed offset on desktop */
-    body.listing-page .hero-image {
-        margin-top: 0 !important;
-        left: auto !important;
-        right: auto !important;
     }
 }
 
 @media (min-width: 900px) {
-    /* ...existing code... */
+    /* Grid layout for large screens */
+    body.listing-page .hero {
+        display: grid;
+        grid-template-columns: minmax(680px, 1fr) 480px;
+        gap: 28px;
+        width: min(1400px, 98vw);
+        margin: 0 auto;
+        align-items: start;
+    }
 
-    /* make carousel prev/next larger and easier to tap on desktop */
-    body.listing-page .carousel-prev,
-    body.listing-page .carousel-next {
+    body.listing-page .hero-image {
+        grid-column: 1 / 2;
+        width: 100%;
+        height: min(88vh, 940px);
+        display: block;
+        overflow: hidden;
+        position: relative;
+    }
+
+    body.listing-page .hero-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    body.listing-page .hero > .blurb, body.listing-page .blurb {
+        grid-column: 2 / 3;
+        width: 100%;
+        max-width: 480px;
+        margin: 0;
+        padding: 30px;
+        box-sizing: border-box;
+    }
+
+    /* Hide dots on very wide screens to reduce clutter */
+    body.listing-page .carousel-dots {
+        display: none;
+    }
+
+    /* Larger prev/next controls on wide screens */
+    body.listing-page .carousel-prev, body.listing-page .carousel-next {
         width: 56px;
         height: 56px;
         border-radius: 28px;
-        font-size: 28px; /* larger arrow glyph */
+        font-size: 28px;
         line-height: 1;
-        padding: 0; /* ensure glyph is centered */
+        padding: 0;
         background: rgba(0, 0, 0, 0.6);
         display: flex;
         align-items: center;
         justify-content: center;
-        z-index: 90; /* keep above other overlays */
+        z-index: 90;
     }
 
     body.listing-page .carousel-prev {
-        left: 18px; /* nudge inward a bit from the edge */
+        left: 18px;
     }
 
     body.listing-page .carousel-next {
         right: 18px;
     }
-
-    /* ...existing code... */
 }
