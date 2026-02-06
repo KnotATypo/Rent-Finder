@@ -542,7 +542,7 @@ body.listing-page .blurb {
     padding: 10px 12px;
     border-radius: 10px;
     font-size: 14px;
-    line-height: 1;
+    line-height: 1.4;
     height: 44px;
     box-sizing: border-box;
 }
@@ -674,14 +674,6 @@ body.listing-page .blurb {
     border-radius: 0 8px 8px 0;
     flex: 0 0 auto;
     border-left: none;
-}
-
-.form-controls select:hover {
-    border-color: rgba(255, 255, 255, 0.18);
-}
-
-.form-controls .btn:hover {
-    transform: translateY(-1px);
 }
 
 @media (max-width: 420px) {
@@ -826,9 +818,14 @@ body.listing-page .blurb {
     transition: transform .12s ease, box-shadow .12s ease;
 }
 
-.card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+.card-header {
+    padding: 0.75rem 0.85rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.card-body {
+    padding: 0.75rem 0.85rem;
+    display: block;
 }
 
 .card__image {
