@@ -23,9 +23,15 @@
 
                         <div class="card__meta">
                             <div class="price">${{ l.price }}</div>
-                            {% if l.unavailable %}
-                                <div class="unavailable-badge">Unavailable</div>
-                            {% endif %}
+
+                            <div class="card__actions">
+                                <a class="btn btn--blue btn--small" href="{{ l.source }}" target="_blank"
+                                   rel="noopener noreferrer" aria-label="Open listing source">Source</a>
+
+                                {% if l.unavailable %}
+                                    <div class="unavailable-badge">Unavailable</div>
+                                {% endif %}
+                            </div>
                         </div>
 
                     </div>

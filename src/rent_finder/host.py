@@ -22,6 +22,7 @@ from rent_finder.model import (
 )
 from rent_finder.s3_client import S3Client
 from rent_finder.search import search
+from rent_finder.sites.domain import Domain
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -157,7 +158,7 @@ def interested():
     Serves the page containing all the listings that the user has marked as interested.
     """
     user_id = get_current_user()
-    listing = list(
+    listings = list(
         Listing.select()
         .join(Address)
         .join(AddressStatus)
@@ -168,7 +169,10 @@ def interested():
             AddressStatus.user.id == user_id,
         )
     )
-    return render_template("interested.html", listing=listing)
+    domain = Domain()
+    for listing in listings:
+        listing.source = domain.get_listing_link(listing)
+    return render_template("interested.html", listing=listings)
 
 
 @app.route("/saved_locations")

@@ -296,17 +296,17 @@ body.listing-page .hero-image::after {
 
 .travel-times .mode-badge--pt {
     background: #2b7dff;
-    border-color: rgba(43,125,255,0.12);
+    border-color: rgba(43, 125, 255, 0.12);
 }
 
 .travel-times .mode-badge--bike {
     background: #16a34a;
-    border-color: rgba(22,163,74,0.12);
+    border-color: rgba(22, 163, 74, 0.12);
 }
 
 .travel-times .mode-badge--car {
     background: #d97706;
-    border-color: rgba(217,119,6,0.12);
+    border-color: rgba(217, 119, 6, 0.12);
 }
 
 .travel-times tbody tr:nth-child(even) {
@@ -492,6 +492,16 @@ body.listing-page .blurb {
 .btn--purple {
     background: #8e44ad;
     color: #fff;
+}
+
+/* New: small button variant */
+.btn--small {
+    font-size: 0.85rem;
+    border-radius: 6px;
+    height: 32px;
+    line-height: 1;
+    box-sizing: border-box;
+    min-width: 0;
 }
 
 .home-actions {
@@ -810,7 +820,7 @@ body.listing-page .blurb {
     border: 1px solid var(--border, #ddd);
     border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
     display: flex;
     flex-direction: column;
     transition: transform .12s ease, box-shadow .12s ease;
@@ -818,7 +828,7 @@ body.listing-page .blurb {
 
 .card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
 }
 
 .card__image {
@@ -851,6 +861,13 @@ body.listing-page .blurb {
     color: var(--muted, #666);
 }
 
+/* New: actions container inside card meta (right side) */
+.card__actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .price {
     font-weight: 700;
     color: var(--accent, #0b72ff);
@@ -876,5 +893,7 @@ body.listing-page .blurb {
 }
 
 @media (max-width: 420px) {
-    .card__image { height: 140px; }
+    .card__image {
+        height: 140px;
+    }
 }

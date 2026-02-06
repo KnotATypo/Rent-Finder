@@ -86,7 +86,7 @@ class Domain(Site):
         return Listing.create(id=listing_id, address_id=address_obj.id, price=price)
 
     def download_blurb_and_images(self, listing: Listing, browser: WebDriver):
-        link = self._get_listing_link(listing)
+        link = self.get_listing_link(listing)
         browser.get(link)
 
         # Update status of listing and exit early if delisted
@@ -152,7 +152,7 @@ class Domain(Site):
         suburb_id = f"{suburb.name.lower().replace(' ', '-')}-qld-{suburb.postcode}"
         return f"https://www.domain.com.au/rent/{suburb_id}/?excludedeposittaken=1&page={page_number}&ssubs=0"
 
-    def _get_listing_link(self, listing: Listing) -> str:
+    def get_listing_link(self, listing: Listing) -> str:
         address = Address.get(Address.id == listing.address)
         new_addresses = re.sub(r"[/ ,]+", "-", address.address)
         return f"https://www.domain.com.au/{new_addresses}-{listing.id}"

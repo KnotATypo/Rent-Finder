@@ -30,7 +30,7 @@ class Site:
     def _get_search_link(self, suburb: Suburb, page_number: int) -> str:
         raise NotImplementedError
 
-    def _get_listing_link(self, listing: Listing) -> str:
+    def get_listing_link(self, listing: Listing) -> str:
         raise NotImplementedError
 
     def get_page(self, page_num: int, browser, suburb: Suburb) -> List[Listing]:
