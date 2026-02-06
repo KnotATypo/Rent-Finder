@@ -101,11 +101,13 @@ def listing(listing_id=None):
         return redirect(url_for("listing", listing_id=filtered_listings[0].id))
 
     listing = Listing.get(Listing.id == listing_id)
-    blurb_html = s3_client.get_object(listing_id + "/blurb.html")
-
-    # Find first image file by numeric prefix
-    images = s3_client.get_image_names(listing_id)
-    images.sort(key=lambda x: int(x.split(".")[0]))
+    if s3_client.object_exists(listing_id + "/blurb.html"):
+        blurb_html = s3_client.get_object(listing_id + "/blurb.html")
+        images = s3_client.get_image_names(listing_id)
+        images.sort(key=lambda x: int(x.split(".")[0]))
+    else:
+        blurb_html = ''
+        images = ['none']
 
     image_urls = [url_for("serve_data", listing_id=listing_id, filename=image) for image in images]
     travel_times = TravelTime.select().join(SavedLocations).where(TravelTime.address == listing.address)
