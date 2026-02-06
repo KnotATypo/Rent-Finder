@@ -30,6 +30,9 @@ s3_client = S3Client()
 
 scheduler = BackgroundScheduler(daemon=True)
 
+with open('src/rent_finder/static/img/no_image.png', 'rb') as f:
+    no_image = f.read()
+
 
 @app.route("/set_username")
 def set_username():
@@ -202,12 +205,16 @@ def filter_update():
 
 @app.route("/data/<listing_id>/<path:filename>")
 def serve_data(listing_id, filename):
-    return s3_client.get_object(listing_id + "/" + filename)
+    object_name = listing_id + "/" + filename
+    if s3_client.object_exists(object_name):
+        return s3_client.get_object(object_name)
+    return no_image
 
 
 def host():
     scheduler.add_job(search, "cron", hour=16, minute=0)
     atexit.register(lambda: scheduler.shutdown())
+    scheduler.start()
     logger.info("Starting Flask app...")
     serve(app, host="0.0.0.0", port=4321)
 
