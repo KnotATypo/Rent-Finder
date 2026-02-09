@@ -6,7 +6,7 @@
     <h1>Home</h1>
     <div class="home-card">
         <p class="home-actions">
-            <a class="btn btn--green" href="/listing/">Go to listings</a>
+            <a class="btn btn--green" href="/listing/">Go to listings ({{ count }})</a>
             <a class="btn btn--blue" href="{{ url_for('interested') }}">Interested listings</a>
             <a class="btn btn--purple" href="{{ url_for('saved_locations') }}">Saved locations</a>
             <a class="btn btn--red" href="{{ url_for('set_filters') }}">Set filters</a>

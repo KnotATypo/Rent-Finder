@@ -75,7 +75,8 @@ def get_current_user():
 @app.route("/")
 @require_user
 def index():
-    return render_template("index.html")
+    listing_count = len(get_unchecked_listings(get_current_user()))
+    return render_template("index.html", count=listing_count)
 
 
 @app.route("/listing/")
@@ -89,17 +90,8 @@ def listing(listing_id=None):
     """
     if listing_id is None:
         user_id = get_current_user()
-        checked_addresses = [addr.address for addr in AddressStatus.select().where(AddressStatus.user == user_id)]
-        listings = list(
-            Listing.select().where(Listing.unavailable.is_null(), Listing.address.not_in(checked_addresses))
-        )
-        filters = list(Filter.select().where(Filter.user == user_id))
-        filtered_listings = []
-        for listing in listings:
-            if all(pass_filter(filter, listing) for filter in filters):
-                filtered_listings.append(listing)
-
-        return redirect(url_for("listing", listing_id=filtered_listings[0].id, source="listing"))
+        listings = get_unchecked_listings(user_id)
+        return redirect(url_for("listing", listing_id=listings[0].id, source="listing"))
 
     listing = Listing.get(Listing.id == listing_id)
     if s3_client.object_exists(listing_id + "/blurb.html"):
@@ -119,6 +111,18 @@ def listing(listing_id=None):
     return render_template(
         "listing.html", listing=listing, image_urls=image_urls, travel_times=travel_times, source=source
     )
+
+def get_unchecked_listings(user_id):
+    checked_addresses = [addr.address for addr in AddressStatus.select().where(AddressStatus.user == user_id)]
+    listings = list(Listing.select().where(Listing.unavailable.is_null(), Listing.address.not_in(checked_addresses)))
+    filters = list(Filter.select().where(Filter.user == user_id))
+
+    filtered_listings = []
+    for listing in listings:
+        if all(pass_filter(filter, listing) for filter in filters):
+            filtered_listings.append(listing)
+
+    return filtered_listings
 
 
 def pass_filter(filter: Filter, listing: Listing):
