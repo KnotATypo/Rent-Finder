@@ -3,7 +3,7 @@ import os
 from functools import wraps
 
 from apscheduler.schedulers.background import BackgroundScheduler
-from flask import Flask, render_template, session, request, redirect
+from flask import Flask, render_template, session, request, redirect, jsonify
 from flask import url_for
 from waitress import serve
 
@@ -31,7 +31,7 @@ s3_client = S3Client()
 
 scheduler = BackgroundScheduler(daemon=True)
 
-with open('src/rent_finder/static/img/no_image.png', 'rb') as f:
+with open("src/rent_finder/static/img/no_image.png", "rb") as f:
     no_image = f.read()
 
 
@@ -107,8 +107,8 @@ def listing(listing_id=None):
         images = s3_client.get_image_names(listing_id)
         images.sort(key=lambda x: int(x.split(".")[0]))
     else:
-        blurb_html = ''
-        images = ['none']
+        blurb_html = ""
+        images = ["none"]
     listing.blurb = blurb_html
 
     image_urls = [url_for("serve_data", listing_id=listing_id, filename=image) for image in images]
@@ -213,6 +213,11 @@ def filter_update():
     filter_value = request.form.get("value")
     Filter.create(type=FilterType(filter_type), operator=Operator(filter_operator), value=filter_value, user=user_id)
     return redirect(url_for("set_filters"))
+
+
+@app.route("/health_check")
+def health_check():
+    return jsonify({"status": "ok"})
 
 
 @app.route("/data/<listing_id>/<path:filename>")
