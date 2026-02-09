@@ -70,10 +70,12 @@
                 <form method="post"
                       action="{{ url_for('listing_status', listing_id=listing.id, status='Interested') }}">
                     <button type="submit" class="btn btn--green">I'm Interested</button>
+                    <input type="hidden" name="source" value="{{ source }}">
                 </form>
                 <form method="post"
                       action="{{ url_for('listing_status', listing_id=listing.id, status='Not Interested') }}">
                     <button type="submit" class="btn btn--red">Not Interested</button>
+                    <input type="hidden" name="source" value="{{ source }}">
                 </form>
             </div>
 
@@ -101,8 +103,8 @@
                 {% endfor %}
                 </tbody>
             </table>
-            {% if blurb_html %}
-                {{ blurb_html | safe }}
+            {% if listing.blurb %}
+                {{ listing.blurb | safe }}
             {% else %}
                 <p>No blurb available for this listing.</p>
             {% endif %}

@@ -18,7 +18,7 @@
 
                     <div class="card__body">
                         <h2 class="card__title">
-                            <a href="{{ url_for('listing', listing_id=l.id) }}">{{ l.address.address }}</a>
+                            <a href="{{ url_for('listing', listing_id=l.id, source='interested') }}">{{ l.address.address }}</a>
                         </h2>
 
                         <div class="card__meta">

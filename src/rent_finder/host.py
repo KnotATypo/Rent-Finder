@@ -99,7 +99,7 @@ def listing(listing_id=None):
             if all(pass_filter(filter, listing) for filter in filters):
                 filtered_listings.append(listing)
 
-        return redirect(url_for("listing", listing_id=filtered_listings[0].id))
+        return redirect(url_for("listing", listing_id=filtered_listings[0].id, source="listing"))
 
     listing = Listing.get(Listing.id == listing_id)
     if s3_client.object_exists(listing_id + "/blurb.html"):
@@ -109,12 +109,15 @@ def listing(listing_id=None):
     else:
         blurb_html = ''
         images = ['none']
+    listing.blurb = blurb_html
 
     image_urls = [url_for("serve_data", listing_id=listing_id, filename=image) for image in images]
     travel_times = TravelTime.select().join(SavedLocations).where(TravelTime.address == listing.address)
 
+    source = request.args.get("source")
+
     return render_template(
-        "listing.html", listing=listing, blurb_html=blurb_html, image_urls=image_urls, travel_times=travel_times
+        "listing.html", listing=listing, image_urls=image_urls, travel_times=travel_times, source=source
     )
 
 
@@ -148,7 +151,9 @@ def listing_status(listing_id, status):
     else:
         AddressStatus.create(address=listing.address, user=user_id, status=status)
 
-    return redirect(url_for("listing"))
+    source = request.form.get("source", "index")
+
+    return redirect(url_for(source))
 
 
 @app.route("/interested")
@@ -172,6 +177,7 @@ def interested():
     domain = Domain()
     for listing in listings:
         listing.source = domain.get_listing_link(listing)
+
     return render_template("interested.html", listing=listings)
 
 
