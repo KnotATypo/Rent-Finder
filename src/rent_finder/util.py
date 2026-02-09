@@ -15,6 +15,8 @@ def new_browser() -> webdriver.Chrome:
     """
     options = Options()
 
+    options.add_argument("--headless")
+
     # Flag needed to run in Docker
     options.add_argument("--no-sandbox")
 
@@ -33,4 +35,5 @@ def new_browser() -> webdriver.Chrome:
     )
 
     driver.implicitly_wait(10)
+    driver.set_window_size(1024, 768)
     return driver

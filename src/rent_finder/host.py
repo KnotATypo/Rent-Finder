@@ -112,6 +112,7 @@ def listing(listing_id=None):
         "listing.html", listing=listing, image_urls=image_urls, travel_times=travel_times, source=source
     )
 
+
 def get_unchecked_listings(user_id):
     checked_addresses = [addr.address for addr in AddressStatus.select().where(AddressStatus.user == user_id)]
     listings = list(Listing.select().where(Listing.unavailable.is_null(), Listing.address.not_in(checked_addresses)))

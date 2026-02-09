@@ -1,6 +1,6 @@
 import math
 from time import sleep
-from typing import Dict, Set
+from typing import Dict, Set, List
 
 from bs4 import BeautifulSoup
 from selenium.webdriver.chrome.webdriver import WebDriver
@@ -68,7 +68,7 @@ def calculate_pt_travel_time(browser) -> int:
     time_field.clear()
     time_field.send_keys("9:00 am")
 
-    def pick_dates(initial_open=False) -> int:
+    def pick_dates(initial_open=True) -> List[int]:
         times = []
         open_picker = initial_open
         # Check monday and tuesday just in case
@@ -79,17 +79,17 @@ def calculate_pt_travel_time(browser) -> int:
                 open_picker = False
             browser.find_elements(By.CSS_SELECTOR, 'td[class="goog-date-picker-date"]')[i].click()
             times.append(get_min_time(browser))
-        return min(times)
+        return times
 
-    # current month
-    time = pick_dates()
+    # Originally we were checking the current month and the next, but Google Maps has trouble with doing PT too far into the past
+    # Now we just check the next two months
+    time = []
+    for _ in range(2):
+        browser.find_element(By.CSS_SELECTOR, 'button[aria-live="polite"]').click()
+        browser.find_element(By.CSS_SELECTOR, 'button[class="goog-date-picker-btn goog-date-picker-nextMonth"]').click()
+        time.extend(pick_dates())
 
-    # move to next month then pick (picker will already be open)
-    browser.find_element(By.CSS_SELECTOR, 'button[aria-live="polite"]').click()
-    browser.find_element(By.CSS_SELECTOR, 'button[class="goog-date-picker-btn goog-date-picker-nextMonth"]').click()
-    time = min(pick_dates(initial_open=True), time)
-
-    return time
+    return min(time)
 
 
 def get_min_time(browser: WebDriver) -> int:
