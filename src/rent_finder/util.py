@@ -1,6 +1,12 @@
+import os
+
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium_stealth import stealth
+
+# Ensure the virtual display is used when running in Docker
+if os.getenv("DISPLAY") is None:
+    os.environ["DISPLAY"] = ":99"
 
 
 def new_browser() -> webdriver.Chrome:
