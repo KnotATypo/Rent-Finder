@@ -96,7 +96,7 @@ def update_unavailable():
 
     domain = Domain()
     for listing in tqdm(listings, desc="Updating unavailable", unit="listings"):
-        if domain.listing_available(listing, browser):
+        if not domain.listing_available(listing, browser):
             listing.unavailable = datetime.datetime.now()
             listing.save()
 
