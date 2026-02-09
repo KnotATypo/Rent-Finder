@@ -86,27 +86,29 @@ class Domain(Site):
 
         return Listing.create(id=listing_id, address_id=address_obj.id, price=price)
 
-    def download_blurb_and_images(self, listing: Listing, browser: WebDriver):
+    def listing_available(self, listing: Listing, browser: WebDriver) -> bool:
         link = self.get_listing_link(listing)
         browser.get(link)
 
-        # Update status of listing and exit early if delisted
+        available = True
         try:
+            # Check for the normal details column of the listing page
             browser.find_element(By.CSS_SELECTOR, 'div[data-testid="listing-details__summary-left-column"]')
         except NoSuchElementException:
-            listing.unavailable = datetime.datetime.now()
-            listing.save()
-            return
+            available = False
 
         try:
-            browser.implicitly_wait(1)
+            # Sometimes the listing page still exists but has a tag indicating it is under contract or leased
             browser.find_element(By.CSS_SELECTOR, 'span[data-testid="listing-details__listing-tag"]')
-            browser.implicitly_wait(10)
-            listing.unavailable = datetime.datetime.now()
-            listing.save()
-            return
+            available = False
         except NoSuchElementException:
-            browser.implicitly_wait(10)
+            pass
+
+        return available
+
+    def download_blurb_and_images(self, listing: Listing, browser: WebDriver):
+        link = self.get_listing_link(listing)
+        browser.get(link)
 
         read_more_button = browser.find_element(
             By.CSS_SELECTOR, 'button[data-testid="listing-details__description-button"]'

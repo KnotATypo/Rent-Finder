@@ -1,3 +1,5 @@
+import datetime
+
 from tqdm import tqdm
 
 from rent_finder.logger import configure_logging
@@ -13,7 +15,8 @@ def search():
     configure_logging()
     logger.info("Starting search")
     get_rentals()
-    update_listings()
+    update_unavailable()
+    get_details()
     populate_travel_times()
     logger.info("Finished search")
 
@@ -82,10 +85,25 @@ def populate_travel_times():
                 browser.close()
                 browser = new_browser()
 
-
-def update_listings():
+def update_unavailable():
     """
-    Update the status and download blurbs and images for listings.
+    Checks each available listing to confirm it is still available
+    """
+    listings = list(Listing.select().where(Listing.unavailable.is_null()))
+
+    browser = new_browser()
+    browser.implicitly_wait(0)
+
+    domain = Domain()
+    for listing in tqdm(listings, desc="Updating unavailable", unit="listings"):
+        domain.listing_available(listing, browser)
+        listing.unavailable = datetime.datetime.now()
+        listing.save()
+
+
+def get_details():
+    """
+    Download blurbs and images for listings.
     """
     logger.info("Updating listings")
 

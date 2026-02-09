@@ -1,6 +1,7 @@
 from typing import List
 
 from bs4 import Tag
+from selenium.webdriver.chrome.webdriver import WebDriver
 
 from rent_finder.geocode_client import GeocodeClient
 from rent_finder.model import Listing, Suburb
@@ -37,6 +38,9 @@ class Site:
         raise NotImplementedError
 
     def _create_listing(self, page_element: Tag) -> Listing:
+        raise NotImplementedError
+
+    def listing_available(self, listing: Listing, browser: WebDriver) -> bool:
         raise NotImplementedError
 
     def page_exists(self, driver, location: str) -> bool:
