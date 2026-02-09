@@ -85,6 +85,7 @@ def populate_travel_times():
                 browser.close()
                 browser = new_browser()
 
+
 def update_unavailable():
     """
     Checks each available listing to confirm it is still available
@@ -96,9 +97,15 @@ def update_unavailable():
 
     domain = Domain()
     for listing in tqdm(listings, desc="Updating unavailable", unit="listings"):
-        if not domain.listing_available(listing, browser):
-            listing.unavailable = datetime.datetime.now()
-            listing.save()
+        try:
+            if not domain.listing_available(listing, browser):
+                listing.unavailable = datetime.datetime.now()
+                listing.save()
+        except Exception as e:
+            logger.error(f"Listing {listing}, {type(e).__name__}: {e}")
+            browser.close()
+            browser = new_browser()
+    browser.close()
 
 
 def get_details():
