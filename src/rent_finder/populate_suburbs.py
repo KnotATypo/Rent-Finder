@@ -4,7 +4,7 @@ from tqdm import tqdm
 
 from rent_finder.sites.domain import Domain
 from rent_finder.model import Suburb
-from rent_finder.logger import logger, configure_logging
+from rent_finder.logger import logger, configure_logging, progress_bars
 from rent_finder.util import new_browser
 
 
@@ -24,7 +24,7 @@ def main():
     logger.info(f"Starting at postcode {starting_postcode}")
 
     browser = new_browser()
-    for postcode in tqdm(range(starting_postcode, 5000), desc="Postcodes"):
+    for postcode in tqdm(range(starting_postcode, 5000), desc="Postcodes", disable=not progress_bars):
         if postcode >= 5000:
             break
         response = requests.get(
@@ -34,7 +34,7 @@ def main():
             logger.error("Error:", response.status_code)
             continue
         data = response.json()
-        for location in tqdm(data, desc=f"{postcode} Locations", leave=False):
+        for location in tqdm(data, desc=f"{postcode} Locations", leave=False, disable=not progress_bars):
             if Suburb.get_or_none(name=location["name"]) is not None:
                 continue
             domain_id = f"{location['name'].lower().replace(' ', '-')}-qld-{postcode}"

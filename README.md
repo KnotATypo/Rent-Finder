@@ -35,6 +35,12 @@ S3_ACCESS_KEY=
 - `DB_*` - Details for PostgreSQL database
 - `S3_*` - Details for S3 compatible datastore
 
+Additionally, there are 2 optional environmental variables:
+
+- `LOG_LEVEL` - Defaults to "INFO", but can be set to any standard logging level such as "DEBUG" or "WARN"
+- `PROGRESS_BARS` - Set to any value to enable progress bars while searching. Disabled by default to allow for clearer
+  logging
+
 ## Running
 
 The intended way to run the application is through a Docker container which can be pulled from `knotatypo/rent-finder`.

@@ -1,6 +1,7 @@
 import logging
 import os
 
+progress_bars = os.getenv("PROGRESS_BARS", False)
 logger = logging.getLogger("rent-finder")
 
 

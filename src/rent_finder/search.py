@@ -2,7 +2,7 @@ import datetime
 
 from tqdm import tqdm
 
-from rent_finder.logger import configure_logging
+from rent_finder.logger import configure_logging, progress_bars
 from rent_finder.logger import logger
 from rent_finder.model import Suburb, TravelTime, SavedLocations, Address, TravelMode, Listing
 from rent_finder.s3_client import S3Client
@@ -32,7 +32,8 @@ def get_rentals():
     suburbs = list(Suburb.select().where(Suburb.distance_to_source < 15))
     browser = new_browser()
     logger.info(f"Found {len(suburbs)} suburbs")
-    for suburb in tqdm(suburbs, desc="Searching suburbs", unit="location"):
+    for suburb in tqdm(suburbs, desc="Searching suburbs", unit="location", disable=not progress_bars):
+        logger.info(f"Searching {suburb.name}")
         listings.append(domain.search(browser, suburb))
     browser.close()
 
@@ -47,7 +48,9 @@ def populate_travel_times():
     saved_locations: list[SavedLocations] = list(SavedLocations.select())
 
     browser = new_browser()
-    for location in tqdm(saved_locations, desc="Populating travel times", unit="locations", leave=False):
+    for location in tqdm(
+        saved_locations, desc="Populating travel times", unit="locations", leave=False, disable=not progress_bars
+    ):
 
         done_address_sets = []
         for mode in modes:
@@ -63,7 +66,9 @@ def populate_travel_times():
         need_to_do = available_addresses - addresses_with_all_modes
 
         logger.info(f"Need to do: {len(need_to_do)} addresses for {location.name}")
-        for address in tqdm(need_to_do, desc="Calculating travel times", unit="addresses", leave=False):
+        for address in tqdm(
+            need_to_do, desc="Calculating travel times", unit="addresses", leave=False, disable=not progress_bars
+        ):
             existing_modes = list(
                 TravelTime.select().join(Address).where(TravelTime.to_location == location, Address.id == address.id)
             )
@@ -95,7 +100,7 @@ def update_unavailable():
     browser.implicitly_wait(0)
 
     domain = Domain()
-    for listing in tqdm(listings, desc="Updating unavailable", unit="listings"):
+    for listing in tqdm(listings, desc="Updating unavailable", unit="listings", disable=not progress_bars):
         try:
             if not domain.listing_available(listing, browser):
                 listing.unavailable = datetime.datetime.now()
@@ -122,7 +127,9 @@ def get_details():
     ]
     browser = new_browser()
     logger.info(f"{len(listings)} listings to update")
-    for listing in tqdm(listings, desc="Downloading extras", unit="listings", total=len(listings)):
+    for listing in tqdm(
+        listings, desc="Downloading extras", unit="listings", total=len(listings), disable=not progress_bars
+    ):
         try:
             domain.download_blurb_and_images(listing, browser)
         except Exception as e:
@@ -132,6 +139,10 @@ def get_details():
     browser.close()
 
 
-if __name__ == "__main__":
+def main():
     configure_logging()
     search()
+
+
+if __name__ == "__main__":
+    main()
