@@ -17,8 +17,9 @@ def new_browser() -> webdriver.Chrome:
 
     options.add_argument("--headless")
 
-    # Flag needed to run in Docker
+    # Flags needed to run in Docker
     options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
 
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
     options.add_experimental_option("useAutomationExtension", False)
