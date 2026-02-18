@@ -84,7 +84,8 @@ class Domain(Site):
                 address=address, beds=beds, baths=baths, cars=cars, latitude=lat, longitude=lon
             )
 
-        return Listing.create(id=listing_id, address_id=address_obj.id, price=price)
+        logger.info(f"New listing {listing_id} created for {address}")
+        return Listing.create(id=listing_id, address=address_obj, price=price)
 
     def listing_available(self, listing: Listing, browser: WebDriver) -> bool:
         link = self.get_listing_link(listing)

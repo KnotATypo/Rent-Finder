@@ -36,6 +36,7 @@ def get_rentals():
         logger.info(f"Searching {suburb.name}")
         listings.append(domain.search(browser, suburb))
     browser.close()
+    logger.info(f"Found {len(listings)} listings")
 
 
 def populate_travel_times():
@@ -83,7 +84,8 @@ def populate_travel_times():
                     browser,
                 )
                 for mode, time in times.items():
-                    TravelTime.create(address_id=address, travel_time=time, travel_mode=mode, to_location=location)
+                    TravelTime.create(address=address, travel_time=time, travel_mode=mode, to_location=location)
+                    logger.info(f"Address {address} - Travel time for {mode}: {time}")
             except Exception as e:
                 logger.error(f"Address {address}, {type(e).__name__}: {e}")
                 browser.close()
@@ -105,6 +107,7 @@ def update_unavailable():
             if not domain.listing_available(listing, browser):
                 listing.unavailable = datetime.datetime.now()
                 listing.save()
+                logger.info(f"Listing {listing} unavailable")
         except Exception as e:
             logger.error(f"Listing {listing}, {type(e).__name__}: {e}")
             browser.close()
@@ -132,6 +135,7 @@ def get_details():
     ):
         try:
             domain.download_blurb_and_images(listing, browser)
+            logger.info(f"Listing {listing} details downloaded")
         except Exception as e:
             logger.error(f"Listing {listing}, {type(e).__name__}: {e}")
             browser.close()
