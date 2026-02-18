@@ -12,7 +12,6 @@ from rent_finder.util import new_browser
 
 def search():
     configure_logging()
-    configure_logging()
     logger.info("Starting search")
     get_rentals()
     update_unavailable()
