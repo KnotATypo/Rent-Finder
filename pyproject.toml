@@ -21,7 +21,7 @@ dependencies = [
 ]
 
 [project.scripts]
-search = "rent_finder.search:main"
+search = "rent_finder.search:search"
 host = "rent_finder.host:host"
 
 [build-system]

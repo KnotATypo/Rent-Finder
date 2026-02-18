@@ -2,8 +2,7 @@ import datetime
 
 from tqdm import tqdm
 
-from rent_finder.logger import configure_logging, progress_bars
-from rent_finder.logger import logger
+from rent_finder.logger import logger, configure_logging, progress_bars
 from rent_finder.model import Suburb, TravelTime, SavedLocations, Address, TravelMode, Listing
 from rent_finder.s3_client import S3Client
 from rent_finder.sites.domain import Domain
@@ -12,6 +11,8 @@ from rent_finder.util import new_browser
 
 
 def search():
+    configure_logging()
+    configure_logging()
     logger.info("Starting search")
     get_rentals()
     update_unavailable()
@@ -143,10 +144,5 @@ def get_details():
     browser.close()
 
 
-def main():
-    configure_logging()
-    search()
-
-
 if __name__ == "__main__":
-    main()
+    search()

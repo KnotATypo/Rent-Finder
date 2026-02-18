@@ -234,7 +234,7 @@ def serve_data(listing_id, filename):
 
 
 def host():
-    scheduler.add_job(search, "cron", hour=12, minute=30)
+    scheduler.add_job(search, "cron", hour=13, minute=0)
     atexit.register(lambda: scheduler.shutdown())
     scheduler.start()
     logger.info("Starting Flask app...")
