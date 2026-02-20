@@ -92,7 +92,7 @@ class Listing(BaseModel):
     id = TextField(primary_key=True)
     address = ForeignKeyField(Address)
     price = IntegerField()
-    available = DateTimeField(default=datetime.datetime.now())
+    available = DateTimeField()
     unavailable = DateTimeField(null=True)
 
 

@@ -85,7 +85,7 @@ class Domain(Site):
             )
 
         logger.info(f"New listing {listing_id} created for {address}")
-        return Listing.create(id=listing_id, address=address_obj, price=price)
+        return Listing.create(id=listing_id, address=address_obj, price=price, available=datetime.datetime.now())
 
     def listing_available(self, listing: Listing, browser: WebDriver) -> bool:
         link = self.get_listing_link(listing)
