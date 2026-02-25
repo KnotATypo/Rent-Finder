@@ -13,6 +13,7 @@ from peewee import (
     FloatField,
     ForeignKeyField,
     DateTimeField,
+    CompositeKey,
 )
 from peewee_enum_field import EnumField
 
@@ -104,11 +105,13 @@ class SavedLocations(BaseModel):
 
 
 class TravelTime(BaseModel):
-    id = AutoField(primary_key=True)
     address = ForeignKeyField(Address)
     travel_time = IntegerField()
     travel_mode = EnumField(TravelMode)
     to_location = ForeignKeyField(SavedLocations)
+
+    class Meta:
+        primary_key = CompositeKey("address", "to_location", "travel_mode")
 
 
 class User(BaseModel):
@@ -117,10 +120,12 @@ class User(BaseModel):
 
 
 class AddressStatus(BaseModel):
-    id = AutoField(primary_key=True)
     address = ForeignKeyField(Address)
     user = ForeignKeyField(User)
     status = EnumField(UserStatus, null=True)
+
+    class Meta:
+        primary_key = CompositeKey("address", "user")
 
 
 class Suburb(BaseModel):
