@@ -12,6 +12,3 @@ COPY . .
 ENV PYTHONBUFFERED=1
 
 ENTRYPOINT ["uv", "run", "host"]
-# See entrypoint.sh for comment
-#ENTRYPOINT ["/rent-finder/entrypoint.sh"]
-#CMD ["uv", "run", "host"]
