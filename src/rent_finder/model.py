@@ -146,6 +146,7 @@ class Filter(BaseModel):
     operator = EnumField(Operator)
     value = IntegerField()
 
+
 class Query(BaseModel):
     suburb = ForeignKeyField(Suburb, null=True)
     lower_price = IntegerField(null=True)

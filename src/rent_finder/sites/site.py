@@ -4,7 +4,7 @@ from bs4 import Tag
 from selenium.webdriver.chrome.webdriver import WebDriver
 
 from rent_finder.geocode_client import GeocodeClient
-from rent_finder.model import Listing, Suburb, Query
+from rent_finder.model import Listing, Query
 from rent_finder.s3_client import S3Client
 
 

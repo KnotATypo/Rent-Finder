@@ -41,36 +41,41 @@ class Domain(Site):
         return listings
 
     def _create_listing(self, card: Tag) -> Listing | None:
-        address = card.find(attrs={"data-testid": "address-wrapper"})
-        address_line1 = address.find(attrs={"data-testid": "address-line1"})
-        if address_line1 is None:
-            # No viable address
-            return None
-        address = (
-            address.find(attrs={"data-testid": "address-line1"}).text
-            + address.find(attrs={"data-testid": "address-line2"}).text
-        )
+        address = card.find(attrs={"data-testid": "address-wrapper"}).text
         address = address.replace(" ", " ")
-        features = card.find(attrs={"data-testid": "property-features-wrapper"})
-        listing_id = card.parent.attrs["data-testid"][8:]
 
+        if (address_obj := Address.get_or_none(address=address)) is None:
+            lat, lon = self.geocode_client.get_coordinate(address)
+            if lat is None:
+                # TODO: Investigate failures more
+                return None
+
+            features = card.find(attrs={"data-testid": "property-features-wrapper"})
+            if features is None:
+                logger.warning(f"{address} - Has no features")
+                return None
+
+            beds, baths, cars = 0, 0, 0
+            for feature in features:
+                try:
+                    text = feature.text.lower()
+                    num = text.split(" ")[0]
+                    num = 0 if num == "−" else num
+                    if "bed" in text:
+                        beds = int(num)
+                    elif "bath" in text:
+                        baths = int(num)
+                    elif "car" in text or "park" in text:
+                        cars = int(num)
+                except Exception as e:
+                    logger.warning(f"{features} - {type(e).__name__}: {e}")
+
+            logger.debug(f"Saved new address: {address}")
+            address_obj = Address.create(address=address, beds=beds, baths=baths, cars=cars, latitude=lat, longitude=lon)
+
+        listing_id = card.parent.attrs["data-testid"][8:]
         if (listing := Listing.get_or_none(Listing.id == listing_id)) is not None:
             return listing
-
-        beds, baths, cars = 0, 0, 0
-        for feature in features:
-            try:
-                text = feature.text.lower()
-                num = text.split(" ")[0]
-                num = 0 if num == "−" else num
-                if "bed" in text:
-                    beds = int(num)
-                elif "bath" in text:
-                    baths = int(num)
-                elif "car" in text or "park" in text:
-                    cars = int(num)
-            except Exception as e:
-                logger.warning(f"{features} - {type(e).__name__}: {e}")
 
         price = card.find(attrs={"data-testid": "listing-card-price-wrapper"}).text
         price_list = re.findall(r"\$\d?,?\d+", price)
@@ -79,13 +84,7 @@ class Domain(Site):
         else:
             price = int(price_list[0].replace(",", "").replace("$", ""))
 
-        if (address_obj := Address.get_or_none(address=address)) is None:
-            lat, lon = self.geocode_client.get_coordinate(address)
-            address_obj = Address.create(
-                address=address, beds=beds, baths=baths, cars=cars, latitude=lat, longitude=lon
-            )
-
-        logger.info(f"New listing {listing_id} created for {address}")
+        logger.debug(f"New listing {listing_id} created for {address}")
         return Listing.create(id=listing_id, address=address_obj, price=price, available=datetime.datetime.now())
 
     def listing_available(self, listing: Listing, browser: WebDriver) -> bool:
@@ -172,7 +171,9 @@ class Domain(Site):
             beds = f"bedrooms={query.beds}&"
         else:
             beds = ""
-        return f"https://www.domain.com.au/rent/{suburb_id}?{price}{beds}page={page_number}&excludedeposittaken=1&ssubs=0"
+        # "ssubs" removes surrounding suburbs when the suburb is specified
+        # The sort is provided to avoid being given a "featured" property at the top of the search
+        return f"https://www.domain.com.au/rent/{suburb_id}?{price}{beds}page={page_number}&excludedeposittaken=1&ssubs=0&sort=dateupdated-desc"
 
     def get_listing_link(self, listing: Listing) -> str:
         address = Address.get(Address.id == listing.address)

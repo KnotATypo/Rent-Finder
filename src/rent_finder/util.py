@@ -9,13 +9,14 @@ if os.getenv("DISPLAY") is None:
     os.environ["DISPLAY"] = ":99"
 
 
-def new_browser() -> webdriver.Chrome:
+def new_browser(headless=True) -> webdriver.Chrome:
     """
     Creates a new Chrome browser instance with the selenium_stealth additions
     """
     options = Options()
 
-    options.add_argument("--headless=new")
+    if headless:
+        options.add_argument("--headless=new")
 
     # Flags needed to run in Docker
     options.add_argument("--no-sandbox")

@@ -41,10 +41,18 @@ class GeocodeClient:
         elif len(response) == 1:
             return float(response[0]["lat"]), float(response[0]["lon"])
         else:
-            for location in response:
-                if "suburb" not in location["address"]:
-                    continue
+            logger.debug(f"{address} - Geocode: More than one results found")
+            lat, long = self._resolve_duplicates(response, address)
+            if lat is None or long is None:
+                logger.error(f"{address} - Geocode: Could not resolve duplicate coordinates")
+            return lat, long
+
+    def _resolve_duplicates(self, locations, address: str) -> tuple[float, float] | tuple[None, None]:
+        for location in locations:
+            if "suburb" in location["address"]:
                 if location["address"]["suburb"].lower() in address.lower():
                     return float(location["lat"]), float(location["lon"])
-            logger.error(f"{address} - Geocode: Multiple results found")
-            return None, None
+            elif "town" in location["address"]:
+                if location["address"]["town"].lower() in address.lower():
+                    return float(location["lat"]), float(location["lon"])
+        return None, None
