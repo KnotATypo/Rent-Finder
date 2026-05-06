@@ -234,6 +234,8 @@ def serve_data(listing_id, filename):
 
 
 def host():
+    logger.error("The web page is currently decommissioned pending overhaul")
+    return
     scheduler.add_job(search, "cron", hour=13, minute=0)
     atexit.register(lambda: scheduler.shutdown())
     scheduler.start()
