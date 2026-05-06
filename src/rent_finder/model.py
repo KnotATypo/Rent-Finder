@@ -136,7 +136,7 @@ class Suburb(BaseModel):
     postcode = IntegerField()
     latitude = FloatField()
     longitude = FloatField()
-    distance_to_source = FloatField()  # Centre point of search
+    state = TextField()
 
 
 class Filter(BaseModel):
@@ -145,6 +145,12 @@ class Filter(BaseModel):
     type = EnumField(FilterType)
     operator = EnumField(Operator)
     value = IntegerField()
+
+class Query(BaseModel):
+    suburb = ForeignKeyField(Suburb, null=True)
+    lower_price = IntegerField(null=True)
+    upper_price = IntegerField(null=True)
+    beds = TextField(null=True)
 
 
 db.create_tables([Address, Listing, TravelTime, SavedLocations, User, AddressStatus, Suburb, Filter], safe=True)

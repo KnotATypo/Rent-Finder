@@ -5,13 +5,14 @@ from typing import List
 
 import requests
 from bs4 import BeautifulSoup, Tag
+from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver import ActionChains
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 
 from rent_finder.logger import logger
-from rent_finder.model import Suburb, Listing, Address
+from rent_finder.model import Listing, Address, Query
 from rent_finder.sites.site import Site
 
 PARSER = "html.parser"
@@ -21,10 +22,10 @@ class Domain(Site):
     def __init__(self):
         super().__init__()
 
-    def get_page(self, page_num: int, browser, suburb: Suburb) -> List[Listing]:
+    def get_page(self, page_num: int, browser: webdriver.Chrome, query: Query) -> List[Listing]:
         listings = []
 
-        search_link = self._get_search_link(suburb, page_num)
+        search_link = self._get_search_link(query, page_num)
         browser.get(search_link)
         soup = BeautifulSoup(browser.page_source, PARSER)
         cards = soup.find_all(attrs={"data-testid": re.compile(r"^listing-card-wrapper")})
@@ -158,9 +159,20 @@ class Domain(Site):
 
         self.s3_client.put_objects(objects_to_save)
 
-    def _get_search_link(self, suburb: Suburb, page_number: int) -> str:
-        suburb_id = f"{suburb.name.lower().replace(' ', '-')}-qld-{suburb.postcode}"
-        return f"https://www.domain.com.au/rent/{suburb_id}/?excludedeposittaken=1&page={page_number}&ssubs=0"
+    def _get_search_link(self, query: Query, page_number: int) -> str:
+        if query.suburb is not None:
+            suburb_id = f"{query.suburb.name.lower().replace(' ', '-')}-{query.suburb.state}-{query.suburb.postcode}/"
+        else:
+            suburb_id = ""
+        if query.lower_price and query.upper_price:
+            price = f"price={query.lower_price}-{query.upper_price}&"
+        else:
+            price = ""
+        if query.beds:
+            beds = f"bedrooms={query.beds}&"
+        else:
+            beds = ""
+        return f"https://www.domain.com.au/rent/{suburb_id}?{price}{beds}page={page_number}&excludedeposittaken=1&ssubs=0"
 
     def get_listing_link(self, listing: Listing) -> str:
         address = Address.get(Address.id == listing.address)
