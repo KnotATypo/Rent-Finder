@@ -154,4 +154,8 @@ class Query(BaseModel):
     beds = TextField(null=True)
 
 
-db.create_tables([Address, Listing, TravelTime, SavedLocations, User, AddressStatus, Suburb, Filter], safe=True)
+class LookupFails(BaseModel):
+    address = TextField()
+
+
+db.create_tables([Address, Listing, TravelTime, SavedLocations, User, AddressStatus, Suburb, Filter, LookupFails], safe=True)
