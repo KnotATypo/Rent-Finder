@@ -1,4 +1,3 @@
-import datetime
 import operator
 import os
 from dataclasses import dataclass
@@ -46,6 +45,7 @@ class FilterType(Enum):
             return lambda l: l.price
         elif self == FilterType.BEDS:
             return lambda l: Address.select().join(Listing).where(Listing.id == l.id).get().beds
+        return None
 
 
 class Operator(Enum):
@@ -57,12 +57,14 @@ class Operator(Enum):
             return operator.le
         elif self == Operator.GREATER_EQ:
             return operator.ge
+        return None
 
     def display(self):
         if self == Operator.LESS_EQ:
             return "<="
         elif self == Operator.GREATER_EQ:
             return ">="
+        return None
 
 
 @dataclass

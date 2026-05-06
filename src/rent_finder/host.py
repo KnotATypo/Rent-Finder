@@ -35,7 +35,7 @@ with open("src/rent_finder/static/img/no_image.png", "rb") as f:
     no_image = f.read()
 
 
-@app.route("/set_username")
+@app.route("/set_username", methods=["GET"])
 def set_username():
     users = [user.username for user in User.select().order_by(User.id)]
     return render_template("set_username.html", users=users)
@@ -72,15 +72,15 @@ def get_current_user():
     return session.get("user_id")
 
 
-@app.route("/")
+@app.route("/", methods=["GET"])
 @require_user
 def index():
     listing_count = len(get_unchecked_listings(get_current_user()))
     return render_template("index.html", count=listing_count)
 
 
-@app.route("/listing/")
-@app.route("/listing/<listing_id>")
+@app.route("/listing/", methods=["GET"])
+@app.route("/listing/<listing_id>", methods=["GET"])
 @require_user
 def listing(listing_id=None):
     """
@@ -161,7 +161,7 @@ def listing_status(listing_id, status):
     return redirect(url_for(source))
 
 
-@app.route("/interested")
+@app.route("/interested", methods=["GET"])
 @require_user
 def interested():
     """
@@ -186,7 +186,7 @@ def interested():
     return render_template("interested.html", listing=listings)
 
 
-@app.route("/saved_locations")
+@app.route("/saved_locations", methods=["GET"])
 def saved_locations():
     """
     Serves the page containing the list of locations which travel time is calculated to.
@@ -194,7 +194,7 @@ def saved_locations():
     return render_template("saved_locations.html", saved_locations=list(SavedLocations.select()))
 
 
-@app.route("/set_filters")
+@app.route("/set_filters", methods=["GET"])
 @require_user
 def set_filters():
     user_id = get_current_user()
@@ -220,12 +220,12 @@ def filter_update():
     return redirect(url_for("set_filters"))
 
 
-@app.route("/health_check")
+@app.route("/health_check", methods=["GET"])
 def health_check():
     return jsonify({"status": "ok"})
 
 
-@app.route("/data/<listing_id>/<path:filename>")
+@app.route("/data/<listing_id>/<path:filename>", methods=["GET"])
 def serve_data(listing_id, filename):
     object_name = listing_id + "/" + filename
     if s3_client.object_exists(object_name):
