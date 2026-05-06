@@ -71,7 +71,9 @@ class Domain(Site):
                     logger.warning(f"{features} - {type(e).__name__}: {e}")
 
             logger.debug(f"Saved new address: {address}")
-            address_obj = Address.create(address=address, beds=beds, baths=baths, cars=cars, latitude=lat, longitude=lon)
+            address_obj = Address.create(
+                address=address, beds=beds, baths=baths, cars=cars, latitude=lat, longitude=lon
+            )
 
         listing_id = card.parent.attrs["data-testid"][8:]
         if (listing := Listing.get_or_none(Listing.id == listing_id)) is not None:
@@ -185,3 +187,10 @@ class Domain(Site):
         soup = BeautifulSoup(driver.page_source, PARSER)
         summary = soup.find_all(attrs={"data-testid": "summary"})
         return len(summary) > 0
+
+    def get_listing_count(self, query: Query, browser: WebDriver) -> int:
+        link = self._get_search_link(query, 1)
+        browser.get(link)
+        count_text = browser.find_element(By.CSS_SELECTOR, 'h1[data-testid="summary"]').text
+        count = int(re.findall(r"^\d+", count_text)[0])
+        return count

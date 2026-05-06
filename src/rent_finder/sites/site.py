@@ -45,3 +45,13 @@ class Site:
 
     def page_exists(self, driver, location: str) -> bool:
         raise NotImplementedError
+
+    def get_listing_count(self, query: Query, browser: WebDriver) -> int:
+        """
+        Get the number of listings found with the given query
+
+        :param query: Query to search for
+        :param browser: WebDriver to use for search
+        :return:
+        """
+        raise NotImplementedError
