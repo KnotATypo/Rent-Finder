@@ -61,6 +61,9 @@ def populate_coordinates():
         address.address = full_address
 
         lat, lon = coords_from_maps(address, browser)
+        if lat is None or lon is None:
+            continue
+
         if lon < 110 or lon > 155 or lat < -45 or lat > -10:
             # Outside bounding box for Australia
             lat = None
@@ -83,7 +86,7 @@ def coords_from_maps(address: Address, browser: WebDriver) -> tuple[float, float
     browser.get(maps_url)
 
     coords = None
-    retries = 10
+    retries = 20
     while coords is None:
         matches = re.findall(r"-\d{2}\.\d+,\d{3}\.\d+", browser.current_url)
         if len(matches) > 0:
