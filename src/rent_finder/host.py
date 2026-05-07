@@ -181,7 +181,7 @@ def interested():
     )
     domain = Domain()
     for listing in listings:
-        listing.source = domain.get_listing_link(listing)
+        listing.source = domain.get_listing_link(listing.id)
 
     return render_template("interested.html", listing=listings)
 

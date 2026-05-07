@@ -11,4 +11,4 @@ COPY . .
 
 ENV PYTHONBUFFERED=1
 
-ENTRYPOINT ["uv", "run", "host"]
+ENTRYPOINT ["uv", "run", "src/rent_finder/split_test.py"]
