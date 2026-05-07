@@ -72,9 +72,11 @@ class GeocodeClient:
                 sleep(5)
                 response = None
             elif response.status_code != 200:
-                raise StatusException(f"{response.status_code}: {response.text}")
+                logger.error(f"{response.status_code}: {response.text}")
+                response = []
+            else:
+                response = response.json()
 
-        response = response.json()
         if len(response) == 0:
             logger.warning(f"{address} - Geocode: No results found")
             lat, long = None, None
