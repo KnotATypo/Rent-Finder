@@ -6,7 +6,7 @@ from time import sleep
 import requests
 
 from rent_finder.logger import logger
-from rent_finder.model import LookupFails
+from rent_finder.model import GeocodeFails
 
 
 class StatusException(Exception):
@@ -31,7 +31,7 @@ class GeocodeClient:
         self.api_key = key
         self.rate_limit_start = datetime.min
         self.last_request = datetime.min
-        self.lookup_fails = {x.address for x in LookupFails.select()}
+        self.lookup_fails = {x.address for x in GeocodeFails.select()}
 
     def get_coordinate(self, address: str) -> tuple[None, None] | tuple[float, float]:
         """
@@ -83,7 +83,7 @@ class GeocodeClient:
                 logger.warning(f"{address} - Geocode: Could not resolve duplicate coordinates")
 
         if lat is None or long is None:
-            LookupFails.create(address=address)
+            GeocodeFails.create(address=address)
             self.lookup_fails.add(address)
 
         return lat, long
@@ -93,7 +93,7 @@ class GeocodeClient:
             if "suburb" in location["address"]:
                 if location["address"]["suburb"].lower() in address.lower():
                     return float(location["lat"]), float(location["lon"])
-            elif "town" in location["address"]:
+            if "town" in location["address"]:
                 if location["address"]["town"].lower() in address.lower():
                     return float(location["lat"]), float(location["lon"])
         return None, None
