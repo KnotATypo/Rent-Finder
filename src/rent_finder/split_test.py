@@ -9,7 +9,7 @@ from tqdm import tqdm
 
 from rent_finder.geocode_client import GeocodeClient
 from rent_finder.logger import configure_logging, logger
-from rent_finder.model import Query, Address, Listing
+from rent_finder.model import Query, Address, Listing, GeocodeFails
 from rent_finder.sites.domain import Domain
 from rent_finder.util import new_browser
 
@@ -44,11 +44,13 @@ def main():
 
 def populate_coordinates():
     addresses = Address.select().join(Listing).where(Address.latitude.is_null())
-
+    failed_addresses = {x.address for x in GeocodeFails.select()}
     geocode = GeocodeClient()
     counter = Counter()
     browser = new_browser()
     for address in tqdm(addresses, desc="Addresses"):
+        if geocode.clean_address(address.address) in failed_addresses:
+            continue
         first_try = True
         lat, lon = geocode.get_coordinate(address.address)
         if lat is None or lon is None:
