@@ -1,21 +1,24 @@
 import json
 import os
-from collections import Counter
+import re
 from pathlib import Path
+from time import sleep
 from typing import Tuple, List
 
+from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from tqdm import tqdm
 
 from rent_finder.geocode_client import GeocodeClient
 from rent_finder.logger import configure_logging, logger
-from rent_finder.model import Query, Address, Listing, GeocodeFails
+from rent_finder.model import Query, Address, Listing
 from rent_finder.sites.domain import Domain
 from rent_finder.util import new_browser
 
 directory = str(Path(__file__).resolve().parents[2])
 
 Domain = Domain()
+geocode = GeocodeClient()
 
 
 def main():
@@ -42,41 +45,60 @@ def main():
                     Domain.search(browser, query)
     browser.quit()
 
+
 def populate_coordinates():
-    addresses = Address.select().join(Listing).where(Address.latitude.is_null())
-    failed_addresses = {x.address for x in GeocodeFails.select()}
-    geocode = GeocodeClient()
-    counter = Counter()
+    addresses = Address.select().join(Listing).where(Address.updated == False)
+
     browser = new_browser()
     for address in tqdm(addresses, desc="Addresses"):
-        if geocode.clean_address(address.address) in failed_addresses:
+        browser.get(Domain.get_listing_link(address.listing_set[0].id))
+
+        tags = browser.find_elements(By.TAG_NAME, "h1")
+        if len(tags) > 1:
+            logger.error(f"Found more than one h1 tag: {tags[0].text}")
             continue
-        first_try = True
-        lat, lon = geocode.get_coordinate(address.address)
-        if lat is None or lon is None:
-            first_try = False
-            browser.get(Domain.get_listing_link(address.listing_set[0].id))
+        full_address = tags[0].text
+        address.address = full_address
 
-            tags = browser.find_elements(By.TAG_NAME, "h1")
-            if len(tags) > 1:
-                logger.error(f"Found more than one h1 tag: {tags[0].text}")
-                continue
-            full_address = tags[0].text
-            address.address = full_address
-
-            lat, lon = geocode.get_coordinate(address.address)
-            if lat is None or lon is None:
-                continue
+        lat, lon = coords_from_maps(address, browser)
+        if lon < 110 or lon > 155 or lat < -45 or lat > -10:
+            # Outside bounding box for Australia
+            lat = None
+            lon = None
 
         address.latitude = lat
         address.longitude = lon
+        address.updated = True
+
         address.save()
 
-        if first_try:
-            counter["first_try"] += 1
+
+def coords_from_maps(address: Address, browser: WebDriver) -> tuple[float, float]:
+    address_str = address.address
+    if "/" in address_str:
+        address_str = address_str[address_str.index("/") + 1 :]
+    address_str = address_str.replace(" ", "+")
+    maps_url = "https://www.google.com/maps/place/" + address_str
+
+    browser.get(maps_url)
+
+    coords = None
+    retries = 10
+    while coords is None:
+        matches = re.findall(r"-\d{2}\.\d+,\d{3}\.\d+", browser.current_url)
+        if len(matches) > 0:
+            coords = matches[0]
         else:
-            counter["second_try"] += 1
-        print(counter)
+            # It takes a moment for the coordinates to populate
+            sleep(0.5)
+            retries -= 1
+            if retries == 0:
+                logger.error(f"Google Maps: Could not find any coordinates for {address.address}")
+                return None, None
+
+    lat, lon = coords.split(",")
+    lat, lon = float(lat), float(lon)
+    return lat, lon
 
 
 def find_ranges():

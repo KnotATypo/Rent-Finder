@@ -13,6 +13,7 @@ from peewee import (
     ForeignKeyField,
     DateTimeField,
     CompositeKey,
+    BooleanField,
 )
 from peewee_enum_field import EnumField
 
@@ -89,6 +90,7 @@ class Address(BaseModel):
     cars = IntegerField()
     latitude = FloatField(null=True)
     longitude = FloatField(null=True)
+    updated = BooleanField()
 
 
 class Listing(BaseModel):
@@ -158,4 +160,6 @@ class GeocodeFails(BaseModel):
     address = TextField()
 
 
-db.create_tables([Address, Listing, TravelTime, SavedLocations, User, AddressStatus, Suburb, Filter, GeocodeFails], safe=True)
+db.create_tables(
+    [Address, Listing, TravelTime, SavedLocations, User, AddressStatus, Suburb, Filter, GeocodeFails], safe=True
+)
