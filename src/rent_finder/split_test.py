@@ -1,12 +1,15 @@
 import json
 import os
+from collections import Counter
 from pathlib import Path
 from typing import Tuple, List
 
+from selenium.webdriver.common.by import By
 from tqdm import tqdm
 
+from rent_finder.geocode_client import GeocodeClient
 from rent_finder.logger import configure_logging
-from rent_finder.model import Query
+from rent_finder.model import Query, Address, Listing
 from rent_finder.sites.domain import Domain
 from rent_finder.util import new_browser
 
@@ -17,13 +20,15 @@ Domain = Domain()
 
 def main():
     configure_logging()
+    populate_coordinates()
+    return
 
     if not os.path.exists(f"{directory}/ranges.json"):
         find_ranges()
     with open(f"{directory}/ranges.json") as f:
         ranges = json.load(f)
 
-    browser = new_browser(headless=False)
+    browser = new_browser()
     for beds in tqdm(ranges, desc="Bed counts"):
         for range in tqdm(ranges[beds], desc="Price ranges"):
             range_stack = [range]
@@ -37,9 +42,42 @@ def main():
                     Domain.search(browser, query)
     browser.quit()
 
+def populate_coordinates():
+    addresses = Address.select().join(Listing).where(Address.latitude.is_null())
+
+    geocode = GeocodeClient()
+    counter = Counter()
+    browser = new_browser()
+    for address in tqdm(addresses, desc="Addresses"):
+        first_try = True
+        lat, lon = geocode.get_coordinate(address.address)
+        if lat is None or lon is None:
+            first_try = False
+            browser.get(Domain.get_listing_link(address.listing_set[0].id))
+
+            tags = browser.find_elements(By.TAG_NAME, "h1")
+            if len(tags) > 1:
+                raise RuntimeError(f"Multiple tags found for {address.address}")
+            full_address = tags[0].text
+            address.address = full_address
+
+            lat, lon = geocode.get_coordinate(address.address)
+            if lat is None or lon is None:
+                continue
+
+        address.latitude = lat
+        address.longitude = lon
+        address.save()
+
+        if first_try:
+            counter["first_try"] += 1
+        else:
+            counter["second_try"] += 1
+        print(counter)
+
 
 def find_ranges():
-    browser = new_browser(headless=False)
+    browser = new_browser()
     bed_searches = ["0", "1", "2", "3", "4", "5-any"]
     good_ranges = {x: [] for x in bed_searches}
 
