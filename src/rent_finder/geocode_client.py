@@ -40,10 +40,7 @@ class GeocodeClient:
         :param address: A standard street address.
         :return: Returns a tuple (lat, lon) of the coordinate or (None, None) if no coordinates found.
         """
-        if "/" in address:
-            address = address[address.index("/") + 1 :]
-        elif re.match(r"^\d+ \d", address):
-            address = address[address.index(" ") + 1 :]
+        address = self.clean_address(address)
 
         if address in self.lookup_fails:
             logger.debug(f"{address} - Geocode: Lookup previously failed")
@@ -51,7 +48,14 @@ class GeocodeClient:
 
         if self.rate_limit_start > datetime.now() - timedelta(hours=12):
             # If it has been less than 12 hours since we hit a rate limit, make sure we respect limits
-            sleep(1 - ((self.last_request - datetime.now()).microseconds / 1e-6))
+            try:
+                microseconds_since = (self.last_request - datetime.now()).microseconds
+                # Ensure we don't try to sleep for less than 0.01
+                sleep_time = max(1.5 - (microseconds_since / 1e6), 0.01)
+                sleep(sleep_time)
+            except OverflowError as e:
+                logger.error(f"Geocode: Overflow error: {e} - {self.last_request}")
+                sleep(1.5)
 
         response = None
         while response is None:
@@ -61,7 +65,7 @@ class GeocodeClient:
             if response.status_code == 429:
                 logger.warning("Geocode: Rate limit reached")
                 self.rate_limit_start = datetime.now()
-                sleep(1)
+                sleep(1.5)
                 response = None
             elif response.status_code in [503, 502]:
                 logger.warning("Geocode: Service unavailable, retrying")
@@ -87,6 +91,13 @@ class GeocodeClient:
             self.lookup_fails.add(address)
 
         return lat, long
+
+    def clean_address(self, address: str) -> str:
+        if "/" in address:
+            address = address[address.index("/") + 1:]
+        elif re.match(r"^\d+ \d", address):
+            address = address[address.index(" ") + 1:]
+        return address
 
     def _resolve_duplicates(self, locations, address: str) -> tuple[float, float] | tuple[None, None]:
         for location in locations:
