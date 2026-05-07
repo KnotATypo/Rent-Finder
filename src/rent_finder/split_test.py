@@ -8,7 +8,7 @@ from selenium.webdriver.common.by import By
 from tqdm import tqdm
 
 from rent_finder.geocode_client import GeocodeClient
-from rent_finder.logger import configure_logging
+from rent_finder.logger import configure_logging, logger
 from rent_finder.model import Query, Address, Listing
 from rent_finder.sites.domain import Domain
 from rent_finder.util import new_browser
@@ -57,7 +57,8 @@ def populate_coordinates():
 
             tags = browser.find_elements(By.TAG_NAME, "h1")
             if len(tags) > 1:
-                raise RuntimeError(f"Multiple tags found for {address.address}")
+                logger.error(f"Found more than one h1 tag: {tags[0].text}")
+                continue
             full_address = tags[0].text
             address.address = full_address
 
