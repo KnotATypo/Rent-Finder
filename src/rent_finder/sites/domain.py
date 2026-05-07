@@ -43,13 +43,9 @@ class Domain(Site):
     def _create_listing(self, card: Tag) -> Listing | None:
         address = card.find(attrs={"data-testid": "address-wrapper"}).text
         address = address.replace(" ", " ")
+        listing_id = card.parent.attrs["data-testid"][8:]
 
         if (address_obj := Address.get_or_none(address=address)) is None:
-            lat, lon = self.geocode_client.get_coordinate(address)
-            if lat is None:
-                # TODO: Investigate failures more
-                return None
-
             features = card.find(attrs={"data-testid": "property-features-wrapper"})
             if features is None:
                 logger.warning(f"{address} - Has no features")
@@ -71,11 +67,8 @@ class Domain(Site):
                     logger.warning(f"{features} - {type(e).__name__}: {e}")
 
             logger.debug(f"Saved new address: {address}")
-            address_obj = Address.create(
-                address=address, beds=beds, baths=baths, cars=cars, latitude=lat, longitude=lon
-            )
+            address_obj = Address.create(address=address, beds=beds, baths=baths, cars=cars)
 
-        listing_id = card.parent.attrs["data-testid"][8:]
         if (listing := Listing.get_or_none(Listing.id == listing_id)) is not None:
             return listing
 
@@ -90,7 +83,7 @@ class Domain(Site):
         return Listing.create(id=listing_id, address=address_obj, price=price, available=datetime.datetime.now())
 
     def listing_available(self, listing: Listing, browser: WebDriver) -> bool:
-        link = self.get_listing_link(listing)
+        link = self.get_listing_link(listing.id)
         browser.get(link)
 
         available = True
@@ -110,7 +103,7 @@ class Domain(Site):
         return available
 
     def download_blurb_and_images(self, listing: Listing, browser: WebDriver):
-        link = self.get_listing_link(listing)
+        link = self.get_listing_link(listing.id)
         browser.get(link)
 
         read_more_button = browser.find_element(
@@ -165,7 +158,7 @@ class Domain(Site):
             suburb_id = f"{query.suburb.name.lower().replace(' ', '-')}-{query.suburb.state}-{query.suburb.postcode}/"
         else:
             suburb_id = ""
-        if query.lower_price and query.upper_price:
+        if query.lower_price is not None and query.upper_price is not None:
             price = f"price={query.lower_price}-{query.upper_price}&"
         else:
             price = ""
@@ -177,10 +170,8 @@ class Domain(Site):
         # The sort is provided to avoid being given a "featured" property at the top of the search
         return f"https://www.domain.com.au/rent/{suburb_id}?{price}{beds}page={page_number}&excludedeposittaken=1&ssubs=0&sort=dateupdated-desc"
 
-    def get_listing_link(self, listing: Listing) -> str:
-        address = Address.get(Address.id == listing.address)
-        new_addresses = re.sub(r"[/ ,]+", "-", address.address)
-        return f"https://www.domain.com.au/{new_addresses}-{listing.id}"
+    def get_listing_link(self, listing_id: str) -> str:
+        return f"https://www.domain.com.au/{listing_id}"
 
     def page_exists(self, driver, location: str) -> bool:
         driver.get(f"https://www.domain.com.au/rent/{location}/?excludedeposittaken=1&page=1&ssubs=0")
