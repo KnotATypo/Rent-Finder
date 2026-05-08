@@ -1,3 +1,6 @@
+> [!IMPORTANT]  
+> This branch is currently unmaintained in favour of the `scraper` branch.
+
 # Rent Finder
 
 Application to scrape rental listings and serve them in a mobile-friendly format to be easily processed.
