@@ -19,7 +19,7 @@ class Domain(Site):
     def __init__(self):
         super().__init__()
 
-    def get_page(self, page_num: int, browser: webdriver.Chrome, query: Query) -> List[Listing]:
+    def get_page(self, page_num: int, query: Query, browser: webdriver.Chrome) -> List[Listing]:
         listings = []
 
         search_link = self._get_search_link(query, page_num)
@@ -85,9 +85,14 @@ class Domain(Site):
 
         available = True
         try:
-            # Check for the normal details column of the listing page
-            browser.find_element(By.CSS_SELECTOR, 'div[data-testid="listing-details__summary-left-column"]')
-        except NoSuchElementException:
+            # If the property page exists, the "heading" on the page will be the address, which should be in the browser title
+            tags = browser.find_elements(By.TAG_NAME, "h1")
+            assert len(tags) == 1
+            full_address = tags[0].text.replace(",", "")
+            assert full_address in browser.title.replace(",", "")
+            # Some properties will be redirected to a "property profile" page if they aren't for rent
+            assert "property-profile" not in browser.current_url
+        except AssertionError:
             available = False
 
         try:
