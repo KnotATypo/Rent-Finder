@@ -13,6 +13,14 @@ class StatusException(Exception):
     pass
 
 
+def clean_address(address: str) -> str:
+    if "/" in address:
+        address = address[address.index("/") + 1 :]
+    elif re.match(r"^\d+ \d", address):
+        address = address[address.index(" ") + 1 :]
+    return address
+
+
 class GeocodeClient:
     """
     Client to forward geocode addresses to coordinates using https://geocode.maps.co/.
@@ -40,7 +48,7 @@ class GeocodeClient:
         :param address: A standard street address.
         :return: Returns a tuple (lat, lon) of the coordinate or (None, None) if no coordinates found.
         """
-        address = self.clean_address(address)
+        address = clean_address(address)
 
         if address in self.lookup_fails:
             logger.debug(f"{address} - Geocode: Lookup previously failed")
@@ -93,13 +101,6 @@ class GeocodeClient:
             self.lookup_fails.add(address)
 
         return lat, long
-
-    def clean_address(self, address: str) -> str:
-        if "/" in address:
-            address = address[address.index("/") + 1:]
-        elif re.match(r"^\d+ \d", address):
-            address = address[address.index(" ") + 1:]
-        return address
 
     def _resolve_duplicates(self, locations, address: str) -> tuple[float, float] | tuple[None, None]:
         for location in locations:
