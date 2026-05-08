@@ -45,17 +45,7 @@ class Listing(BaseModel):
     unavailable = DateTimeField(null=True)
 
 
-class Suburb(BaseModel):
-    id = AutoField(primary_key=True)
-    name = TextField()
-    postcode = IntegerField()
-    latitude = FloatField()
-    longitude = FloatField()
-    state = TextField()
-
-
 class Query(BaseModel):
-    suburb = ForeignKeyField(Suburb, null=True)
     lower_price = IntegerField(null=True)
     upper_price = IntegerField(null=True)
     beds = TextField(null=True)
@@ -65,4 +55,4 @@ class GeocodeFails(BaseModel):
     address = TextField()
 
 
-db.create_tables([Address, Listing, Suburb, GeocodeFails], safe=True)
+db.create_tables([Address, Listing, GeocodeFails], safe=True)

@@ -3,22 +3,19 @@ from typing import List
 from bs4 import Tag
 from selenium.webdriver.chrome.webdriver import WebDriver
 
-from rent_scraper.geocode_client import GeocodeClient
 from rent_scraper.model import Listing, Query
 
 
 class Site:
-    geocode_client: GeocodeClient
-
     def __init__(self):
-        self.geocode_client = GeocodeClient()
+        pass
 
     def search(self, browser, query: Query) -> List[Listing]:
         listings = []
         page_number = 0
         while True:
             page_number += 1
-            page = self.get_page(page_number, browser, query)
+            page = self.get_page(page_number, query, browser)
             if not page:
                 break
 
@@ -32,7 +29,7 @@ class Site:
     def get_listing_link(self, listing: Listing) -> str:
         raise NotImplementedError
 
-    def get_page(self, page_num: int, browser, query: Query) -> List[Listing]:
+    def get_page(self, page_num: int, query: Query, browser) -> List[Listing]:
         raise NotImplementedError
 
     def _create_listing(self, page_element: Tag) -> Listing:
