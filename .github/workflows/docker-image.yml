@@ -23,5 +23,5 @@ jobs:
         with:
           push: true
           tags: |
-            ${{ vars.DOCKER_USERNAME }}/${{ vars.CONTAINER_TAG }}:${{ github.sha }}
-            ${{ vars.DOCKER_USERNAME }}/${{ vars.CONTAINER_TAG }}:latest
+            ${{ vars.DOCKER_USERNAME }}/rent-scraper:${{ github.sha }}
+            ${{ vars.DOCKER_USERNAME }}/rent-scraper:latest

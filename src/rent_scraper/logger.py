@@ -2,7 +2,7 @@ import logging
 import os
 
 progress_bars = os.getenv("PROGRESS_BARS", False)
-logger = logging.getLogger("rent-finder")
+logger = logging.getLogger("rent-scraper")
 
 
 def configure_logging(level=logging.INFO, fmt=None):
@@ -20,10 +20,10 @@ def configure_logging(level=logging.INFO, fmt=None):
 
     # add file handler if not already present
     if not any(
-        isinstance(h, logging.FileHandler) and h.baseFilename == os.path.abspath("rent_finder.log")
+        isinstance(h, logging.FileHandler) and h.baseFilename == os.path.abspath("rent_scraper.log")
         for h in root.handlers
     ):
-        file_handler = logging.FileHandler("rent_finder.log", encoding="utf-8")
+        file_handler = logging.FileHandler("rent_scraper.log", encoding="utf-8")
         file_handler.setFormatter(logging.Formatter(fmt))
         root.addHandler(file_handler)
 

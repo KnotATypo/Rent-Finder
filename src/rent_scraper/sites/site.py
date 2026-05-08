@@ -3,9 +3,8 @@ from typing import List
 from bs4 import Tag
 from selenium.webdriver.chrome.webdriver import WebDriver
 
-from rent_finder.geocode_client import GeocodeClient
-from rent_finder.model import Listing, Query
-from rent_finder.s3_client import S3Client
+from rent_scraper.geocode_client import GeocodeClient
+from rent_scraper.model import Listing, Query
 
 
 class Site:
@@ -13,7 +12,6 @@ class Site:
 
     def __init__(self):
         self.geocode_client = GeocodeClient()
-        self.s3_client = S3Client()
 
     def search(self, browser, query: Query) -> List[Listing]:
         listings = []

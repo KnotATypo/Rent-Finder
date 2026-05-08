@@ -5,8 +5,8 @@ from time import sleep
 
 import requests
 
-from rent_finder.logger import logger
-from rent_finder.model import GeocodeFails
+from rent_scraper.logger import logger
+from rent_scraper.model import GeocodeFails
 
 
 class StatusException(Exception):

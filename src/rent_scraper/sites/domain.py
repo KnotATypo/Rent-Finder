@@ -1,19 +1,16 @@
 import datetime
 import re
-from time import sleep
 from typing import List
 
-import requests
 from bs4 import BeautifulSoup, Tag
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver import ActionChains
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 
-from rent_finder.logger import logger
-from rent_finder.model import Listing, Address, Query
-from rent_finder.sites.site import Site
+from rent_scraper.logger import logger
+from rent_scraper.model import Listing, Address, Query
+from rent_scraper.sites.site import Site
 
 PARSER = "html.parser"
 
@@ -101,57 +98,6 @@ class Domain(Site):
             pass
 
         return available
-
-    def download_blurb_and_images(self, listing: Listing, browser: WebDriver):
-        link = self.get_listing_link(listing.id)
-        browser.get(link)
-
-        read_more_button = browser.find_element(
-            By.CSS_SELECTOR, 'button[data-testid="listing-details__description-button"]'
-        )
-        ActionChains(browser).move_to_element(read_more_button).perform()
-        read_more_button.click()
-        soup = BeautifulSoup(browser.page_source, features=PARSER)
-        tag = soup.find("div", attrs={"data-testid": "listing-details__description"})
-
-        objects_to_save = {listing.id + "/blurb.html": tag.contents[1].prettify()}
-
-        try:
-            images = browser.find_element(
-                By.CSS_SELECTOR, 'div[data-testid="listing-details__gallery-preview three-image-fixed"]'
-            )
-        except NoSuchElementException:
-            # Some listings only have a single image at the top of the page
-            try:
-                images = browser.find_element(
-                    By.CSS_SELECTOR, 'div[data-testid="listing-details__gallery-preview single-image-full"]'
-                )
-            except NoSuchElementException:
-                # There must be no image - consider it unavailable
-                listing.unavailable = datetime.datetime.now()
-                listing.save()
-                return
-        browser.execute_script("window.scrollTo(0, 0);")
-        images.click()
-        sleep(1)
-
-        soup = BeautifulSoup(browser.page_source, features=PARSER)
-        footer = soup.find("div", attrs={"data-testid": "pswp-thumbnails-carousel"})
-        total_page = int(footer.text.split(" / ")[1])
-        for i in range(total_page):
-            soup = BeautifulSoup(browser.page_source, features=PARSER)
-            tag = soup.find("div", attrs={"data-testid": "pswp-current-item"})
-            images = tag.find_all("img")
-            # Some listings contain videos and won't return any images
-            if images:
-                # There are two images typically, one of which is the thumbnail marked by "--placeholder"
-                image = [image for image in images if "--placeholder" not in str(image)][0]
-                if image["src"] != "":
-                    objects_to_save[listing.id + f"/{i}.webp"] = requests.get(image["src"]).content
-
-            browser.find_element(By.CSS_SELECTOR, 'button[title="Next (arrow right)"]').click()
-
-        self.s3_client.put_objects(objects_to_save)
 
     def _get_search_link(self, query: Query, page_number: int) -> str:
         if query.suburb is not None:

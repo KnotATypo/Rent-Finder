@@ -9,11 +9,11 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from tqdm import tqdm
 
-from rent_finder.geocode_client import GeocodeClient
-from rent_finder.logger import configure_logging, logger
-from rent_finder.model import Query, Address, Listing
-from rent_finder.sites.domain import Domain
-from rent_finder.util import new_browser
+from rent_scraper.geocode_client import GeocodeClient
+from rent_scraper.logger import configure_logging, logger
+from rent_scraper.model import Query, Address, Listing
+from rent_scraper.sites.domain import Domain
+from rent_scraper.util import new_browser
 
 directory = str(Path(__file__).resolve().parents[2])
 

@@ -4,11 +4,11 @@ RUN apt update && \
     apt install -y --no-install-recommends chromium chromium-driver && \
     apt autoremove -y && \
     rm -rf /var/lib/apt/lists/* && \
-    mkdir /rent-finder
+    mkdir /rent-scraper
 
-WORKDIR /rent-finder
+WORKDIR /rent-scraper
 COPY . .
 
 ENV PYTHONBUFFERED=1
 
-ENTRYPOINT ["uv", "run", "src/rent_finder/split_test.py"]
+ENTRYPOINT ["uv", "run", "src/rent_scraper/split_test.py"]

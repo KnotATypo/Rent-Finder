@@ -1,28 +1,20 @@
 [project]
-name = "rent-finder"
-version = "0.1.0"
-description = "A project for finding rental properties"
+name = "rent-scraper"
+version = "1.0.0"
+description = "A project for tracking rentals across Australia with webscraping"
 requires-python = ">=3.13"
 dependencies = [
     "beautifulsoup4>=4.12.3",
     "selenium>=4.23.1",
-    "geopy>=2.4.1",
     "tqdm>=4.66.5",
     "requests>=2.32.3",
     "peewee>=3.19.0",
     "psycopg2-binary>=2.9.11",
-    "peewee-enum-field>=0.2.0",
     "selenium-stealth>=1.0.6",
-    "flask>=3.1.2",
-    "waitress>=3.0.2",
-    "boto3>=1.42.40",
-    "boto3-stubs~=1.42.40",
-    "apscheduler>=3.11.2",
 ]
 
 [project.scripts]
-search = "rent_finder.search:search"
-host = "rent_finder.host:host"
+search = "rent_scraper.search:search"
 
 [build-system]
 requires = ["uv_build>=0.9.6,<0.10.0"]
