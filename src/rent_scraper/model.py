@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from peewee import (
     Model,
@@ -10,6 +11,8 @@ from peewee import (
     ForeignKeyField,
     DateTimeField,
     BooleanField,
+    CompositeKey,
+    ProgrammingError,
 )
 
 db = PostgresqlDatabase(
@@ -29,20 +32,54 @@ class BaseModel(Model):
 class Address(BaseModel):
     id = AutoField(primary_key=True)
     address = TextField()
-    beds = IntegerField()
-    baths = IntegerField()
-    cars = IntegerField()
     latitude = FloatField(null=True)
     longitude = FloatField(null=True)
     updated = BooleanField()
 
 
+class AddressHistory(BaseModel):
+    address = ForeignKeyField(Address)
+    beds = IntegerField()
+    baths = IntegerField()
+    cars = IntegerField()
+    valid_from = DateTimeField()
+
+    class Meta:
+        primary_key = CompositeKey("address", "valid_from")
+
+
+# Representation of view created by script
+class SimpleAddress(BaseModel):
+    address = ForeignKeyField(Address)
+    beds = IntegerField()
+    baths = IntegerField()
+    cars = IntegerField()
+
+
 class Listing(BaseModel):
     id = TextField(primary_key=True)
     address = ForeignKeyField(Address)
+
+
+class ListingHistory(BaseModel):
+    listing = ForeignKeyField(Listing)
     price = IntegerField()
-    available = DateTimeField()
-    unavailable = DateTimeField(null=True)
+    valid_from = DateTimeField()
+    valid_until = DateTimeField(null=True)
+
+    class Meta:
+        primary_key = CompositeKey("listing", "valid_from")
+
+
+# Representation of view created by script
+class SimpleListing(BaseModel):
+    listing = ForeignKeyField(Listing, primary_key=True)
+    address = ForeignKeyField(Address)
+    price = IntegerField()
+    available = BooleanField()
+
+    class Meta:
+        table_name = "simplelistingview"
 
 
 class Query(BaseModel):
@@ -55,4 +92,14 @@ class GeocodeFails(BaseModel):
     address = TextField()
 
 
-db.create_tables([Address, Listing, GeocodeFails], safe=True)
+db.create_tables([Address, Listing, GeocodeFails, ListingHistory, AddressHistory], safe=True)
+
+# Try to read from the address view to check if the db setup has run
+try:
+    SimpleAddress.select().get()
+except ProgrammingError:
+    setup_file = Path(__file__).parent / "resources" / "first_time_setup.sql"
+    cursor = db.cursor()
+    with open(setup_file) as f:
+        command = f.read()
+    cursor.execute(command)

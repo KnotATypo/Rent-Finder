@@ -10,12 +10,12 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 
 from rent_scraper.logger import logger, configure_logging
-from rent_scraper.model import Listing, Query, Address
+from rent_scraper.model import Listing, Query, Address, SimpleListing
 from rent_scraper.sites.domain import Domain
 from rent_scraper.split_test import populate_coordinates
 from rent_scraper.util import new_browser
 
-range_path = str(Path(__file__).resolve().parents[2]) + "/ranges.json"
+RANGE_FILE = Path(__file__).parent / "resources" / "ranges.json"
 
 domain = Domain()
 
@@ -28,6 +28,11 @@ def search():
     Begin searching range until count matches expectations.
     Repeat ad infinitum
     """
+    browser = new_browser(headless=False)
+    listing = SimpleListing.select().get()
+    domain.update_listing(listing, browser)
+
+    return
     configure_logging()
     ranges = get_ranges()
     browser = new_browser(headless=False)
@@ -132,9 +137,9 @@ def coords_from_maps(address: Address, browser: WebDriver) -> tuple[float, float
 
 
 def get_ranges() -> List[Query]:
-    if os.path.exists(range_path):
+    if os.path.exists(RANGE_FILE):
         # Return ranges from file if they exist
-        with open(range_path) as f:
+        with open(RANGE_FILE) as f:
             serialised = json.load(f)
             queries = []
             for q in serialised:
@@ -160,7 +165,7 @@ def get_ranges() -> List[Query]:
 
     browser.quit()
     queries = []
-    with open(range_path, "w+") as f:
+    with open(RANGE_FILE, "w+") as f:
         serialised = []
         for beds in good_ranges:
             for cur_range in good_ranges[beds]:

@@ -14,7 +14,7 @@ from rent_scraper.model import Query, Address, Listing
 from rent_scraper.sites.domain import Domain
 from rent_scraper.util import new_browser
 
-directory = str(Path(__file__).resolve().parents[2])
+RANGE_FILE = Path(__file__).parent / "resources" / "ranges.json"
 
 Domain = Domain()
 
@@ -119,7 +119,7 @@ def find_ranges():
                 good_ranges[beds].append(range)
 
     browser.quit()
-    with open(f"{directory}/ranges.json", "w+") as f:
+    with open(RANGE_FILE, "w+") as f:
         json.dump(good_ranges, f)
 
 
