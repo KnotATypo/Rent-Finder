@@ -1,5 +1,5 @@
-CREATE OR REPLACE VIEW public.simpleaddressview(address_id, beds, baths, cars) AS
-SELECT a.id AS address_id,
+CREATE OR REPLACE VIEW public.simpleaddressview(id, beds, baths, cars) AS
+SELECT a.id,
        ah.beds,
        ah.baths,
        ah.cars
@@ -20,7 +20,7 @@ $$
 BEGIN
     IF OLD.beds != NEW.beds OR OLD.baths != NEW.baths OR OLD.cars != NEW.cars THEN
         INSERT INTO addresshistory (address_id, beds, baths, cars, valid_from)
-        VALUES (OLD.address_id, NEW.beds, NEW.baths, NEW.cars, NOW());
+        VALUES (OLD.id, NEW.beds, NEW.baths, NEW.cars, NOW());
     END IF;
     RETURN NEW;
 END;
@@ -34,8 +34,8 @@ EXECUTE FUNCTION update_address_history();
 
 -- =====================================================
 
-CREATE OR REPLACE VIEW public.simplelistingview(listing_id, address_id, price, available) AS
-SELECT l.id                   AS listing_id,
+CREATE OR REPLACE VIEW public.simplelistingview(id, address_id, price, available) AS
+SELECT l.id,
        l.address_id,
        lh.price,
        lh.valid_until IS NULL AS available
@@ -55,14 +55,14 @@ $$
 BEGIN
     IF NEW.available AND OLD.available AND OLD.price != NEW.price THEN
 --      Price update
-        UPDATE listinghistory SET valid_until = NOW() WHERE listing_id = OLD.listing_id AND valid_until IS NULL;
-        INSERT INTO listinghistory (listing_id, price, valid_from) VALUES (OLD.listing_id, NEW.price, NOW());
+        UPDATE listinghistory SET valid_until = NOW() WHERE listing_id = OLD.id AND valid_until IS NULL;
+        INSERT INTO listinghistory (listing_id, price, valid_from) VALUES (OLD.id, NEW.price, NOW());
     ELSEIF NOT NEW.available THEN
 --      Availability update
-        UPDATE listinghistory SET valid_until = NOW() WHERE listing_id = OLD.listing_id AND valid_until IS NULL;
+        UPDATE listinghistory SET valid_until = NOW() WHERE listing_id = OLD.id AND valid_until IS NULL;
     ELSEIF NOT OLD.available AND NEW.available THEN
 --      Listing being made available again
-        INSERT INTO listinghistory (listing_id, price, valid_from) VALUES (OLD.listing_id, NEW.price, NOW());
+        INSERT INTO listinghistory (listing_id, price, valid_from) VALUES (OLD.id, NEW.price, NOW());
     END IF;
     RETURN NEW;
 END;

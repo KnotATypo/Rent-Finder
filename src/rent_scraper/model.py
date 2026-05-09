@@ -50,11 +50,13 @@ class AddressHistory(BaseModel):
 
 # Representation of view created by script
 class SimpleAddress(BaseModel):
-    address = ForeignKeyField(Address)
+    id = TextField(primary_key=True)
     beds = IntegerField()
     baths = IntegerField()
     cars = IntegerField()
 
+    class Meta:
+        table_name = "simpleaddressview"
 
 class Listing(BaseModel):
     id = TextField(primary_key=True)
@@ -73,8 +75,8 @@ class ListingHistory(BaseModel):
 
 # Representation of view created by script
 class SimpleListing(BaseModel):
-    listing = ForeignKeyField(Listing, primary_key=True)
-    address = ForeignKeyField(Address)
+    id = TextField(primary_key=True)
+    address = ForeignKeyField(SimpleAddress)
     price = IntegerField()
     available = BooleanField()
 
