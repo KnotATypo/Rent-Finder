@@ -1,6 +1,6 @@
 import datetime
 import re
-from typing import List
+from typing import List, Dict
 
 from bs4 import BeautifulSoup, Tag
 from selenium import webdriver
@@ -29,7 +29,7 @@ class Domain(Site):
 
         for card in cards:
             try:
-                listing = self._create_listing(card)
+                listing = self._create_listing(card, browser)
                 if listing is not None:
                     listings.append(listing)
             except Exception as e:
@@ -37,52 +37,34 @@ class Domain(Site):
 
         return listings
 
-    def _create_listing(self, card: Tag) -> SimpleListing | None:
-        address = card.find(attrs={"data-testid": "address-wrapper"}).text
-        address = address.replace(" ", " ")
+    def _create_listing(self, card: Tag, browser: WebDriver) -> SimpleListing | None:
         listing_id = card.parent.attrs["data-testid"][8:]
-
-        if (address_obj := Address.get_or_none(address=address)) is None:
-            features = card.find(attrs={"data-testid": "property-features-wrapper"})
-            if features is None:
-                logger.warning(f"{address} - Has no features")
-                return None
-
-            beds, baths, cars = 0, 0, 0
-            for feature in features:
-                try:
-                    text = feature.text.lower()
-                    num = text.split(" ")[0]
-                    num = 0 if num == "−" else num
-                    if "bed" in text:
-                        beds = int(num)
-                    elif "bath" in text:
-                        baths = int(num)
-                    elif "car" in text or "park" in text:
-                        cars = int(num)
-                except Exception as e:
-                    logger.warning(f"{features} - {type(e).__name__}: {e}")
-
-            address_obj = Address.create(address=address)
-            AddressHistory.create(
-                address=address_obj, beds=beds, baths=baths, cars=cars, valid_from=datetime.datetime.now()
-            )
-            logger.debug(f"Saved new address: {address}")
-
         if (listing := SimpleListing.get_or_none(SimpleListing.id == listing_id)) is not None:
             return listing
 
-        price = card.find(attrs={"data-testid": "listing-card-price-wrapper"}).text
-        price_list = re.findall(r"\$\d{0,2},?\d+", price)
-        if not price_list:
-            price = 0
-        else:
-            price = int(price_list[0].replace(",", "").replace("$", ""))
+        details = self.details_from_page(browser, listing_id)
+        address = details["address"]
+
+        if not re.search(r"\d.+\d{4}$", address):
+            # The only numbers in the address are the postcode, meaning it isn't a legit address
+            pass
+
+
+        if (address_obj := Address.get_or_none(address=address)) is None:
+            address_obj = Address.create(address=address)
+            AddressHistory.create(
+                address=address_obj,
+                beds=details["beds"],
+                baths=details["baths"],
+                cars=details["cars"],
+                valid_from=datetime.datetime.now(),
+            )
+            logger.debug(f"Saved new address: {address}")
 
         listing_obj = Listing.create(id=listing_id, address=address_obj)
-        ListingHistory.create(listing=listing_obj, price=price, valid_from=datetime.datetime.now())
+        ListingHistory.create(listing=listing_obj, price=details["price"], valid_from=datetime.datetime.now())
         logger.debug(f"New listing {listing_id} created for {address}")
-        return SimpleListing.get_by_id(listing_obj.listing_id)
+        return SimpleListing.get_by_id(listing_id)
 
     def listing_available(self, listing: Listing | SimpleListing, browser: WebDriver) -> bool:
         link = self.get_listing_link(listing.id)
@@ -100,12 +82,14 @@ class Domain(Site):
         except AssertionError:
             available = False
 
+        browser.implicitly_wait(0)
         try:
             # Sometimes the listing page still exists but has a tag indicating it is under contract or leased
             browser.find_element(By.CSS_SELECTOR, 'span[data-testid="listing-details__listing-tag"]')
             available = False
         except NoSuchElementException:
             pass
+        browser.implicitly_wait(1)
 
         return available
 
@@ -152,14 +136,40 @@ class Domain(Site):
             listing.save()
             return
 
+        details = self.details_from_page(browser)
+        if details["price"] != listing.price:
+            listing.price = details["price"]
+        if details["beds"] != listing.address.beds:
+            listing.address.beds = details["beds"]
+        if details["baths"] != listing.address.baths:
+            listing.address.baths = details["baths"]
+        if details["cars"] != listing.address.cars:
+            listing.address.cars = details["cars"]
+
+        listing.save()
+        listing.address.save()
+
+    def details_from_page(self, browser, listing_id="") -> Dict[str, int | str]:
+        """
+        Retrieves price and bed, bath and car counts, and full address from a listing. By default, this acts on the
+        current page but the listing_id can be provided.
+
+        :param listing_id:
+        :param browser:
+        :return:
+        """
+        if listing_id != "":
+            browser.get(self.get_listing_link(listing_id))
+
+        details = {}
+
         price_text = browser.find_element(
             By.CSS_SELECTOR, 'div[data-testid="listing-details__listing-summary-title-name"]'
         ).text
         price_list = re.findall(r"\$\d{0,2},?\d+", price_text)
         if price_list:
             price = int(price_list[0].replace(",", "").replace("$", ""))
-            if price != listing.price:
-                listing.price = price
+            details["price"] = price
         features_wrapper = browser.find_element(By.CSS_SELECTOR, 'div[data-testid="property-features-wrapper"]')
         features = features_wrapper.find_elements(By.CSS_SELECTOR, 'span[data-testid="property-features-feature"]')
 
@@ -172,16 +182,20 @@ class Domain(Site):
                 num = text.split("\n")[0]
                 num = 0 if num == "−" else int(num)
                 if "bed" in text:
-                    if num != listing.address.beds:
-                        listing.address.beds = num
+                    details["beds"] = num
                 elif "bath" in text:
-                    if num != listing.address.baths:
-                        listing.address.baths = num
+                    details["baths"] = num
                 elif "car" in text or "park" in text:
-                    if num != listing.address.cars:
-                        listing.address.cars = num
+                    details["cars"] = num
             except Exception as e:
                 logger.warning(f"{features} - {type(e).__name__}: {e}")
 
-        listing.save()
-        listing.address.save()
+        for element in ["beds", "baths", "cars"]:
+            if element not in details:
+                details[element] = 0
+
+        tags = browser.find_elements(By.TAG_NAME, "h1")
+        assert len(tags) == 1
+        details["address"] = tags[0].text.replace("\n", " ")
+
+        return details

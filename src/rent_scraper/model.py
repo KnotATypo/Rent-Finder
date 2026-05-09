@@ -34,7 +34,7 @@ class Address(BaseModel):
     address = TextField()
     latitude = FloatField(null=True)
     longitude = FloatField(null=True)
-    updated = BooleanField()
+    updated = BooleanField(default=False)
 
 
 class AddressHistory(BaseModel):
@@ -51,6 +51,7 @@ class AddressHistory(BaseModel):
 # Representation of view created by script
 class SimpleAddress(BaseModel):
     id = TextField(primary_key=True)
+    address = TextField()
     beds = IntegerField()
     baths = IntegerField()
     cars = IntegerField()

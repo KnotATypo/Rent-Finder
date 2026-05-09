@@ -1,5 +1,11 @@
-CREATE OR REPLACE VIEW public.simpleaddressview(id, beds, baths, cars) AS
+-- =====================================================
+-- Create view to simplify interation with the Address and AddressHistory tables, enforcing the creation of new rows in
+-- AddressHistory when fields are updated
+-- =====================================================
+
+CREATE OR REPLACE VIEW public.simpleaddressview(id, address, beds, baths, cars) AS
 SELECT a.id,
+       a.address,
        ah.beds,
        ah.baths,
        ah.cars
@@ -32,6 +38,8 @@ CREATE OR REPLACE TRIGGER update_address
     FOR EACH ROW
 EXECUTE FUNCTION update_address_history();
 
+-- =====================================================
+-- Same as above but with listings instead
 -- =====================================================
 
 CREATE OR REPLACE VIEW public.simplelistingview(id, address_id, price, available) AS
@@ -73,3 +81,32 @@ CREATE OR REPLACE TRIGGER update_listing
     ON simplelistingview
     FOR EACH ROW
 EXECUTE FUNCTION update_listing_history();
+
+-- =====================================================
+-- Function to simulate a cascade delete when we remove an address to also remove related listing and address and
+-- listing history
+-- =====================================================
+
+CREATE OR REPLACE FUNCTION delete_listing_and_address_data()
+    RETURNS TRIGGER AS
+$$
+BEGIN
+    -- Delete related listinghistory
+    DELETE
+    FROM listinghistory
+    WHERE listing_id IN (SELECT l.id
+                         FROM listing l
+                         WHERE l.address_id = OLD.id);
+    -- Delete related listings
+    DELETE FROM listing WHERE address_id = OLD.id;
+    -- Delete related addresshistory
+    DELETE FROM addresshistory WHERE address_id = OLD.id;
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_delete_address
+    BEFORE DELETE
+    ON address
+    FOR EACH ROW
+EXECUTE FUNCTION delete_listing_and_address_data();

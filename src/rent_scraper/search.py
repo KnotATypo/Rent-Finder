@@ -1,10 +1,9 @@
-import datetime
 import json
 import os
 import re
 from pathlib import Path
 from time import sleep
-from typing import Tuple, List, Set
+from typing import Tuple, List
 
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
@@ -12,7 +11,6 @@ from selenium.webdriver.common.by import By
 from rent_scraper.logger import logger, configure_logging
 from rent_scraper.model import Listing, Query, Address, SimpleListing, SimpleAddress
 from rent_scraper.sites.domain import Domain
-from rent_scraper.split_test import populate_coordinates
 from rent_scraper.util import new_browser
 
 RANGE_FILE = Path(__file__).parent / "resources" / "ranges.json"
@@ -28,6 +26,7 @@ def search():
     Begin searching range until count matches expectations.
     Repeat ad infinitum
     """
+
     configure_logging()
     ranges = get_ranges()
     browser = new_browser(headless=False)
@@ -48,8 +47,8 @@ def search():
             SimpleListing.available,
         )
     )
-    listings = get_available()
 
+    listings = set(get_available())
     for listing in listings:
         domain.update_listing(listing, browser)
 
@@ -64,14 +63,18 @@ def search():
         return
 
     page = 1
-    new_listings: Set[Listing] = set()
-    while true_count != len(listings) + len(new_listings):
+    # new = set()
+    while true_count != len(listings):
         listings_from_page = set(domain.get_page(page, query, browser))
         page += 1
-        new_listings.update(listings_from_page - listings)
+        # new.update(listings_from_page)
+        listings.update(listings_from_page)
 
-    for listing in new_listings:
-        populate_coordinates(listing.address, browser)
+    for listing in listings:
+        address = Address.select().join(Listing).where(Listing.id == listing.id).get()
+        if address.latitude is not None:
+            continue
+        populate_coordinates(address, browser)
 
     browser.quit()
 
