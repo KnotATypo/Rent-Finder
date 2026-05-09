@@ -4,12 +4,12 @@ from typing import List
 
 from bs4 import BeautifulSoup, Tag
 from selenium import webdriver
-from selenium.common.exceptions import NoSuchElementException
+from selenium.common import NoSuchElementException
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 
 from rent_scraper.logger import logger
-from rent_scraper.model import Listing, Address, Query
+from rent_scraper.model import Listing, Address, Query, SimpleListing, AddressHistory, ListingHistory
 from rent_scraper.sites.site import Site
 
 PARSER = "html.parser"
@@ -37,7 +37,7 @@ class Domain(Site):
 
         return listings
 
-    def _create_listing(self, card: Tag) -> Listing | None:
+    def _create_listing(self, card: Tag) -> SimpleListing | None:
         address = card.find(attrs={"data-testid": "address-wrapper"}).text
         address = address.replace(" ", " ")
         listing_id = card.parent.attrs["data-testid"][8:]
@@ -63,23 +63,28 @@ class Domain(Site):
                 except Exception as e:
                     logger.warning(f"{features} - {type(e).__name__}: {e}")
 
+            address_obj = Address.create(address=address)
+            AddressHistory.create(
+                address=address_obj, beds=beds, baths=baths, cars=cars, valid_from=datetime.datetime.now()
+            )
             logger.debug(f"Saved new address: {address}")
-            address_obj = Address.create(address=address, beds=beds, baths=baths, cars=cars)
 
-        if (listing := Listing.get_or_none(Listing.id == listing_id)) is not None:
+        if (listing := SimpleListing.get_or_none(SimpleListing.id == listing_id)) is not None:
             return listing
 
         price = card.find(attrs={"data-testid": "listing-card-price-wrapper"}).text
-        price_list = re.findall(r"\$\d?,?\d+", price)
+        price_list = re.findall(r"\$\d{0,2},?\d+", price)
         if not price_list:
             price = 0
         else:
             price = int(price_list[0].replace(",", "").replace("$", ""))
 
+        listing_obj = Listing.create(id=listing_id, address=address_obj)
+        ListingHistory.create(listing=listing_obj, price=price, valid_from=datetime.datetime.now())
         logger.debug(f"New listing {listing_id} created for {address}")
-        return Listing.create(id=listing_id, address=address_obj, price=price, available=datetime.datetime.now())
+        return SimpleListing.get_by_id(listing_obj.listing_id)
 
-    def listing_available(self, listing: Listing, browser: WebDriver) -> bool:
+    def listing_available(self, listing: Listing | SimpleListing, browser: WebDriver) -> bool:
         link = self.get_listing_link(listing.id)
         browser.get(link)
 
@@ -105,10 +110,6 @@ class Domain(Site):
         return available
 
     def _get_search_link(self, query: Query, page_number: int) -> str:
-        if query.suburb is not None:
-            suburb_id = f"{query.suburb.name.lower().replace(' ', '-')}-{query.suburb.state}-{query.suburb.postcode}/"
-        else:
-            suburb_id = ""
         if query.lower_price is not None and query.upper_price is not None:
             price = f"price={query.lower_price}-{query.upper_price}&"
         else:
@@ -119,7 +120,7 @@ class Domain(Site):
             beds = ""
         # "ssubs" removes surrounding suburbs when the suburb is specified
         # The sort is provided to avoid being given a "featured" property at the top of the search
-        return f"https://www.domain.com.au/rent/{suburb_id}?{price}{beds}page={page_number}&excludedeposittaken=1&ssubs=0&sort=dateupdated-desc"
+        return f"https://www.domain.com.au/rent/?{price}{beds}page={page_number}&excludedeposittaken=1&ssubs=0&sort=dateupdated-desc"
 
     def get_listing_link(self, listing_id: str) -> str:
         return f"https://www.domain.com.au/{listing_id}"
@@ -136,3 +137,51 @@ class Domain(Site):
         count_text = browser.find_element(By.CSS_SELECTOR, 'h1[data-testid="summary"]').text
         count = int(re.findall(r"^\d+", count_text)[0])
         return count
+
+    def update_listing(self, listing: SimpleListing, browser: WebDriver) -> None:
+        """
+        Updates the listing price and address details in-place.
+        This takes advantage of the "history" tables to retain old details as well.
+
+        :param listing:
+        :param browser:
+        :return:
+        """
+        if not self.listing_available(listing, browser):
+            listing.available = False
+            listing.save()
+            return
+
+        price_text = browser.find_element(
+            By.CSS_SELECTOR, 'div[data-testid="listing-details__listing-summary-title-name"]'
+        ).text
+        price_list = re.findall(r"\$\d{0,2},?\d+", price_text)
+        if price_list:
+            price = int(price_list[0].replace(",", "").replace("$", ""))
+            if price != listing.price:
+                listing.price = price
+        features_wrapper = browser.find_element(By.CSS_SELECTOR, 'div[data-testid="property-features-wrapper"]')
+        features = features_wrapper.find_elements(By.CSS_SELECTOR, 'span[data-testid="property-features-feature"]')
+
+        for feature in features:
+            try:
+                text = feature.text.lower()
+                if "m²" in text or "ha" in text:
+                    # We currently aren't recording area
+                    continue
+                num = text.split("\n")[0]
+                num = 0 if num == "−" else int(num)
+                if "bed" in text:
+                    if num != listing.address.beds:
+                        listing.address.beds = num
+                elif "bath" in text:
+                    if num != listing.address.baths:
+                        listing.address.baths = num
+                elif "car" in text or "park" in text:
+                    if num != listing.address.cars:
+                        listing.address.cars = num
+            except Exception as e:
+                logger.warning(f"{features} - {type(e).__name__}: {e}")
+
+        listing.save()
+        listing.address.save()

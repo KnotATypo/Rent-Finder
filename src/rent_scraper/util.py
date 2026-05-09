@@ -32,7 +32,7 @@ def new_browser(headless=True) -> webdriver.Chrome:
 
     driver.set_page_load_timeout(60)
     driver.set_script_timeout(60)
-    driver.implicitly_wait(10)
+    driver.implicitly_wait(1)
     driver.set_window_size(1024, 768)
 
     return driver

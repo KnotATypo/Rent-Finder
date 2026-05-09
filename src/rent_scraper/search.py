@@ -10,7 +10,7 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 
 from rent_scraper.logger import logger, configure_logging
-from rent_scraper.model import Listing, Query, Address, SimpleListing
+from rent_scraper.model import Listing, Query, Address, SimpleListing, SimpleAddress
 from rent_scraper.sites.domain import Domain
 from rent_scraper.split_test import populate_coordinates
 from rent_scraper.util import new_browser
@@ -28,11 +28,6 @@ def search():
     Begin searching range until count matches expectations.
     Repeat ad infinitum
     """
-    browser = new_browser(headless=False)
-    listing = SimpleListing.select().get()
-    domain.update_listing(listing, browser)
-
-    return
     configure_logging()
     ranges = get_ranges()
     browser = new_browser(headless=False)
@@ -40,26 +35,23 @@ def search():
     query = ranges[0]
 
     if query.beds == "5-any":
-        bed_match = Address.beds >= 5
+        bed_match = SimpleAddress.beds >= 5
     else:
-        bed_match = Address.beds == query.beds
+        bed_match = SimpleAddress.beds == query.beds
     get_available = (
-        lambda: Listing.select()
-        .join(Address)
+        lambda: SimpleListing.select()
+        .join(SimpleAddress)
         .where(
-            Listing.price > query.lower_price,
-            Listing.price < query.upper_price,
+            SimpleListing.price > query.lower_price,
+            SimpleListing.price < query.upper_price,
             bed_match,
-            Listing.unavailable.is_null(),
+            SimpleListing.available,
         )
     )
     listings = get_available()
 
-    browser.implicitly_wait(0)
     for listing in listings:
-        if not domain.listing_available(listing, browser):
-            listing.unavailable = datetime.datetime.now()
-            listing.save()
+        domain.update_listing(listing, browser)
 
     listings = set(get_available())
     expected_count = len(listings)

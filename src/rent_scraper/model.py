@@ -89,6 +89,9 @@ class Query(BaseModel):
     upper_price = IntegerField(null=True)
     beds = TextField(null=True)
 
+    def __str__(self):
+        return f"{self.beds} | {self.lower_price} - {self.upper_price}"
+
 
 class GeocodeFails(BaseModel):
     address = TextField()
