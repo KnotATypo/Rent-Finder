@@ -5,17 +5,23 @@ description = "A project for tracking rentals across Australia with webscraping"
 requires-python = ">=3.13"
 dependencies = [
     "beautifulsoup4>=4.12.3",
-    "selenium>=4.23.1",
-    "tqdm>=4.66.5",
-    "requests>=2.32.3",
+    "selenium>=4.43.0",
+    "tqdm>=4.67.1",
+    "requests>=2.33.0",
     "peewee>=3.19.0",
-    "psycopg2-binary>=2.9.11",
+    "psycopg2-binary>=2.9.12",
     "selenium-stealth>=1.0.6",
+]
+
+[dependency-groups]
+dev = [
+    "black>=26.3.1",
+    "line-profiler>=5.0.2",
 ]
 
 [project.scripts]
 search = "rent_scraper.search:search"
 
 [build-system]
-requires = ["uv_build>=0.9.6,<0.10.0"]
+requires = ["uv_build>=0.9.6,<0.10.12"]
 build-backend = "uv_build"
