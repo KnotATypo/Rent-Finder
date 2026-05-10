@@ -17,17 +17,22 @@ browser = new_browser()
 
 def main():
     configure_logging()
-    fix_addresses()
+    # fix_addresses()
     populate_coordinates()
 
 
 def fix_addresses():
     addresses = Address.select().join(Listing).join(ListingHistory).where(ListingHistory.valid_until.is_null())
     domain = Domain()
+    regex = re.compile(r"\d.+\d{4}$")
     for address in tqdm(addresses):
-        if not (re.search(r"\d.+\d{4}$", address.address)):
+        if not (re.search(regex, address.address)):
             listing = SimpleListing.select().where(SimpleListing.address == address.id).get()
-            domain.update_listing(listing, browser)
+            try:
+                domain.update_listing(listing, browser)
+            except KeyError:
+                print(listing.address)
+                continue
             if listing.available:
                 address.address = domain.details_from_page(browser)["address"]
         else:
