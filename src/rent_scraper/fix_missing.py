@@ -1,8 +1,10 @@
 import re
 from pathlib import Path
-from time import sleep
 
+import line_profiler
+from selenium.common import TimeoutException
 from selenium.webdriver.chrome.webdriver import WebDriver
+from selenium.webdriver.support.wait import WebDriverWait
 from tqdm import tqdm
 
 from rent_scraper.logger import configure_logging, logger
@@ -42,14 +44,13 @@ def fix_addresses():
 
 
 def populate_coordinates():
-    addresses = Address.select().join(Listing).where(Address.latitude.is_null())
+    addresses = Address.select().join(Listing).where(Address.latitude.is_null(), Address.updated == False)
 
     for address in tqdm(addresses, desc="Addresses"):
         lat, lon = coords_from_maps(address, browser)
         if lat is None or lon is None:
-            continue
-
-        if lon < 110 or lon > 155 or lat < -45 or lat > -10:
+            pass
+        elif lon < 110 or lon > 155 or lat < -45 or lat > -10:
             # Outside bounding box for Australia
             lat = None
             lon = None
@@ -60,33 +61,26 @@ def populate_coordinates():
 
         address.save()
 
-
 def coords_from_maps(address: Address, browser: WebDriver) -> tuple[float, float]:
     address_str = address.address
     if "/" in address_str:
         address_str = address_str[address_str.index("/") + 1 :]
     address_str = address_str.replace(" ", "+")
-    maps_url = "https://www.google.com/maps/place/" + address_str
 
-    browser.get(maps_url)
-
-    coords = None
-    retries = 20
-    while coords is None:
+    whole_url_match = re.compile(r"^.+-\d{2}\.\d+,\d{3}\.\d+.+$")
+    try:
+        browser.get("https://www.google.com/maps/place/" + address_str)
+        WebDriverWait(browser, 10).until(lambda browser: re.match(whole_url_match, browser.current_url))
+        if "place//" in browser.current_url:
+            # Failed to find an actual address, will deal with them later
+            raise TimeoutException
         matches = re.findall(r"-\d{2}\.\d+,\d{3}\.\d+", browser.current_url)
-        if len(matches) > 0:
-            coords = matches[0]
-        else:
-            # It takes a moment for the coordinates to populate
-            sleep(0.5)
-            retries -= 1
-            if retries == 0:
-                logger.error(f"Google Maps: Could not find any coordinates for {address.address}")
-                return None, None
-
-    lat, lon = coords.split(",")
-    lat, lon = float(lat), float(lon)
-    return lat, lon
+        coords = matches[0]
+        lat, lon = coords.split(",")
+        return float(lat), float(lon)
+    except TimeoutException:
+        logger.error(f"Google Maps: Could not find any coordinates for {address.address}")
+        return None, None
 
 
 if __name__ == "__main__":
