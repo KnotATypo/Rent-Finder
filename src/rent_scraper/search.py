@@ -1,6 +1,7 @@
 import json
 import os
 import re
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Tuple, List
 
@@ -12,7 +13,7 @@ from tqdm import tqdm
 from rent_scraper.logger import logger, configure_logging
 from rent_scraper.model import Listing, Query, Address, SimpleListing, SimpleAddress
 from rent_scraper.sites.domain import Domain
-from rent_scraper.util import new_browser
+from rent_scraper.util import new_browser, THREADS, provide_browser
 
 RANGE_FILE = Path(__file__).parent / "resources" / "ranges.json"
 
@@ -30,7 +31,6 @@ def search():
 
     configure_logging()
     ranges = get_ranges()
-    browser = new_browser(headless=False)
 
     for query in tqdm(ranges, desc="Queries", unit="query"):
         if query.beds == "5-any":
@@ -49,37 +49,37 @@ def search():
         )
 
         listings = set(get_available())
-        for listing in tqdm(listings, desc="Updating", unit="listing", leave=False):
-            domain.update_listing(listing, browser)
+        with ThreadPoolExecutor(max_workers=THREADS) as executor:
+            list(tqdm(executor.map(domain.update_listing, listings), total=len(listings), desc="Updating", leave=False))
 
         listings = set(get_available())
         expected_count = len(listings)
-        true_count = domain.get_listing_count(query, browser)
+        with provide_browser() as browser:
+            true_count = domain.get_listing_count(query, browser)
 
-        if expected_count > true_count:
-            logger.error(
-                f"Beds {query.beds}: {query.lower_price} - {query.upper_price} was expecting {expected_count} but found {true_count}"
-            )
-            return
+            if expected_count > true_count:
+                logger.error(
+                    f"Beds {query.beds}: {query.lower_price} - {query.upper_price} was expecting {expected_count} but found {true_count}"
+                )
+                return
 
-        page = 1
-        on_page = {None}
-        while true_count != len(listings) and len(on_page) != 0:
-            on_page = set(domain.get_page(page, query, browser))
-            listings.update(on_page)
-            page += 1
+            page = 1
+            on_page = {None}
+            while true_count != len(listings) and len(on_page) != 0:
+                on_page = set(domain.get_page(page, query, browser))
+                listings.update(on_page)
+                page += 1
 
-        for listing in tqdm(listings, desc="Mapping", unit="listing", leave=False):
-            address = Address.select().join(Listing).where(Listing.id == listing.id).get()
-            if address.latitude is not None:
-                continue
-            populate_coordinates(address, browser)
+        listing_ids = [x.id for x in listings]
+        addresses = list(Address.select().join(Listing).where(Listing.id << listing_ids, Address.latitude.is_null()))
+        with ThreadPoolExecutor(max_workers=THREADS) as executor:
+            list(tqdm(executor.map(populate_coordinates, addresses), total=len(addresses), desc="Mapping", leave=False))
 
     browser.quit()
 
 
-def populate_coordinates(address: Address, browser: WebDriver):
-    lat, lon = coords_from_maps(address, browser)
+def populate_coordinates(address: Address):
+    lat, lon = coords_from_maps(address)
 
     if lat is None or lon is None:
         pass
@@ -95,7 +95,7 @@ def populate_coordinates(address: Address, browser: WebDriver):
     address.save()
 
 
-def coords_from_maps(address: Address, browser: WebDriver) -> tuple[float, float]:
+def coords_from_maps(address: Address) -> tuple[float, float]:
     address_str = address.address
     if "/" in address_str:
         address_str = address_str[address_str.index("/") + 1 :]
@@ -103,12 +103,13 @@ def coords_from_maps(address: Address, browser: WebDriver) -> tuple[float, float
 
     whole_url_match = re.compile(r"^.+-\d{2}\.\d+,\d{3}\.\d+.+$")
     try:
-        browser.get("https://www.google.com/maps/place/" + address_str)
-        WebDriverWait(browser, 10).until(lambda browser: re.match(whole_url_match, browser.current_url))
-        if "place//" in browser.current_url:
-            # Failed to find an actual address, will deal with them later
-            raise TimeoutException
-        matches = re.findall(r"-\d{2}\.\d+,\d{3}\.\d+", browser.current_url)
+        with provide_browser() as browser:
+            browser.get("https://www.google.com/maps/place/" + address_str)
+            WebDriverWait(browser, 10).until(lambda browser: re.match(whole_url_match, browser.current_url))
+            if "place//" in browser.current_url:
+                # Failed to find an actual address, will deal with them later
+                raise TimeoutException
+            matches = re.findall(r"-\d{2}\.\d+,\d{3}\.\d+", browser.current_url)
         coords = matches[0]
         lat, lon = coords.split(",")
         return float(lat), float(lon)

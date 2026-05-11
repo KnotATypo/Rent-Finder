@@ -32,7 +32,7 @@ class Site:
     def get_page(self, page_num: int, query: Query, browser) -> List[Listing]:
         raise NotImplementedError
 
-    def _create_listing(self, page_element: Tag, browser: WebDriver) -> Listing:
+    def _create_listing(self, page_element: Tag) -> Listing:
         raise NotImplementedError
 
     def listing_available(self, listing: Listing, browser: WebDriver) -> bool:

@@ -1,5 +1,6 @@
 import datetime
 import re
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import List, Dict
 
 from bs4 import BeautifulSoup, Tag
@@ -11,6 +12,7 @@ from selenium.webdriver.common.by import By
 from rent_scraper.logger import logger
 from rent_scraper.model import Listing, Address, Query, SimpleListing, AddressHistory, ListingHistory
 from rent_scraper.sites.site import Site
+from rent_scraper.util import provide_browser, THREADS
 
 PARSER = "html.parser"
 
@@ -27,22 +29,22 @@ class Domain(Site):
         soup = BeautifulSoup(browser.page_source, PARSER)
         cards = soup.find_all(attrs={"data-testid": re.compile(r"^listing-card-wrapper")})
 
-        for card in cards:
-            try:
-                listing = self._create_listing(card, browser)
-                if listing is not None:
-                    listings.append(listing)
-            except Exception as e:
-                logger.warning(f"{search_link} - {type(e).__name__}: {e}")
+        with ThreadPoolExecutor(max_workers=THREADS) as executor:
+            future_to_card = {executor.submit(self._create_listing, card): card for card in cards}
+            for future in as_completed(future_to_card):
+                result = future.result()
+                if result is not None:
+                    listings.append(result)
 
         return listings
 
-    def _create_listing(self, card: Tag, browser: WebDriver) -> SimpleListing | None:
+    def _create_listing(self, card: Tag) -> SimpleListing | None:
         listing_id = card.parent.attrs["data-testid"][8:]
         if (listing := SimpleListing.get_or_none(SimpleListing.id == listing_id)) is not None:
             return listing
 
-        details = self.details_from_page(browser, listing_id)
+        with provide_browser() as browser:
+            details = self.details_from_page(browser, listing_id)
         if details is None:
             return None
         address = details["address"]
@@ -123,7 +125,7 @@ class Domain(Site):
         count = int(re.findall(r"^\d+", count_text)[0])
         return count
 
-    def update_listing(self, listing: SimpleListing, browser: WebDriver) -> None:
+    def update_listing(self, listing: SimpleListing) -> None:
         """
         Updates the listing price and address details in-place.
         This takes advantage of the "history" tables to retain old details as well.
@@ -132,12 +134,13 @@ class Domain(Site):
         :param browser:
         :return:
         """
-        if not self.listing_available(listing, browser):
-            listing.available = False
-            listing.save()
-            return
+        with provide_browser() as browser:
+            if not self.listing_available(listing, browser):
+                listing.available = False
+                listing.save()
+                return
+            details = self.details_from_page(browser)
 
-        details = self.details_from_page(browser)
         if details is None:
             return
         if details["price"] != listing.price:
@@ -166,9 +169,15 @@ class Domain(Site):
 
         details = {}
 
-        price_text = browser.find_element(
-            By.CSS_SELECTOR, 'div[data-testid="listing-details__listing-summary-title-name"]'
-        ).text
+        try:
+            price_text = browser.find_element(
+                By.CSS_SELECTOR, 'div[data-testid="listing-details__listing-summary-title-name"]'
+            ).text
+        except NoSuchElementException:
+            error_text = browser.find_element(By.CSS_SELECTOR, 'h1[data-testid="error-page__message-header"]').text
+            if error_text != "Oops...":
+                logger.error(f"{listing_id} produced: {error_text}")
+            return None
         price_list = re.findall(r"\$\d{0,2},?\d+", price_text)
         if price_list:
             price = int(price_list[0].replace(",", "").replace("$", ""))

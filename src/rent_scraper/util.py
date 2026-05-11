@@ -1,6 +1,21 @@
+import os
+from contextlib import contextmanager
+from queue import Queue
+
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium_stealth import stealth
+
+THREADS = int(os.getenv("THREADS", 1))
+
+
+@contextmanager
+def provide_browser():
+    browser = pool.get()
+    try:
+        yield browser
+    finally:
+        pool.put(browser)
 
 
 def new_browser(headless=True) -> webdriver.Chrome:
@@ -36,3 +51,8 @@ def new_browser(headless=True) -> webdriver.Chrome:
     driver.set_window_size(1024, 768)
 
     return driver
+
+
+pool = Queue()
+for _ in range(THREADS):
+    pool.put(new_browser())
