@@ -3,6 +3,8 @@
 -- AddressHistory when fields are updated
 -- =====================================================
 
+CREATE INDEX idx_addresshistory_address_id ON addresshistory(address_id, valid_from DESC);
+
 CREATE OR REPLACE VIEW public.simpleaddressview(id, address, beds, baths, cars) AS
 SELECT a.id,
        a.address,
@@ -41,6 +43,8 @@ EXECUTE FUNCTION update_address_history();
 -- =====================================================
 -- Same as above but with listings instead
 -- =====================================================
+
+CREATE INDEX idx_listinghistory_listing_id ON listinghistory(listing_id, valid_from DESC);
 
 CREATE OR REPLACE VIEW public.simplelistingview(id, address_id, price, available) AS
 SELECT l.id,
