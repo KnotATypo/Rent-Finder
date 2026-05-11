@@ -9,5 +9,6 @@ services:
       DB_USER:
       DB_PASS:
       DB_HOST:
+      THREADS:
       TZ: Australia/Brisbane
     shm_size: 1gb

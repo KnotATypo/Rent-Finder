@@ -12,7 +12,7 @@ from tqdm import tqdm
 from rent_scraper.logger import logger, configure_logging
 from rent_scraper.model import Listing, Query, Address, SimpleListing, SimpleAddress
 from rent_scraper.sites.domain import Domain
-from rent_scraper.util import new_browser, THREADS, provide_browser
+from rent_scraper.util import THREADS, provide_browser
 
 RANGE_FILE = Path(__file__).parent / "resources" / "ranges.json"
 
@@ -127,25 +127,25 @@ def get_ranges() -> List[Query]:
             for q in serialised:
                 queries.append(Query(**q))
             return queries
+    logger.info("Finding ranges")
 
-    browser = new_browser(headless=False)
     bed_searches = ["0", "1", "2", "3", "4", "5-any"]
     good_ranges = {x: [] for x in bed_searches}
 
-    for beds in bed_searches:
-        range_stack = [(0, 50000)]
+    with provide_browser() as browser:
+        for beds in bed_searches:
+            range_stack = [(0, 50000)]
 
-        while range_stack:
-            cur_range = range_stack.pop()
-            count = domain.get_listing_count(
-                Query(lower_price=cur_range[0], upper_price=cur_range[1], beds=beds), browser
-            )
-            if count > 1000:
-                range_stack.extend(bisect(cur_range))
-            else:
-                good_ranges[beds].append(cur_range)
+            while range_stack:
+                cur_range = range_stack.pop()
+                count = domain.get_listing_count(
+                    Query(lower_price=cur_range[0], upper_price=cur_range[1], beds=beds), browser
+                )
+                if count > 1000:
+                    range_stack.extend(bisect(cur_range))
+                else:
+                    good_ranges[beds].append(cur_range)
 
-    browser.quit()
     queries = []
     with open(RANGE_FILE, "w+") as f:
         serialised = []
@@ -156,6 +156,7 @@ def get_ranges() -> List[Query]:
                 queries.append(query)
         json.dump(serialised, f)
 
+    logger.info(f"Found {len(queries)} ranges")
     return queries
 
 
