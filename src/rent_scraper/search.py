@@ -6,7 +6,6 @@ from pathlib import Path
 from typing import Tuple, List
 
 from selenium.common import TimeoutException
-from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.support.wait import WebDriverWait
 from tqdm import tqdm
 
@@ -77,8 +76,6 @@ def search():
         addresses = list(Address.select().join(Listing).where(Listing.id << listing_ids, Address.latitude.is_null()))
         with ThreadPoolExecutor(max_workers=THREADS) as executor:
             list(tqdm(executor.map(populate_coordinates, addresses), total=len(addresses), desc="Mapping", leave=False))
-
-    browser.quit()
 
 
 def populate_coordinates(address: Address):
