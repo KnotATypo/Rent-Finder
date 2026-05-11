@@ -43,12 +43,13 @@ class Domain(Site):
             return listing
 
         details = self.details_from_page(browser, listing_id)
+        if details is None:
+            return None
         address = details["address"]
 
         if not re.search(r"\d.+\d{4}$", address):
             # The only numbers in the address are the postcode, meaning it isn't a legit address
             pass
-
 
         if (address_obj := Address.get_or_none(address=address)) is None:
             address_obj = Address.create(address=address)
@@ -137,6 +138,8 @@ class Domain(Site):
             return
 
         details = self.details_from_page(browser)
+        if details is None:
+            return
         if details["price"] != listing.price:
             listing.price = details["price"]
         if details["beds"] != listing.address.beds:
@@ -149,7 +152,7 @@ class Domain(Site):
         listing.save()
         listing.address.save()
 
-    def details_from_page(self, browser, listing_id="") -> Dict[str, int | str]:
+    def details_from_page(self, browser, listing_id="") -> Dict[str, int | str] | None:
         """
         Retrieves price and bed, bath and car counts, and full address from a listing. By default, this acts on the
         current page but the listing_id can be provided.
@@ -170,6 +173,8 @@ class Domain(Site):
         if price_list:
             price = int(price_list[0].replace(",", "").replace("$", ""))
             details["price"] = price
+        else:
+            return None
         features_wrapper = browser.find_element(By.CSS_SELECTOR, 'div[data-testid="property-features-wrapper"]')
         features = features_wrapper.find_elements(By.CSS_SELECTOR, 'span[data-testid="property-features-feature"]')
 

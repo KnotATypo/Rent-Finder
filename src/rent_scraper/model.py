@@ -34,7 +34,6 @@ class Address(BaseModel):
     address = TextField()
     latitude = FloatField(null=True)
     longitude = FloatField(null=True)
-    updated = BooleanField(default=False)
 
 
 class AddressHistory(BaseModel):
@@ -58,6 +57,7 @@ class SimpleAddress(BaseModel):
 
     class Meta:
         table_name = "simpleaddressview"
+
 
 class Listing(BaseModel):
     id = TextField(primary_key=True)
