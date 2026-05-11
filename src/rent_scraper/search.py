@@ -33,6 +33,7 @@ def search():
     ranges = get_ranges()
 
     for query in tqdm(ranges, desc="Queries", unit="query"):
+        logger.info(f"Starting query: {query}")
         if query.beds == "5-any":
             bed_match = SimpleAddress.beds >= 5
         else:
@@ -56,7 +57,6 @@ def search():
         expected_count = len(listings)
         with provide_browser() as browser:
             true_count = domain.get_listing_count(query, browser)
-
             if expected_count > true_count:
                 logger.error(
                     f"Beds {query.beds}: {query.lower_price} - {query.upper_price} was expecting {expected_count} but found {true_count}"
@@ -65,10 +65,13 @@ def search():
 
             page = 1
             on_page = {None}
+            progress = tqdm(total=true_count // 20, desc="Searching listings", leave=False)
             while true_count != len(listings) and len(on_page) != 0:
                 on_page = set(domain.get_page(page, query, browser))
                 listings.update(on_page)
                 page += 1
+                progress.update()
+            progress.close()
 
         listing_ids = [x.id for x in listings]
         addresses = list(Address.select().join(Listing).where(Listing.id << listing_ids, Address.latitude.is_null()))
