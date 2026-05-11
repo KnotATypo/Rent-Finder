@@ -11,4 +11,4 @@ COPY . .
 
 ENV PYTHONBUFFERED=1
 
-ENTRYPOINT ["uv", "run", "src/rent_scraper/fix_missing.py"]
+ENTRYPOINT ["uv", "run", "search"]
