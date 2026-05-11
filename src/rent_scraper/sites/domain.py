@@ -174,9 +174,7 @@ class Domain(Site):
                 By.CSS_SELECTOR, 'div[data-testid="listing-details__listing-summary-title-name"]'
             ).text
         except NoSuchElementException:
-            error_text = browser.find_element(By.CSS_SELECTOR, 'h1[data-testid="error-page__message-header"]').text
-            if error_text != "Oops...":
-                logger.error(f"{listing_id} produced: {error_text}")
+            logger.warning(f"{listing_id} returned an error")
             return None
         price_list = re.findall(r"\$\d{0,2},?\d+", price_text)
         if price_list:
