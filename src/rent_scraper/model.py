@@ -94,11 +94,7 @@ class Query(BaseModel):
         return f"{self.beds} | {self.lower_price} - {self.upper_price}"
 
 
-class GeocodeFails(BaseModel):
-    address = TextField()
-
-
-db.create_tables([Address, Listing, GeocodeFails, ListingHistory, AddressHistory], safe=True)
+db.create_tables([Address, Listing, ListingHistory, AddressHistory], safe=True)
 
 # Try to read from the address view to check if the db setup has run
 try:

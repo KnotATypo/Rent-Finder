@@ -3,7 +3,7 @@ import os
 import re
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from typing import Tuple, List
+from typing import Tuple, List, Callable
 
 from selenium.common import TimeoutException
 from selenium.webdriver.support.wait import WebDriverWait
@@ -33,20 +33,7 @@ def search():
 
     for query in tqdm(ranges, desc="Queries", unit="query"):
         logger.info(f"Starting query: {query}")
-        if query.beds == "5-any":
-            bed_match = SimpleAddress.beds >= 5
-        else:
-            bed_match = SimpleAddress.beds == query.beds
-        get_available = (
-            lambda: SimpleListing.select()
-            .join(SimpleAddress)
-            .where(
-                SimpleListing.price > query.lower_price,
-                SimpleListing.price < query.upper_price,
-                bed_match,
-                SimpleListing.available,
-            )
-        )
+        get_available = get_query_function(query)
 
         listings = set(get_available())
         with ThreadPoolExecutor(max_workers=THREADS) as executor:
@@ -65,17 +52,38 @@ def search():
             page = 1
             on_page = {None}
             progress = tqdm(total=true_count // 20, desc="Searching listings", leave=False)
-            while true_count != len(listings) and len(on_page) != 0:
-                on_page = set(domain.get_page(page, query, browser))
-                listings.update(on_page)
-                page += 1
-                progress.update()
+            try:
+                while true_count != len(listings) and len(on_page) != 0:
+                    on_page = set(domain.get_page(page, query, browser))
+                    listings.update(on_page)
+                    page += 1
+                    progress.update()
+            except TimeoutException:
+                logger.warn(f"{query} timed out on page {page}. Skipping the rest of the query for now...")
             progress.close()
 
         listing_ids = [x.id for x in listings]
         addresses = list(Address.select().join(Listing).where(Listing.id << listing_ids, Address.latitude.is_null()))
         with ThreadPoolExecutor(max_workers=THREADS) as executor:
             list(tqdm(executor.map(populate_coordinates, addresses), total=len(addresses), desc="Mapping", leave=False))
+
+
+def get_query_function(query: Query) -> Callable:
+    if query.beds == "5-any":
+        bed_match = SimpleAddress.beds >= 5
+    else:
+        bed_match = SimpleAddress.beds == query.beds
+    get_available = (
+        lambda: SimpleListing.select()
+        .join(SimpleAddress)
+        .where(
+            SimpleListing.price > query.lower_price,
+            SimpleListing.price < query.upper_price,
+            bed_match,
+            SimpleListing.available,
+        )
+    )
+    return get_available
 
 
 def populate_coordinates(address: Address):
